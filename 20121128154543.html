@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MongoDB," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="前面学习了 Replica Set 的搭建和从节点的添加，删除过程，接下来学习Replica Set 节点的切换以及 failover 相关的内容。 Replica Set 节点切换是指当出现故障或者出于维护需要，需要将主节点切换到另一台从节点，例如主节点主机需要硬件扩容时，那么需要停主节点主机， Replica Set 支持节点成员切换，其中使用的是投票竞选机制，对于投票竞选机制看了下文档，还">
+<meta name="keywords" content="MongoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MongoDB：Replica Set 节点切换和 Failover">
+<meta property="og:url" content="https://postgres.fun/20121128154543.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="前面学习了 Replica Set 的搭建和从节点的添加，删除过程，接下来学习Replica Set 节点的切换以及 failover 相关的内容。 Replica Set 节点切换是指当出现故障或者出于维护需要，需要将主节点切换到另一台从节点，例如主节点主机需要硬件扩容时，那么需要停主节点主机， Replica Set 支持节点成员切换，其中使用的是投票竞选机制，对于投票竞选机制看了下文档，还">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-04T01:34:00.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MongoDB：Replica Set 节点切换和 Failover">
+<meta name="twitter:description" content="前面学习了 Replica Set 的搭建和从节点的添加，删除过程，接下来学习Replica Set 节点的切换以及 failover 相关的内容。 Replica Set 节点切换是指当出现故障或者出于维护需要，需要将主节点切换到另一台从节点，例如主节点主机需要硬件扩容时，那么需要停主节点主机， Replica Set 支持节点成员切换，其中使用的是投票竞选机制，对于投票竞选机制看了下文档，还">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20121128154543.html"/>
+
+
+
+
+
+
+  <title>MongoDB：Replica Set 节点切换和 Failover | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20121128154543.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MongoDB：Replica Set 节点切换和 Failover</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2012-11-28T15:45:43+08:00">
+                2012-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MongoDB/" itemprop="url" rel="index">
+                    <span itemprop="name">MongoDB</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20121128154543.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20121128154543.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20121128154543.html" class="leancloud_visitors" data-flag-title="MongoDB：Replica Set 节点切换和 Failover">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p> 前面学习了 Replica Set 的搭建和从节点的添加，删除过程，接下来学习Replica Set 节点的切换以及 failover 相关的内容。<br> Replica Set 节点切换是指当出现故障或者出于维护需要，需要将主节点切换到另一台从节点，例如主节点主机需要硬件扩容时，那么需要停主节点主机， Replica Set 支持节点成员切换，其中使用的是投票竞选机制，对于投票竞选机制看了下文档，还不是非常明白，但主要是通过 priority 参数来控制的，接下来演示下。</p>
+<h1 id="节点切换"><a href="#节点切换" class="headerlink" title="节点切换"></a>节点切换</h1><p>1.1 基础环境 ( 三节点 )<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">rs<span class="number">0</span>:PRIMARY&gt; rs.status<span class="comment">()</span>;  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"set"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"date"</span> : ISODate<span class="comment">("2012-11-27T16:38:15Z")</span>,  </span><br><span class="line"> <span class="string">"myState"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">9143</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354025540000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T14:12:20Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T16:38:15Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27019"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">8733</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354025540000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T14:12:20Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T16:38:15Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"PRIMARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">462929</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354025540000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T14:12:20Z")</span>,  </span><br><span class="line"> <span class="string">"self"</span> : true  </span><br><span class="line"> &#125;  </span><br><span class="line"> ],  </span><br><span class="line"> <span class="string">"ok"</span> : <span class="number">1</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>备注：三节点 replica set 环境，其中最后一个节点为主节点，假如主节点由于某种原因需要切换，假设需要切换到从节点”redhatB.example.com:27018”，可以通过设置节点 priority 参数来实现，节点的 priority 值越大，切换时的优先级越高。</p>
+<p>1.2 设置节点的 priority 值<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cfg = rs.conf()  </span><br><span class="line">cfg<span class="selector-class">.members</span>[<span class="number">0</span>]<span class="selector-class">.priority</span> = <span class="number">2</span>  </span><br><span class="line">cfg<span class="selector-class">.members</span>[<span class="number">1</span>]<span class="selector-class">.priority</span> = <span class="number">1</span>  </span><br><span class="line">cfg<span class="selector-class">.members</span>[<span class="number">2</span>]<span class="selector-class">.priority</span> = <span class="number">0.5</span>  </span><br><span class="line">rs.reconfig(cfg)</span><br></pre></td></tr></table></figure></p>
+<p>1.3 操作日志<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">rs0:PRIMARY&gt; cfg<span class="selector-class">.members</span>[<span class="number">0</span>]<span class="selector-class">.priority</span> = <span class="number">2</span>cfg<span class="selector-class">.members</span>[<span class="number">0</span>]<span class="selector-class">.priority</span> = <span class="number">2</span>  </span><br><span class="line"><span class="number">2</span>  </span><br><span class="line">rs0:PRIMARY&gt; cfg<span class="selector-class">.members</span>[<span class="number">1</span>]<span class="selector-class">.priority</span> = <span class="number">1</span>cfg<span class="selector-class">.members</span>[<span class="number">1</span>]<span class="selector-class">.priority</span> = <span class="number">1</span>  </span><br><span class="line"><span class="number">1</span>  </span><br><span class="line">rs0:PRIMARY&gt; cfg<span class="selector-class">.members</span>[<span class="number">2</span>]<span class="selector-class">.priority</span> = <span class="number">0.5</span>cfg<span class="selector-class">.members</span>[<span class="number">2</span>]<span class="selector-class">.priority</span> = <span class="number">0.5</span>  </span><br><span class="line"><span class="number">0.5</span>  </span><br><span class="line"></span><br><span class="line">rs0:PRIMARY&gt; rs.reconfig(cfg)  </span><br><span class="line">Wed Nov <span class="number">28</span> <span class="number">00</span>:<span class="number">57</span>:<span class="number">30</span> DBClientCursor::init call() failed  </span><br><span class="line">Wed Nov <span class="number">28</span> <span class="number">00</span>:<span class="number">57</span>:<span class="number">30</span> query failed : admin.<span class="variable">$cmd</span> &#123; replSetReconfig: &#123; _id: <span class="string">"rs0"</span>, version: <span class="number">9</span>, members: [ &#123; _id: <span class="number">0</span>, host: <span class="string">"redhatB.example.com:27018"</span>, priority: <span class="number">2.0</span> &#125;, &#123; _id: <span class="number">1</span>, host: <span class="string">"redhatB.example.com:27019"</span>, priority: <span class="number">1.0</span> &#125;, &#123; _id: <span class="number">2</span>, host: <span class="string">"redhatB.example.com:27020"</span>, priority: <span class="number">0.5</span> &#125; ] &#125; &#125; to: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">27020</span>  </span><br><span class="line">Wed Nov <span class="number">28</span> <span class="number">00</span>:<span class="number">57</span>:<span class="number">30</span> trying reconnect to <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">27020</span>  </span><br><span class="line">Wed Nov <span class="number">28</span> <span class="number">00</span>:<span class="number">57</span>:<span class="number">30</span> reconnect <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">27020</span> ok  </span><br><span class="line">reconnected to server after rs command (which is <span class="attribute">normal</span>)</span><br></pre></td></tr></table></figure></p>
+<p>备注：设置好从节点的 priority 值后，调用一次 rs.reconfig 操作会导致当前主库中断，因为需要重新执行主节点竞选，大概几十秒后，新的主节点产生。</p>
+<p>1.4 重新查看状态<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">rs<span class="number">0</span>:SECONDARY&gt; rs.conf();  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"version"</span> : <span class="number">9</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"priority"</span> : <span class="number">2</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27019"</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"priority"</span> : <span class="number">0</span>.<span class="number">5</span>  </span><br><span class="line"> &#125;  </span><br><span class="line"> ]  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>备注：这时可以看到各节点优先级 priority 的值，节点默认的 priority 值为 1，不显示。</p>
+<p>1.5 再次查看节点状态<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">rs<span class="number">0</span>:SECONDARY&gt; rs.status();  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"set"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"date"</span> : ISODate(<span class="string">"2012-11-27T16:58:27Z"</span>),  </span><br><span class="line"> <span class="string">"myState"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"syncingTo"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"PRIMARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">47</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354035450000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T16:57:30Z"</span>),  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate(<span class="string">"2012-11-27T16:58:26Z"</span>),  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27019"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">47</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354035450000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T16:57:30Z"</span>),  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate(<span class="string">"2012-11-27T16:58:26Z"</span>),  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">464141</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354035450000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T16:57:30Z"</span>),  </span><br><span class="line"> <span class="string">"errmsg"</span> : <span class="string">"syncing to: redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"self"</span> : true  </span><br><span class="line"> &#125;  </span><br><span class="line"> ],  </span><br><span class="line"> <span class="string">"ok"</span> : <span class="number">1</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>备注：此时主节点已漂移到节点 “redhatB.example.com:27018”，达到目标。  </p>
+<h1 id="测试-Failover"><a href="#测试-Failover" class="headerlink" title="测试 Failover"></a>测试 Failover</h1><p> MongoDB 的 replica set 特性支持自动 failover，当主节点由于某种原因掉线时，replica set的其它节点可通过竞选产生新的主节点，接下来测试下这个特性。</p>
+<p>2.1 基础信息<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">rs<span class="number">0</span>:PRIMARY&gt; rs.status<span class="comment">()</span>;  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"set"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"date"</span> : ISODate<span class="comment">("2012-11-27T17:50:53Z")</span>,  </span><br><span class="line"> <span class="string">"myState"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"PRIMARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">200</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354037833000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:37:13Z")</span>,  </span><br><span class="line"> <span class="string">"self"</span> : true  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27019"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">108</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354037833000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:37:13Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T17:50:52Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"errmsg"</span> : <span class="string">"syncing to: redhatB.example.com:27018"</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">35</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354037833000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:37:13Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T17:50:52Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"errmsg"</span> : <span class="string">"syncing to: redhatB.example.com:27018"</span>  </span><br><span class="line"> &#125;  </span><br><span class="line"> ],  </span><br><span class="line"> <span class="string">"ok"</span> : <span class="number">1</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 备注：此时的主节点为 “redhatB.example.com:27018”。  </p>
+<p>2.2 异常关闭主节点。<br><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[mongo@redhatB data03]$ ps -ef | grep<span class="number"> 27018 </span> </span><br><span class="line">mongo<span class="number"> 879 </span>1<span class="number"> 0 </span>01:47 ? 00:00:02 mongod -f /pgdata_xc/mongodb/data01/mongodb_27018.conf  </span><br><span class="line">mongo<span class="number"> 1250 </span>21805<span class="number"> 0 </span>01:50 pts/0 00:00:00 mongo 127.0.0.1:27018  </span><br><span class="line">mongo<span class="number"> 1296 </span>23173<span class="number"> 0 </span>01:51 pts/1 00:00:00 grep<span class="number"> 27018 </span> </span><br><span class="line">[mongo@redhatB data03]$ kill -9 879</span><br></pre></td></tr></table></figure></p>
+<p>备注：过一会后，节点 “redhatB.example.com:27019” 竞选成为新主节点。</p>
+<p>2.3 查看节点状态<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">[mongo@redhatB ~]$ mongo <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">27019</span>  </span><br><span class="line">MongoDB shell version: <span class="number">2.2</span>.<span class="number">1</span>  </span><br><span class="line">connecting to: <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">27019</span>/test</span><br><span class="line">rs<span class="number">0</span>:PRIMARY&gt; rs.conf();  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"version"</span> : <span class="number">9</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"priority"</span> : <span class="number">2</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27019"</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"host"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"priority"</span> : <span class="number">0</span>.<span class="number">5</span>  </span><br><span class="line"> &#125;  </span><br><span class="line"> ]  </span><br><span class="line">&#125;  </span><br><span class="line">rs<span class="number">0</span>:PRIMARY&gt; rs.status();  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"set"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"date"</span> : ISODate(<span class="string">"2012-11-27T17:52:41Z"</span>),  </span><br><span class="line"> <span class="string">"myState"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">8</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"(not reachable/healthy)"</span>, <span class="string">"uptime"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354037833000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T17:37:13Z"</span>),  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate(<span class="string">"2012-11-27T17:52:01Z"</span>),  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"errmsg"</span> : <span class="string">"socket exception [CONNECT_ERROR] for redhatB.example.com:27018"</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27019"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"PRIMARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">251</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354037833000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T17:37:13Z"</span>),  </span><br><span class="line"> <span class="string">"self"</span> : true  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">143</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp(<span class="number">1354037833000</span>, <span class="number">1</span>),  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate(<span class="string">"2012-11-27T17:37:13Z"</span>),  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate(<span class="string">"2012-11-27T17:52:41Z"</span>),  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"errmsg"</span> : <span class="string">"syncing to: redhatB.example.com:27019"</span>  </span><br><span class="line"> &#125;  </span><br><span class="line"> ],  </span><br><span class="line"> <span class="string">"ok"</span> : <span class="number">1</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>备注：可见节点 “redhatB.example.com:27019” 转变成主节点了，此时异常的节点”redhatB.example.com:27018” 不可用，接下来测试，启动异常节点是否能够自动恢复。  </p>
+<p>2.4 连接新主库，并新表一个集合；<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[mongo@redhatB ~]$ mongo <span class="number">127.0</span><span class="meta">.0</span><span class="meta">.1</span>:<span class="number">27019</span>  </span><br><span class="line">MongoDB shell version: <span class="number">2.2</span><span class="meta">.1</span>  </span><br><span class="line">connecting to: <span class="number">127.0</span><span class="meta">.0</span><span class="meta">.1</span>:<span class="number">27019</span>/<span class="keyword">test</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">rs0:</span>PRIMARY&gt; show collections<span class="comment">;  </span></span><br><span class="line">system.indexes  </span><br><span class="line">test_1  </span><br><span class="line">test_2  </span><br><span class="line">test_3  </span><br><span class="line">things</span><br><span class="line"></span><br><span class="line"><span class="symbol">rs0:</span>PRIMARY&gt; <span class="built_in">db</span>.test_4.save(&#123;id:<span class="number">1</span>&#125;)<span class="comment">;</span></span><br><span class="line"><span class="symbol">rs0:</span>PRIMARY&gt; <span class="built_in">db</span>.test_4.find()<span class="comment">;  </span></span><br><span class="line">&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"50b4fe1b15747af472f54831"</span>), <span class="string">"id"</span> : <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.5 启动原来故障节点<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[mongo<span class="meta">@redhatB</span> data03]$ mongod -f <span class="regexp">/pgdata_xc/</span>mongodb<span class="regexp">/data01/</span>mongodb_27018.conf  </span><br><span class="line">forked <span class="string">process:</span> <span class="number">1692</span>  </span><br><span class="line">all output going <span class="string">to:</span> <span class="regexp">/pgdata_xc/</span>mongodb<span class="regexp">/data01/</span>mongo.log  </span><br><span class="line">child process started successfully, parent exiting</span><br></pre></td></tr></table></figure></p>
+<p>备注：三个节点都启用日志模式(journal)，否则恢复时会有异常。  </p>
+<p>2.6 再次查看节点状态<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">rs<span class="number">0</span>:PRIMARY&gt; rs.status<span class="comment">()</span>;rs.status<span class="comment">()</span>;  </span><br><span class="line">&#123;  </span><br><span class="line"> <span class="string">"set"</span> : <span class="string">"rs0"</span>,  </span><br><span class="line"> <span class="string">"date"</span> : ISODate<span class="comment">("2012-11-27T18:16:43Z")</span>,  </span><br><span class="line"> <span class="string">"myState"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"members"</span> : [  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">0</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27018"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"PRIMARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">1321</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354038811000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:53:31Z")</span>,  </span><br><span class="line"> <span class="string">"self"</span> : true  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27019"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">1313</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354038811000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:53:31Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T18:16:42Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">1</span>  </span><br><span class="line"> &#125;,  </span><br><span class="line"> &#123;  </span><br><span class="line"> <span class="string">"_id"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"name"</span> : <span class="string">"redhatB.example.com:27020"</span>,  </span><br><span class="line"> <span class="string">"health"</span> : <span class="number">1</span>,  </span><br><span class="line"> <span class="string">"state"</span> : <span class="number">2</span>,  </span><br><span class="line"> <span class="string">"stateStr"</span> : <span class="string">"SECONDARY"</span>,  </span><br><span class="line"> <span class="string">"uptime"</span> : <span class="number">1313</span>,  </span><br><span class="line"> <span class="string">"optime"</span> : Timestamp<span class="comment">(1354038811000, 1)</span>,  </span><br><span class="line"> <span class="string">"optimeDate"</span> : ISODate<span class="comment">("2012-11-27T17:53:31Z")</span>,  </span><br><span class="line"> <span class="string">"lastHeartbeat"</span> : ISODate<span class="comment">("2012-11-27T18:16:42Z")</span>,  </span><br><span class="line"> <span class="string">"pingMs"</span> : <span class="number">0</span>  </span><br><span class="line"> &#125;  </span><br><span class="line"> ],  </span><br><span class="line"> <span class="string">"ok"</span> : <span class="number">1</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 备注：节点 “name” : “redhatB.example.com:27018” 再次竞选成功。  </p>
+<p>2.7 测试数据<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[mongo@redhatB ~]$ mongo <span class="number">127.0</span><span class="meta">.0</span><span class="meta">.1</span>:<span class="number">27018</span>  </span><br><span class="line">MongoDB shell version: <span class="number">2.2</span><span class="meta">.1</span>  </span><br><span class="line">connecting to: <span class="number">127.0</span><span class="meta">.0</span><span class="meta">.1</span>:<span class="number">27018</span>/<span class="keyword">test</span>  </span><br><span class="line"><span class="symbol">rs0:</span>PRIMARY&gt; show collections<span class="comment">;  </span></span><br><span class="line">system.indexes  </span><br><span class="line">test_1  </span><br><span class="line">test_2  </span><br><span class="line">test_3  </span><br><span class="line">test_4  </span><br><span class="line">things</span><br><span class="line"><span class="symbol">rs0:</span>PRIMARY&gt; <span class="built_in">db</span>.test_4.find()<span class="comment">;  </span></span><br><span class="line">&#123; <span class="string">"_id"</span> : ObjectId(<span class="string">"50b4fe1b15747af472f54831"</span>), <span class="string">"id"</span> : <span class="number">1</span> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>备注：恢复后的节点可以查到新数据了，说明已自动恢复。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上只演示三节点 Replica set 的 failover 的情况，其它情况并没演示；另外 failover 的关键点为投票机制，这点还不是非常清楚，只知道设置节点的 priority ，还需要查阅相关资料。关于奇数节点和偶数节点 Primary 宕机后 SECONDARY 是否可以接管的问题，可以参考以下帖子：<br><a href="http://www.itpub.net/thread-1740982-1-1.html" target="_blank" rel="noopener">http://www.itpub.net/thread-1740982-1-1.html</a></p>
+<h1 id="四参考"><a href="#四参考" class="headerlink" title="四参考"></a>四参考</h1><p><a href="http://docs.mongodb.org/manual/administration/replica-sets/" target="_blank" rel="noopener">http://docs.mongodb.org/manual/administration/replica-sets/</a><br><a href="http://docs.mongodb.org/manual/core/replication/#replica-set-failover" target="_blank" rel="noopener">http://docs.mongodb.org/manual/core/replication/#replica-set-failover</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20121128154543.html" title="MongoDB：Replica Set 节点切换和 Failover">https://postgres.fun/20121128154543.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MongoDB/" rel="tag"># MongoDB</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20121127162514.html" rel="next" title="MongoDB：Replica Set 删除节点">
+                <i class="fa fa-chevron-left"></i> MongoDB：Replica Set 删除节点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20121203151512.html" rel="prev" title="MongoDB：Replica Set 之操作日志 Oplog">
+                MongoDB：Replica Set 之操作日志 Oplog <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#节点切换"><span class="nav-number">1.</span> <span class="nav-text">节点切换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试-Failover"><span class="nav-number">2.</span> <span class="nav-text">测试 Failover</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四参考"><span class="nav-number">4.</span> <span class="nav-text">四参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

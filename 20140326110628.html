@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="找到一篇介绍 PostgreSQL 体系结构较好的文章，由李元佳老师翻译，转载过来。PostgreSQL及其代码的结构作者：石井達夫翻译: 李元佳 Galy原文：PostgreSQL の構造とソースツリー（１） 详见： http://wiki.postgresql.org/wiki/Pgsrcstructure PgsrcstructurePostgreSQL及其代码的结构作者：石井達夫翻译: 李">
+<meta name="keywords" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[转载] PostgreSQL：体系结构( Pgsrcstructure )  ">
+<meta property="og:url" content="https://postgres.fun/20140326110628.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="找到一篇介绍 PostgreSQL 体系结构较好的文章，由李元佳老师翻译，转载过来。PostgreSQL及其代码的结构作者：石井達夫翻译: 李元佳 Galy原文：PostgreSQL の構造とソースツリー（１） 详见： http://wiki.postgresql.org/wiki/Pgsrcstructure PgsrcstructurePostgreSQL及其代码的结构作者：石井達夫翻译: 李">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://postgres.fun/images/postgres_arch.jpg">
+<meta property="og:updated_time" content="2018-09-04T01:34:08.795Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[转载] PostgreSQL：体系结构( Pgsrcstructure )  ">
+<meta name="twitter:description" content="找到一篇介绍 PostgreSQL 体系结构较好的文章，由李元佳老师翻译，转载过来。PostgreSQL及其代码的结构作者：石井達夫翻译: 李元佳 Galy原文：PostgreSQL の構造とソースツリー（１） 详见： http://wiki.postgresql.org/wiki/Pgsrcstructure PgsrcstructurePostgreSQL及其代码的结构作者：石井達夫翻译: 李">
+<meta name="twitter:image" content="https://postgres.fun/images/postgres_arch.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20140326110628.html"/>
+
+
+
+
+
+
+  <title>[转载] PostgreSQL：体系结构( Pgsrcstructure )   | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20140326110628.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[转载] PostgreSQL：体系结构( Pgsrcstructure )  </h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-03-26T11:06:28+08:00">
+                2014-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20140326110628.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20140326110628.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20140326110628.html" class="leancloud_visitors" data-flag-title="[转载] PostgreSQL：体系结构( Pgsrcstructure )  ">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>找到一篇介绍 PostgreSQL 体系结构较好的文章，由李元佳老师翻译，转载过来。PostgreSQL及其代码的结构<br>作者：石井達夫<br>翻译: 李元佳 Galy<br>原文：PostgreSQL の構造とソースツリー（１）</p>
+<p>详见： <a href="http://wiki.postgresql.org/wiki/Pgsrcstructure" target="_blank" rel="noopener">http://wiki.postgresql.org/wiki/Pgsrcstructure</a></p>
+<h1 id="Pgsrcstructure"><a href="#Pgsrcstructure" class="headerlink" title="Pgsrcstructure"></a>Pgsrcstructure</h1><p>PostgreSQL及其代码的结构<br>作者：石井達夫<br>翻译: 李元佳 Galy<br>原文：PostgreSQL の構造とソースツリー（１）<br>本文将对PostgreSQL全体的结构以及源码的结构概要进行说明。解析的版本是PostgreSQL9.1.x系列的版本，其他版本有可能会和本文说明的内容有些差别。</p>
+<p>这篇文章将以笔者05年在技术评论社《WEB+DB PRESS》第26期发表的文章为基础，根据PostgreSQL9.1的实际情况加以修改而成。</p>
+<blockquote>
+<p>Contents [hide]<br>1 PostgreSQL的使用形态<br>2 PostgreSQL的结构<br>2.1 Potgres(常驻进程)<br>2.2 Postgres(子进程)<br>2.3 其他的进程<br>2.3.1 Writer process<br>2.3.2 WAL writer process<br>2.3.3 Archive process<br>2.3.4 stats collector process<br>2.3.5 Logger process<br>2.3.6 Autovacuum启动进程<br>2.3.7 自动vacuum进程<br>2.3.8 wal sender / wal receiver<br>2.4 后端的处理流程<br>3 PostgreSQL的源码<br>3.1 第一级目录结构<br>4 代码的阅读方法<br>4.1 用调试器追踪代码<br>4.2 实际使用gdb试试<br>4.3 使用tag来跳转到相应的函数定义文件<br>5 总结</p>
+</blockquote>
+<h1 id="PostgreSQL的使用形态"><a href="#PostgreSQL的使用形态" class="headerlink" title="PostgreSQL的使用形态"></a>PostgreSQL的使用形态</h1><p>PostgreSQL采用C/S(客户机/服务器)模式结构。应用层通过INET或者Unix Socket利用既定的协议与数据库服务器进行通信。</p>
+<p>另外，还有一种‘Standalone Backend’使用的方式, 虽然通过这种方式也可以启动服务器，但是一般只在数据库的初始化(PostgreSQL的cluster的初始化，相当于其他数据库的instance的初始化)、紧急维护的时候使用，所以简单来说可以认为PostgreSQL是使用C/S的形式进行访问的。</p>
+<p>PostgreSQL把客户端称为前端(Frontend),把服务器端成为后端(Backend), 后端有复数个进程构成，这个在后面会进行说明。</p>
+<p>前端和后端通信的协议在PostgreSQL的官方文档中的《前端和后端的通信协议》一章中有详细的说明。简单来说，大体的工作模式是：前端向后端发送查询的SQL文，然后后端通过复数个报文把结果返回给前端。</p>
+<p>由于需要进行连接的初始化、错误等各种各样处理，PostgreSQL的协议的处理也是相当复杂，如果要自己从头实现这些协议的处理的话，还是相当麻烦的，所以PostgreSQL本身提供了C语言写的libpq这样一个协议处理库，利用这个库可以比较轻松地和后端进行通信。PostgreSQL的话除了C以外，还支持Perl和PHP等其他语言，这些语言在内部也调用了libpq.</p>
+<p>也有不使用libpq而直接与PostgreSQL通信的库。比较具有代表性的是Java, PostgreSQL的JDBC驱动是不依赖于libpq直接与PostgreSQL通信的.</p>
+<p>另外后端的话，比较核心的是进行数据库处理的数据库引擎(Database Engine)。 数据库引擎可以对用户所编写的函数进行解析和处理，用户如果能够利用好这个功能的话，可以柔软地扩展PostgreSQL的功能。 比较经常使用的是存储过程(PostgreSQL中称为用户自定义函数)，PostgreSQL支持的用户定义函数的语言如下：</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">语言	   对应的自定义函数</span><br><span class="line">C	   C函数</span><br><span class="line">SQL	   SQL 函数</span><br><span class="line">类似Oracle的<span class="keyword">PL</span>/SQL的语言	<span class="keyword">PL</span>/pgSQL</span><br><span class="line">Perl	   <span class="keyword">PL</span>/Perl</span><br><span class="line">Python	    <span class="keyword">PL</span>/Python</span><br></pre></td></tr></table></figure>
+<p>PostgreSQL的话，用户可以自定义语言处理引擎。各种服务器脚本语言的解析引擎，以第三方的形式存在，主要的处理语言有Ruby、Java以及PHP等。</p>
+<h1 id="PostgreSQL的结构"><a href="#PostgreSQL的结构" class="headerlink" title="PostgreSQL的结构"></a>PostgreSQL的结构</h1><p>这里的话，再详细看看PostgreSQL的结构。 后端由几个进程构成。<br><img src="/images/postgres_arch.jpg" alt=""></p>
+<h2 id="Potgres-常驻进程"><a href="#Potgres-常驻进程" class="headerlink" title="Potgres(常驻进程)"></a>Potgres(常驻进程)</h2><p>管理后端的常驻进程，也称为’postmaster’。其默认监听UNIX Domain Socket和TCP/IP（Windows等，一部分的平台只监听tcp/ip）的5432端口，等待来自前端的的连接处理。监听的端口号可以在PostgreSQL的设置文件postgresql.conf里面可以改。</p>
+<p>一旦有前端连接过来，postgres会通过fork(2)生成子进程。没有Fork(2)的windows平台的话，则利用createProcess()生成新的进程。这种情形的话，和fork(2)不同的是，父进程的数据不会被继承过来，所以需要利用共享内存把父进程的数据继承过来。</p>
+<h2 id="Postgres-子进程"><a href="#Postgres-子进程" class="headerlink" title="Postgres(子进程)"></a>Postgres(子进程)</h2><p>子进程根据pg_hba.conf定义的安全策略来判断是否允许进行连接，根据策略，会拒绝某些特定的IP及网络，或者也可以只允许某些特定的用户或者对某些数据库进行连接。<br>Postgres会接受前端过来的查询，然后对数据库进行检索，最好把结果返回，有时也会对数据库进行更新。更新的数据同时还会记录在事务日志里面（PostgreSQL称为WAL日志），这个主要是当停电的时候，服务器当机，重新启动的时候进行恢复处理的时候使用的。另外，把日志归档保存起来，可在需要进行恢复的时候使用。在PostgreSQL 9.0以后，通过把WAL日志传送其他的postgreSQL，可以实时得进行数据库复制，这就是所谓的‘数据库复制’功能。</p>
+<h2 id="其他的进程"><a href="#其他的进程" class="headerlink" title="其他的进程"></a>其他的进程</h2><p>Postgres之外还有一些辅助的进程。这些进程都是由常驻postgres启动的进程。</p>
+<h3 id="Writer-process"><a href="#Writer-process" class="headerlink" title="Writer process"></a>Writer process</h3><p>Writer process在适当的时间点把共享内存上的缓存写往磁盘。通过这个进程，可以防止在检查点的时候(checkpoint),大量的往磁盘写而导致性能恶化，使得服务器可以保持比较稳定的性能。Background writer起来以后就一直常驻内存，但是并非一直在工作，它会在工作一段时间后进行休眠，休眠的时间间隔通过postgresql.conf里面的参数bgwriter_delay设置，默认是200微秒。<br>这个进程的另外一个重要的功能是定期执行检查点(checkpoint)。<br>检查点的时候，会把共享内存上的缓存内容往数据库文件写，使得内存和文件的状态一致。通过这样，可以在系统崩溃的时候可以缩短从WAL恢复的时间，另外也可以防止WAL无限的增长。 可以通过postgresql.conf的checkpoint_segments、checkpoint_timeout指定执行检查点的时间间隔。</p>
+<h3 id="WAL-writer-process"><a href="#WAL-writer-process" class="headerlink" title="WAL writer process"></a>WAL writer process</h3><p>WAL writer process把共享内存上的WAL缓存在适当的时间点往磁盘写，通过这样，可以减轻后端进程在写自己的WAL缓存时的压力，提高性能。另外，非同步提交设为true的时候，可以保证在一定的时间间隔内，把WAL缓存上的内容写入WAL日志文件。</p>
+<h3 id="Archive-process"><a href="#Archive-process" class="headerlink" title="Archive process"></a>Archive process</h3><p>Archive process把WAL日志转移到归档日志里。如果保存了基础备份以及归档日志，即使实在磁盘完全损坏的时候，也可以回复数据库到最新的状态。</p>
+<h3 id="stats-collector-process"><a href="#stats-collector-process" class="headerlink" title="stats collector process"></a>stats collector process</h3><p>统计信息的收集进程。收集好统计表的访问次数，磁盘的访问次数等信息。收集到的信息除了能被autovaccum利用，还可以给其他数据库管理员作为数据库管理的参考信息。</p>
+<h3 id="Logger-process"><a href="#Logger-process" class="headerlink" title="Logger process"></a>Logger process</h3><p>把postgresql的活动状态写到日志信息文件（并非事务日志），在指定的时间间隔里面，对日志文件进行rotate.</p>
+<h3 id="Autovacuum启动进程"><a href="#Autovacuum启动进程" class="headerlink" title="Autovacuum启动进程"></a>Autovacuum启动进程</h3><p>autovacuum launcher process是依赖于postmaster间接启动vacuum进程。而其自身是不直接启动自动vacuum进程的。通过这样可以提高系统的可靠性。</p>
+<h3 id="自动vacuum进程"><a href="#自动vacuum进程" class="headerlink" title="自动vacuum进程"></a>自动vacuum进程</h3><p>autovacuum worker process进程实际执行vacuum的任务。有时候会同时启动多个vacuum进程。</p>
+<h3 id="wal-sender-wal-receiver"><a href="#wal-sender-wal-receiver" class="headerlink" title="wal sender / wal receiver"></a>wal sender / wal receiver</h3><p>wal sender 进程和wal receiver进程是实现postgresql复制(streaming replication)的进程。Wal sender进程通过网络传送WAL日志，而其他PostgreSQL实例的wal receiver进程则接收相应的日志。Wal receiver进程的宿主PostgreSQL（也称为Standby）接受到WAL日志后，在自身的数据库上还原，生成一个和发送端的PostgreSQL(也称为Master)完全一样的数据库。</p>
+<h2 id="后端的处理流程"><a href="#后端的处理流程" class="headerlink" title="后端的处理流程"></a>后端的处理流程</h2><p>下面看看数据库引擎postgres子进程的处理概要。为了简单起见下面的说明中，把backend process简称为backend。Backend的main函数是PostgresMain (tcop/postgres.c)。</p>
+<ol>
+<li>接收前端发送过来的查询(SQL文)</li>
+<li>SQL文是单纯的文字，电脑是认识不了的，所以要转换成比较容易处理的内部形式构文树parser tree,这个处理的称为构文解析。构文解析的模块称为parser.这个阶段只能够使用文字字面上得来的信息，所以只要没语法错误之类的错误，即使是select不存在的表也不会报错。这个阶段的构文树被称为raw parse tree. 构文处理的入口在raw_parser (parser/parser.c)。</li>
+<li>构文树解析完以后，会转换为查询树(Query tree)。这个时候，会访问数据库，检查表是否存在，如果存在的话，则把表名转换为OID。这个处理称为分析处理(Analyze), 进行分析处理的模块是analyzer。 另外，PostgreSQL的代码里面提到构文树parser tree的时候，更多的时候是指查询树Query tree。分析处理的模块的入口在parse_analyze (parser/analyze.c)</li>
+<li>PostgreSQL还通过查询语句的重写实现视图(view)和规则(rule), 所以需要的时候，在这个阶段会对查询语句进行重写。这个处理称为重写(rewrite)，重写的入口在QueryRewrite (rewrite/rewriteHandler.c)。</li>
+<li>通过解析查询树，可以实际生成计划树。生成查询树的处理称为‘执行计划处理’，最关键是要生成估计能在最短的时间内完成的计划树(plan tree)。这个步骤称为’查询优化’(不叫query optimize, 而是optimize), 而完成这个处理的模块称为查询优化器(不叫query optimizer,而是optimizer, 或者称为planner)。执行计划处理的入口在standard_planner (optimizer/plan/planner.c)。</li>
+<li>按照执行计划里面的步骤可以完成查询要达到的目的。运行执行计划树里面步骤的处理称为执行处理‘execute’, 完成这个处理的模块称为执行器‘Executor’, 执行器的入口地址为，ExecutorRun (executor/execMain.c)</li>
+<li>执行结果返回给前端。</li>
+<li>返回到步骤一重复执行。</li>
+</ol>
+<h1 id="PostgreSQL的源码"><a href="#PostgreSQL的源码" class="headerlink" title="PostgreSQL的源码"></a>PostgreSQL的源码</h1><p>现在基本上理解了PostgreSQL的大体的结构，我们再来看看PostgreSQL代码的结构。 PostgreSQL初期的时候，大概只有20万行左右的代码，现在已经发展到100万行了。这个量来说，没有指导读起来是极为难理解的，这里把大概的代码结构说明一下，让大家对源码的结构有个理解。</p>
+<h2 id="第一级目录结构"><a href="#第一级目录结构" class="headerlink" title="第一级目录结构"></a>第一级目录结构</h2><p>进入PostgreSQL的源码目录后，第一级的结构如下表所示。在这一级里，通过执行如下命令configure;make;make install可以立即进行简单的安装，实际上从PostgreSQL源码安装是极为简单的。<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">文件目录	说明</span><br><span class="line">COPYRIGHT	版权信息</span><br><span class="line">GUNMakefile	第一级目录的 Makefile</span><br><span class="line">GUNMakefile.<span class="keyword">in</span>	Makefile 的雏形</span><br><span class="line">HISTORY        修改历史</span><br><span class="line">INSTALL        安装方法简要说明</span><br><span class="line">Makefile	Makefile模版</span><br><span class="line">README	        简单说明</span><br><span class="line">aclocal.m4<span class="built_in">	config </span>用的文件的一部分</span><br><span class="line">config/<span class="built_in">	config </span>用的文件的目录</span><br><span class="line">configure	configure 文件</span><br><span class="line">configure.<span class="keyword">in</span>	configure 文件的雏形</span><br><span class="line">contrib/	contribution 程序</span><br><span class="line">doc/	        文档目录</span><br><span class="line">src/	        源代码目录</span><br></pre></td></tr></table></figure></p>
+<p>PostgreSQL 的src下面有。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">文件目录	说明</span><br><span class="line">DEVELOPERS	        面向开发人员的注视</span><br><span class="line">Makefile	        Makefile </span><br><span class="line">Makefile<span class="selector-class">.global</span>	make 的设定值（从configure生成的）</span><br><span class="line">Makefile<span class="selector-class">.global</span><span class="selector-class">.in</span>	Configure使用的Makefile.global的雏形</span><br><span class="line">Makefile<span class="selector-class">.port</span>	        平台相关的make的设定值，实际是一个到makefile/Makefile的连接. （从configure生成的）</span><br><span class="line">Makefile<span class="selector-class">.shlib</span>	        共享库用的Makefile</span><br><span class="line">backend/	        后端的源码目录</span><br><span class="line">bcc32<span class="selector-class">.mak</span>	        Win32 ポート用の Makefile (Borland C++ 用)</span><br><span class="line">bin/	                psql 等 UNIX命令的代码</span><br><span class="line">include/	        头文件</span><br><span class="line">interfaces/	        前端相关的库的代码</span><br><span class="line">makefiles/	        平台相关的make 的设置值</span><br><span class="line">nls-global<span class="selector-class">.mk</span>	        信息目录用的Makefile文件的规则</span><br><span class="line">pl/	                存储过程语言的代码</span><br><span class="line">port/	                平台移植相关的代码</span><br><span class="line">template/	        平台相关的设置值</span><br><span class="line">test/	                各种测试脚本</span><br><span class="line">timezone/	        时区相关代码</span><br><span class="line">tools/	                各自开发工具和文档</span><br><span class="line">tutorial/	        教程</span><br><span class="line">win32<span class="selector-class">.mak</span>	        Win32 ポート用の Makefile (Visual C++ 用)</span><br></pre></td></tr></table></figure></p>
+<p>这里比较核心的是backend,bin,interface这几个目录。Backend是对应于后端，bin和interface对应于前端。</p>
+<p>bin里面有pgsql,initdb,pg_dump等各种工具的代码。interface里面有PostgreSQL的C语言的库libpq,另外可以在C里嵌入SQL的ECPG命令的相关代码。</p>
+<p>Backend目录的结构如下：<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">目录文件	        说明</span><br><span class="line"><span class="selector-tag">Makefile</span>	<span class="selector-tag">makefile</span></span><br><span class="line"><span class="selector-tag">access</span>/	各种存储访问方法(在各个子目录下) <span class="selector-tag">common</span>(共同函数)、<span class="selector-tag">gin</span> (Generalized Inverted Index通用逆向索引)</span><br><span class="line"> <span class="selector-tag">gist</span> (Generalized  Search Tree通用索引)、 <span class="selector-tag">hash</span> (哈希索引)、<span class="selector-tag">heap</span> (heap的访问方法)、</span><br><span class="line"> <span class="selector-tag">index</span> (通用索引函数)、 <span class="selector-tag">nbtree</span> (Btree函数)、<span class="selector-tag">transam</span> (事务处理)</span><br><span class="line"><span class="selector-tag">bootstrap</span>/	数据库的初始化处理(initdb的时候)</span><br><span class="line"><span class="selector-tag">catalog</span>/	系统目录</span><br><span class="line"><span class="selector-tag">commands</span>/	<span class="selector-tag">SELECT</span>/<span class="selector-tag">INSERT</span>/<span class="selector-tag">UPDATE</span>/<span class="selector-tag">DELETE</span>以为的<span class="selector-tag">SQL</span>文的处理</span><br><span class="line"><span class="selector-tag">executor</span>/	执行器(访问的执行)</span><br><span class="line"><span class="selector-tag">foreign</span>/	<span class="selector-tag">FDW</span>(Foreign Data Wrapper)处理</span><br><span class="line"><span class="selector-tag">lib</span>/	        共同函数</span><br><span class="line"><span class="selector-tag">libpq</span>/	        前端/后端通信处理</span><br><span class="line"><span class="selector-tag">main</span>/	        <span class="selector-tag">postgres</span>的主函数</span><br><span class="line"><span class="selector-tag">nodes</span>/	        构文树节点相关的处理函数</span><br><span class="line"><span class="selector-tag">optimizer</span>/	优化器</span><br><span class="line"><span class="selector-tag">parser</span>/	<span class="selector-tag">SQL</span>构文解析器</span><br><span class="line"><span class="selector-tag">port</span>/	        平台相关的代码</span><br><span class="line"><span class="selector-tag">postmaster</span>/	<span class="selector-tag">postmaster</span>的主函数 (常驻postgres)</span><br><span class="line"><span class="selector-tag">replication</span>/	<span class="selector-tag">streaming</span> <span class="selector-tag">replication</span></span><br><span class="line"><span class="selector-tag">regex</span>/	        正则处理</span><br><span class="line"><span class="selector-tag">rewrite</span>/	规则及视图相关的重写处理</span><br><span class="line"><span class="selector-tag">snowball</span>/	全文检索相关（语干处理）</span><br><span class="line"><span class="selector-tag">storage</span>/	共享内存、磁盘上的存储、缓存等全部一次/二次记录管理(以下的目录)<span class="selector-tag">buffer</span>/(缓存管理)、 <span class="selector-tag">file</span>/(文件)、</span><br><span class="line"><span class="selector-tag">freespace</span>/(Fee Space Map管理) <span class="selector-tag">ipc</span>/(进程间通信)、<span class="selector-tag">large_object</span> /(大对象的访问函数)、 </span><br><span class="line"><span class="selector-tag">lmgr</span>/(锁管理)、<span class="selector-tag">page</span>/(页面访问相关函数)、 <span class="selector-tag">smgr</span>/(存储管理器)</span><br><span class="line"><span class="selector-tag">tcop</span>/	        <span class="selector-tag">postgres</span> (数据库引擎的进程)的主要部分</span><br><span class="line"><span class="selector-tag">tsearch</span>/	全文检索</span><br><span class="line"><span class="selector-tag">utils</span>/	        各种模块(以下目录) <span class="selector-tag">adt</span>/(嵌入的数据类型)、<span class="selector-tag">cache</span>/(缓存管理)、 <span class="selector-tag">error</span>/(错误处理)、<span class="selector-tag">fmgr</span>/(函数管理)、</span><br><span class="line"><span class="selector-tag">hash</span>/(hash函数)、         <span class="selector-tag">init</span>/(数据库初始化、postgres的初期处理)、 <span class="selector-tag">mb</span>/(多字节文字处理)、</span><br><span class="line"><span class="selector-tag">misc</span>/(其他)、<span class="selector-tag">mmgr</span>/(内存的管理函数)、 <span class="selector-tag">resowner</span>/(查询处理中的数据(buffer pin及表锁)的管理)、</span><br><span class="line"> <span class="selector-tag">sort</span>/(排序处理)、<span class="selector-tag">time</span>/(事务的 MVCC 管理)</span><br></pre></td></tr></table></figure></p>
+<p>backend等的代码的头文件包含在include里面。其组织虽然与backend的目录结构类似，但是并非完全相同，基本上来说下一级的子目录不再设下一级目录。例如backend的目录下面有utils这个目录，而util下面还有adt这个子目录，但是include里面省略了这个目录，变成了扁平的结构。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">access/</span><br><span class="line">bootstrap/</span><br><span class="line">c.h</span><br><span class="line">catalog/</span><br><span class="line">commands/</span><br><span class="line">dynloader.h</span><br><span class="line">executor/</span><br><span class="line">fmgr.h</span><br><span class="line">foreign/</span><br><span class="line">funcapi.h</span><br><span class="line">getaddrinfo.h</span><br><span class="line">getopt_long.h</span><br><span class="line">lib/</span><br><span class="line">libpq/</span><br><span class="line">mb/</span><br><span class="line">miscadmin.h</span><br><span class="line">nodes/</span><br><span class="line">optimizer/</span><br><span class="line">parser/</span><br><span class="line">pg_config.h</span><br><span class="line">pg_config<span class="selector-class">.h</span><span class="selector-class">.in</span></span><br><span class="line">pg_config<span class="selector-class">.h</span><span class="selector-class">.win32</span></span><br><span class="line">pg_config_manual.h</span><br><span class="line">pg_config_os.h</span><br><span class="line">pg_trace.h</span><br><span class="line">pgstat.h</span><br><span class="line">pgtime.h</span><br><span class="line">port/</span><br><span class="line">port.h</span><br><span class="line">portability/</span><br><span class="line">postgres.h</span><br><span class="line">postgres_ext.h</span><br><span class="line">postgres_fe.h</span><br><span class="line">postmaster/</span><br><span class="line">regex/</span><br><span class="line">rewrite/</span><br><span class="line">rusagestub.h</span><br><span class="line">snowball/</span><br><span class="line">stamp-h</span><br><span class="line">storage/</span><br><span class="line">tcop/</span><br><span class="line">tsearch/</span><br><span class="line">utils/</span><br><span class="line">windowapi.h</span><br></pre></td></tr></table></figure></p>
+<h1 id="代码的阅读方法"><a href="#代码的阅读方法" class="headerlink" title="代码的阅读方法"></a>代码的阅读方法</h1><h2 id="用调试器追踪代码"><a href="#用调试器追踪代码" class="headerlink" title="用调试器追踪代码"></a>用调试器追踪代码</h2><p>PostgreSQL那样的庞大系统，用眼睛来追踪源码并不容易。这里推荐用gdb这样的实际调试器来追踪代码的执行流程。可能有些人畏惧调试器，但是如果只是简单追踪代码的执行流的话，还是很简单的。</p>
+<p>但是多少还是要做一些准备的，PostgreSQL在编译的时候一定要把调试开关打开。通常在编译的时候configure的时候加上–enable-debug的选项，然后可能的话可以编辑src/Makefile.global这个文件<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS = -O2 -Wall -Wmissing-prototypes -Wpointer-arith \</span><br><span class="line">-<span class="ruby">Wdeclaration-after-statement -Wendif-labels -Wformat-security \</span></span><br><span class="line"><span class="ruby">-fno-strict-aliasing -fwrapv</span></span><br></pre></td></tr></table></figure></p>
+<p>上面的行的”-O2”选项删除，然后加上”-g”<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS = -g -Wall -Wmissing-prototypes -Wpointer-arith \</span><br><span class="line">-<span class="ruby">Wdeclaration-after-statement -Wendif-labels -Wformat-security \</span></span><br><span class="line"><span class="ruby">-fno-strict-aliasing -fwrapv</span></span><br></pre></td></tr></table></figure></p>
+<p>“-O2”是编译器的优化选项，如果打开了，代码的执行顺序会改变，使得追踪起代码来比较困难，所以要去除。当然这样的话，编译后的可执行文件会比较大，而且会比较慢，生产环境不太合适。大家需要理解这个操作仅仅是在学习的时候而设置的。</p>
+<h2 id="实际使用gdb试试"><a href="#实际使用gdb试试" class="headerlink" title="实际使用gdb试试"></a>实际使用gdb试试</h2><p>下面实际使用gdb来看看比较简单点的select文。<br><figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure></p>
+<p>select文执行后，至executor的其中一个函数ExecSelect停止，然后我们调查一下实际调用了那些函数。</p>
+<p>首先以PostgreSQL的超级用户登录。我的环境是使用t-ishii这个用户安装PostgreSQL的，通常一般使用postgres这个用户，大家在阅读的时候替换一下即可。</p>
+<p>然后，用psql和数据库进行连接，连接的状态可以通过ps命令调查。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ps x</span><br><span class="line">3714 ?        Ss     0:00 postgres: t-ishii <span class="built_in">test</span> [<span class="built_in">local</span>] idle</span><br></pre></td></tr></table></figure></p>
+<p>可以看到上面的进程。这个就是后端的进程。这个是后端的进程，还有其他大量用户的PostgreSQL的连接也显示出来，比较难看清楚，所以还是准备好测试的环境来进行测试比较好。</p>
+<p>启动gdb后，附加到ps里显示的进程号码。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">$ gdb postgres <span class="number">3714</span></span><br><span class="line">GNU gdb (GDB) <span class="number">7.2</span></span><br><span class="line">Copyright (C) <span class="number">2010</span> Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version <span class="number">3</span> or later </span><br><span class="line">&lt;http:<span class="comment">//gnu.org/licenses/gpl.html&gt;</span></span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span><br><span class="line">and <span class="string">"show warranty"</span> <span class="keyword">for</span> <span class="selector-tag">details</span>.</span><br><span class="line">This GDB was configured as <span class="string">"x86_64-vine-linux"</span>.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http:<span class="comment">//www.gnu.org/software/gdb/bugs/&gt;...</span></span><br><span class="line">Reading symbols from /usr/local/pgsql/bin/postgres..<span class="selector-class">.done</span>.</span><br><span class="line">Attaching to program: /usr/local/pgsql/bin/postgres, process <span class="number">3714</span></span><br><span class="line">Reading symbols from /lib64/libdl<span class="selector-class">.so</span>.<span class="number">2</span>..<span class="selector-class">.done</span>.</span><br><span class="line">Loaded symbols <span class="keyword">for</span> /lib64/libdl<span class="selector-class">.so</span>.<span class="number">2</span></span><br><span class="line">Reading symbols from /lib64/libm<span class="selector-class">.so</span>.<span class="number">6</span>..<span class="selector-class">.done</span>.</span><br><span class="line">Loaded symbols <span class="keyword">for</span> /lib64/libm<span class="selector-class">.so</span>.<span class="number">6</span></span><br><span class="line">Reading symbols from /lib64/libc<span class="selector-class">.so</span>.<span class="number">6</span>..<span class="selector-class">.done</span>.</span><br><span class="line">Loaded symbols <span class="keyword">for</span> /lib64/libc<span class="selector-class">.so</span>.<span class="number">6</span></span><br><span class="line">Reading symbols from /lib64/ld-linux-x86-<span class="number">64</span><span class="selector-class">.so</span>.<span class="number">2</span>..<span class="selector-class">.done</span>.</span><br><span class="line">Loaded symbols <span class="keyword">for</span> /lib64/ld-linux-x86-<span class="number">64</span><span class="selector-class">.so</span>.<span class="number">2</span></span><br><span class="line">Reading symbols from /lib64/libnss_files<span class="selector-class">.so</span>.<span class="number">2</span>..<span class="selector-class">.done</span>.</span><br><span class="line">Loaded symbols <span class="keyword">for</span> /lib64/libnss_files<span class="selector-class">.so</span>.<span class="number">2</span></span><br><span class="line"><span class="number">0</span>x00007fad266f82e2 <span class="keyword">in</span> __libc_recv (fd=&lt;value optimized out&gt;, buf=<span class="number">0</span>xbe9900,</span><br><span class="line">n=<span class="number">8192</span>, flags=&lt;value optimized out&gt;)</span><br><span class="line">    at ../sysdeps/unix/sysv/linux/x86_64/recv<span class="selector-class">.c</span>:<span class="number">30</span></span><br><span class="line"><span class="number">30</span>	../sysdeps/unix/sysv/linux/x86_64/recv<span class="selector-class">.c</span>: </span><br><span class="line">	<span class="keyword">in</span> ../sysdeps/unix/sysv/linux/x86_64/recv.c</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<p>(gdb) 是gdb的命令行。在这个状态下，可以接受gdb的命令，如果输入b命令的话，在ExecResult可以设置断点。<br><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b ExecResult</span><br><span class="line">Breakpoint <span class="number">1</span>, ExecResult (<span class="keyword">node</span><span class="title">=0xd13eb0</span>) at nodeResult.c:<span class="number">75</span></span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<p>psql启动以后从终端执行select 1,输入以后，后端就会执行该命令。这个时候，postgres进程已经暂停，所以psql会动不了。要继续执行的话，可在gdb里执行”c”命令。执行了以后，就会在ExecResult 处停止。<br><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Continuing.</span><br><span class="line">Breakpoint <span class="number">1</span>, ExecResult (<span class="keyword">node</span><span class="title">=0xd13eb0</span>) at nodeResult.c:<span class="number">75</span></span><br><span class="line"><span class="number">75</span>		econtext = <span class="keyword">node</span><span class="title">-&gt;ps</span>.ps_ExprContext;</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<p>到ExecSelect为止的函数的调用路径可以用bt的命令显示出来。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="keyword">bt</span></span><br><span class="line">#<span class="number">0</span>  ExecResult (node=<span class="number">0xd13eb0</span>) <span class="meta">at</span> nodeResult.c:<span class="number">75</span></span><br><span class="line">#<span class="number">1</span>  <span class="number">0x00000000005b92a4</span> <span class="keyword">in</span> ExecProcNode (node=<span class="number">0xd13eb0</span>) <span class="meta">at</span> execProcnode.c:<span class="number">367</span></span><br><span class="line">#<span class="number">2</span>  <span class="number">0x00000000005b71bb</span> <span class="keyword">in</span> ExecutePlan (estate=<span class="number">0xd13da0</span>, planstate=<span class="number">0xd13eb0</span>,</span><br><span class="line">    operation=CMD_SELECT, sendTuples=<span class="number">1</span> <span class="string">'\001'</span>, numberTuples=<span class="number">0</span>, </span><br><span class="line">    direction=ForwardScanDirection, dest=<span class="number">0xcf9938</span>) <span class="meta">at</span> execMain.c:<span class="number">1439</span></span><br><span class="line">#<span class="number">3</span>  <span class="number">0x00000000005b5835</span> <span class="keyword">in</span> standard_ExecutorRun (queryDesc=<span class="number">0xc62820</span>, </span><br><span class="line">    direction=ForwardScanDirection, count=<span class="number">0</span>) <span class="meta">at</span> execMain.c:<span class="number">313</span></span><br><span class="line">#<span class="number">4</span>  <span class="number">0x00000000005b5729</span> <span class="keyword">in</span> ExecutorRun (queryDesc=<span class="number">0xc62820</span>, </span><br><span class="line">    direction=ForwardScanDirection, count=<span class="number">0</span>) <span class="meta">at</span> execMain.c:<span class="number">261</span></span><br><span class="line">#<span class="number">5</span>  <span class="number">0x00000000006d2f79</span> <span class="keyword">in</span> PortalRunSelect (portal=<span class="number">0xc60810</span>, </span><br><span class="line">    forward=<span class="number">1</span> <span class="string">'\001'</span>, count=<span class="number">0</span>, dest=<span class="number">0xcf9938</span>) <span class="meta">at</span> pquery.c:<span class="number">943</span></span><br><span class="line">#<span class="number">6</span>  <span class="number">0x00000000006d2c4e</span> <span class="keyword">in</span> PortalRun (portal=<span class="number">0xc60810</span>, </span><br><span class="line">    count=<span class="number">9223372036854775807</span>, isTopLevel=<span class="number">1</span> <span class="string">'\001'</span>, dest=<span class="number">0xcf9938</span>, </span><br><span class="line">    altdest=<span class="number">0xcf9938</span>, completionTag=<span class="number">0x7fffa4b0eeb0</span> <span class="string">""</span>) <span class="meta">at</span> pquery.c:<span class="number">787</span></span><br><span class="line">#<span class="number">7</span>  <span class="number">0x00000000006cd135</span> <span class="keyword">in</span> exec_simple_query </span><br><span class="line">    (query_string=<span class="number">0xcf8420</span> <span class="string">"select 1;"</span>) <span class="meta">at</span> postgres.c:<span class="number">1018</span></span><br><span class="line">#<span class="number">8</span>  <span class="number">0x00000000006d1144</span> <span class="keyword">in</span> PostgresMain (argc=<span class="number">2</span>, argv=<span class="number">0xc42da0</span>, </span><br><span class="line">    username=<span class="number">0xc42c40</span> <span class="string">"t-ishii"</span>) <span class="meta">at</span> postgres.c:<span class="number">3926</span></span><br><span class="line">#<span class="number">9</span>  <span class="number">0x0000000000683ced</span> <span class="keyword">in</span> BackendRun (port=<span class="number">0xc65600</span>) <span class="meta">at</span> postmaster.c:<span class="number">3600</span></span><br><span class="line">#<span class="number">10</span> <span class="number">0x00000000006833dc</span> <span class="keyword">in</span> BackendStartup (port=<span class="number">0xc65600</span>) <span class="meta">at</span> postmaster.c:<span class="number">3285</span></span><br><span class="line">#<span class="number">11</span> <span class="number">0x0000000000680759</span> <span class="keyword">in</span> ServerLoop () <span class="meta">at</span> postmaster.c:<span class="number">1454</span></span><br><span class="line">#<span class="number">12</span> <span class="number">0x000000000067ff4d</span> <span class="keyword">in</span> PostmasterMain (argc=<span class="number">3</span>, argv=<span class="number">0xc40e00</span>) </span><br><span class="line">   <span class="meta">at</span> postmaster.c:<span class="number">1115</span></span><br><span class="line">#<span class="number">13</span> <span class="number">0x00000000005f7a39</span> <span class="keyword">in</span> main (argc=<span class="number">3</span>, argv=<span class="number">0xc40e00</span>) <span class="meta">at</span> main.c:<span class="number">199</span></span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+<p>说明一下看的方法，发起调用的函数在下面，被调用的函数在上面。也就是ExecProcNode调用了ExecResult，ExecutePlan调用了ExecProcNode，ExecutorRun调用了ExecProcNode，这样的形式来写。特别是中间的第7行。<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#<span class="number">7</span>  <span class="number">0x00000000006cd135</span> <span class="keyword">in</span> exec_simple_query </span><br><span class="line">    (query_string=<span class="number">0xcf8420</span> <span class="string">"select 1;"</span>) <span class="meta">at</span> postgres.c:<span class="number">1018</span></span><br></pre></td></tr></table></figure></p>
+<p>这样可以清楚看到在处理SELECT文。:)仔细看gdb的输出，可以发现这些细节。</p>
+<p>gdb是源码调试器，所以可以看到和源代码的对应关系。例如list命令可以看到现在执行的行附近的代码。<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(gdb) <span class="type">list</span></span><br><span class="line"><span class="number">70</span>     TupleTableSlot *resultSlot;</span><br><span class="line"><span class="number">71</span>     PlanState  *outerPlan;</span><br><span class="line"><span class="number">72</span>     ExprContext *econtext;</span><br><span class="line"><span class="number">73</span>     ExprDoneCond isDone;</span><br><span class="line"><span class="number">74</span> </span><br><span class="line"><span class="number">75</span>     econtext = node-&gt;ps.ps_ExprContext;</span><br><span class="line"><span class="number">76</span> </span><br><span class="line"><span class="number">77</span>     <span class="comment">/*</span></span><br><span class="line"><span class="comment">78      * check constant qualifications like (2 &gt; 1), if not already done</span></span><br><span class="line"><span class="comment">79      */</span></span><br></pre></td></tr></table></figure></p>
+<p>利用up命令可以往上面的函数移动。下面用list命令，可以确认实际调用ExecSelect 的地方。<br><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">(gdb) up</span><br><span class="line"><span class="comment">#1  0x00000000005b92a4 in ExecProcNode (node=0xd13eb0) at execProcnode.c:367</span></span><br><span class="line"><span class="number">367</span>             result = ExecResult((ResultState *) <span class="keyword">node</span><span class="title">);</span></span><br><span class="line"><span class="title">(gdb</span>) list</span><br><span class="line"><span class="number">362</span>     &#123;</span><br><span class="line"><span class="number">363</span>             /*</span><br><span class="line"><span class="number">364</span>              * control nodes</span><br><span class="line"><span class="number">365</span>              */</span><br><span class="line"><span class="number">366</span>         case T_ResultState:</span><br><span class="line"><span class="number">367</span>             result = ExecResult((ResultState *) <span class="keyword">node</span><span class="title">);</span></span><br><span class="line"><span class="title">368</span>             break;</span><br><span class="line"><span class="number">369</span> </span><br><span class="line"><span class="number">370</span>         case T_ModifyTableState:</span><br><span class="line"><span class="number">371</span>             result = ExecModifyTable((ModifyTableState *) <span class="keyword">node</span><span class="title">);</span></span><br></pre></td></tr></table></figure></p>
+<p>利用down可以往下面的函数移动。利用up和down的组合，可以调查函数的调用关系。</p>
+<p>要退出gdb的话可以用quit。<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(gdb) quit</span><br><span class="line">Inferior <span class="number">1</span> [<span class="built_in">process</span> <span class="number">3714</span>] will be detached.</span><br><span class="line">Quit anyway? (y <span class="keyword">or</span> n) y</span><br><span class="line">Detaching <span class="built_in">from</span> program: /usr/<span class="built_in">local</span>/pgsql/bin/postgres, <span class="built_in">process</span> <span class="number">3714</span></span><br></pre></td></tr></table></figure></p>
+<p>到了这里gdb就结束了，但是后端进程并不会终止。</p>
+<h2 id="使用tag来跳转到相应的函数定义文件"><a href="#使用tag来跳转到相应的函数定义文件" class="headerlink" title="使用tag来跳转到相应的函数定义文件"></a>使用tag来跳转到相应的函数定义文件</h2><p>我们已经使用了gdb来调查postgreSQL的运行，另外用gdb的list来追踪源码的话还是相当辛苦的，一般来说用emacs等编辑器一起调查和浏览代码，可以在边调试边查看代码。<br>当然，在gdb模式下也可以使用。这个时候，例如如果想看看’exec_simple_query’的定义的话，使用emacs的tags命令可以立刻跳转到函数定义的地方。要使用tags的话，需要生产tags文件，PostgreSQL的话，带有生产tags文件的脚本。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/src/postgresql-9.1.1/src</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tools/make_etags (使用emacs的场合)</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tools/make_tags (使用vi的场合)</span></span><br></pre></td></tr></table></figure></p>
+<p>这样就可以拉。 然后在emacs中，在exec_simple_query 处执行’ESC-.’(按了ESC键后输入逗号.)，即可打开光标所在文字所在的exec_simple_query函数的定义文件。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>要完全理解PostgreSQL的话，通过调查源代码还是比较有效果的。要理解代码的话，可以按照目的自己追加必要的功能，改变一些功能的行为，大家可以最大限度的的享受开源带来的好处。这次为了让大家能够理解PostgreSQL的源代码，说明了PostgreSQL 9.1的全体结构，还有说明了代码树。然后还使用了调试器来追踪PostgreSQL的动作，接下来，看看PostgreSQL更详细的结构。<br>下次将继续调查parser的结构。<br>(2011年11月15日公開)</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20140326110628.html" title="[转载] PostgreSQL：体系结构( Pgsrcstructure )  ">https://postgres.fun/20140326110628.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20140325101317.html" rel="next" title="PostgreSQL：给日志库整库月分区表扩分区">
+                <i class="fa fa-chevron-left"></i> PostgreSQL：给日志库整库月分区表扩分区
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20140401175429.html" rel="prev" title="Ubuntu：安装任天堂红白机( 童年的回忆 ) ">
+                Ubuntu：安装任天堂红白机( 童年的回忆 )  <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pgsrcstructure"><span class="nav-number">1.</span> <span class="nav-text">Pgsrcstructure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PostgreSQL的使用形态"><span class="nav-number">2.</span> <span class="nav-text">PostgreSQL的使用形态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PostgreSQL的结构"><span class="nav-number">3.</span> <span class="nav-text">PostgreSQL的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Potgres-常驻进程"><span class="nav-number">3.1.</span> <span class="nav-text">Potgres(常驻进程)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Postgres-子进程"><span class="nav-number">3.2.</span> <span class="nav-text">Postgres(子进程)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他的进程"><span class="nav-number">3.3.</span> <span class="nav-text">其他的进程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Writer-process"><span class="nav-number">3.3.1.</span> <span class="nav-text">Writer process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WAL-writer-process"><span class="nav-number">3.3.2.</span> <span class="nav-text">WAL writer process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Archive-process"><span class="nav-number">3.3.3.</span> <span class="nav-text">Archive process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stats-collector-process"><span class="nav-number">3.3.4.</span> <span class="nav-text">stats collector process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Logger-process"><span class="nav-number">3.3.5.</span> <span class="nav-text">Logger process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Autovacuum启动进程"><span class="nav-number">3.3.6.</span> <span class="nav-text">Autovacuum启动进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动vacuum进程"><span class="nav-number">3.3.7.</span> <span class="nav-text">自动vacuum进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wal-sender-wal-receiver"><span class="nav-number">3.3.8.</span> <span class="nav-text">wal sender / wal receiver</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后端的处理流程"><span class="nav-number">3.4.</span> <span class="nav-text">后端的处理流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PostgreSQL的源码"><span class="nav-number">4.</span> <span class="nav-text">PostgreSQL的源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一级目录结构"><span class="nav-number">4.1.</span> <span class="nav-text">第一级目录结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码的阅读方法"><span class="nav-number">5.</span> <span class="nav-text">代码的阅读方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用调试器追踪代码"><span class="nav-number">5.1.</span> <span class="nav-text">用调试器追踪代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实际使用gdb试试"><span class="nav-number">5.2.</span> <span class="nav-text">实际使用gdb试试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用tag来跳转到相应的函数定义文件"><span class="nav-number">5.3.</span> <span class="nav-text">使用tag来跳转到相应的函数定义文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="和Oracle 一样，PostgreSQL 的表也有柱状图, 用于保存表的列的统计信息。可以通过查询系统视图 pg_stats.histogram_bounds 来查看列的柱状图。   官网关于柱状图的描述Histogram_bounds    A list of values that divide the column is values into groups of approximatel">
+<meta name="keywords" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈 PostgreSQL 的柱状图">
+<meta property="og:url" content="https://postgres.fun/20110226204146.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="和Oracle 一样，PostgreSQL 的表也有柱状图, 用于保存表的列的统计信息。可以通过查询系统视图 pg_stats.histogram_bounds 来查看列的柱状图。   官网关于柱状图的描述Histogram_bounds    A list of values that divide the column is values into groups of approximatel">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-04T01:33:48.427Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈 PostgreSQL 的柱状图">
+<meta name="twitter:description" content="和Oracle 一样，PostgreSQL 的表也有柱状图, 用于保存表的列的统计信息。可以通过查询系统视图 pg_stats.histogram_bounds 来查看列的柱状图。   官网关于柱状图的描述Histogram_bounds    A list of values that divide the column is values into groups of approximatel">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20110226204146.html"/>
+
+
+
+
+
+
+  <title>浅谈 PostgreSQL 的柱状图 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20110226204146.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈 PostgreSQL 的柱状图</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2011-02-26T20:41:46+08:00">
+                2011-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20110226204146.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20110226204146.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20110226204146.html" class="leancloud_visitors" data-flag-title="浅谈 PostgreSQL 的柱状图">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>和Oracle 一样，PostgreSQL 的表也有柱状图, 用于保存表的列的统计信息。可以通过查询系统视图 pg_stats.histogram_bounds 来查看列的柱状图。  </p>
+<h1 id="官网关于柱状图的描述"><a href="#官网关于柱状图的描述" class="headerlink" title="官网关于柱状图的描述"></a>官网关于柱状图的描述</h1><p>Histogram_bounds  </p>
+<blockquote>
+<p>A list of values that divide the column is values into groups of approximately<br>equal population. The values in most_common_vals, if present, are omitted from this<br>histogram calculation. (This column is NULL if the column data type does not have<br>a &lt; operator or if the most_common_vals list accounts for the entire population.)</p>
+</blockquote>
+<p>上面这段英文对英文基础不好的人来说，可能有点费力;偶读了半天，也似懂非懂，但第一句话提供了重要信息, 说柱状图是指一系列的值将表的列值分成近似相同的组；这句话可能翻译得不太好，等下通过实验来了解一下，就明白了。histogram_bounds 的值受参数 default_statistics_target 控制。default_statistics_target 默认值为100，default_statistics_target参数值越大，那么PG搜集的列上的统计信息就越精确，当然在表做 Analyze 操作时花费的时间也稍长些。</p>
+<p>参数 default_statistics_target 的描述  </p>
+<blockquote>
+<p>default_statistics_target (integer)<br> Sets the default statistics target for table columns without a column-specific<br>target set via ALTER TABLE SET STATISTICS. Larger values increase the time needed to<br>do ANALYZE, butmight improve the quality of the planner is estimates. The default is  </p>
+<ol start="100">
+<li>For moreinformation on the use of statistics by the PostgreSQL query planner,<br>refer to Section 14.2.</li>
+</ol>
+</blockquote>
+<h1 id="场景一-attstattarget-1000-时的场景"><a href="#场景一-attstattarget-1000-时的场景" class="headerlink" title="场景一: attstattarget 1000 时的场景"></a>场景一: attstattarget 1000 时的场景</h1><p>pg_attribute.attstattarget 是指列上统计信息搜集指标，默认值为系统 default_statistics_target ，当attstattarget 值为 -1 时, 表示使用系统的 “default_statistics_target”值，关于这个参数详见官网文档。  </p>
+<p>查看默认参数值<br><figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">skytf</span>=&gt; show default_statistics_target<span class="comment">;  </span></span><br><span class="line">default_statistics_target  </span><br><span class="line">---------------------------  </span><br><span class="line"><span class="number">1000</span>  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>查看表 test_11 的表 id上的 attstattarget 参数<br><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select oid,relname from pg_class <span class="keyword">where</span> relname='test_11';  </span><br><span class="line"> oid | <span class="type">relname</span>  </span><br><span class="line">----------+---------  </span><br><span class="line"><span class="number">14205208</span> | <span class="type">test_11</span>  </span><br><span class="line">(<span class="number">1</span> row)</span><br><span class="line"></span><br><span class="line">skytf=&gt; select attrelid,attname,attstattarget from pg_attribute <span class="keyword">where</span> attrelid=<span class="number">14205208</span> and attname=('id');  </span><br><span class="line">attrelid | <span class="type">attname</span> | <span class="type">attstattarget</span>  </span><br><span class="line">----------+---------+---------------  </span><br><span class="line"><span class="number">14205208</span> | <span class="type">id</span> | <span class="type">-1</span>  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>备注：从上面看出，表 test_11 的列 id上的 attstattarget 参数为 -1 ，即使用了系统的参数 default_statistics_target 值 100.</p>
+<p>创建测试表并测试数据<br><figure class="highlight clojure-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">skytf=&gt;</span><span class="clojure"> create table test_<span class="number">11</span> (<span class="name">id</span> integer ,name varchar(<span class="number">32</span>))<span class="comment">;  </span></span></span><br><span class="line">CREATE TABLE</span><br><span class="line"><span class="meta">skytf=&gt;</span><span class="clojure"> insert into test_<span class="number">11</span> select generate_series(<span class="number">1</span>,<span class="number">1000</span>),'francs'<span class="comment">;  </span></span></span><br><span class="line">INSERT 0 1000</span><br></pre></td></tr></table></figure></p>
+<p>表分析<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">skytf</span>=&gt; analyze test_11;  </span><br><span class="line"><span class="attribute">ANALYZE</span></span><br></pre></td></tr></table></figure></p>
+<p>查看表 test_11 列 id 上的柱状图<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select histogram_bounds from pg_stats where tablename='test_11' and attname='id';  </span><br><span class="line">  </span><br><span class="line">histogram_bounds</span><br><span class="line">--------------------------------------------------------------------  </span><br><span class="line">&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>,<span class="number">16</span>,<span class="number">17</span>,<span class="number">18</span>,<span class="number">19</span>,<span class="number">20</span>,<span class="number">21</span>,<span class="number">22</span>,<span class="number">23</span>,<span class="number">24</span>,<span class="number">25</span>,<span class="number">26</span>,<span class="number">27</span>,<span class="number">28</span>,<span class="number">29</span>,<span class="number">30</span>,<span class="number">31</span>,<span class="number">32</span>,<span class="number">33</span>,<span class="number">34</span>,<span class="number">35</span>,<span class="number">36</span>,<span class="number">37</span>,<span class="number">38</span>,<span class="number">39</span>,<span class="number">40</span>,<span class="number">41</span>,<span class="number">42</span>,<span class="number">43</span>,<span class="number">44</span>,<span class="number">45</span>,<span class="number">46</span>,<span class="number">4</span>  </span><br><span class="line"><span class="number">7</span>,<span class="number">48</span>,<span class="number">49</span>,<span class="number">50</span>,<span class="number">51</span>,<span class="number">52</span>,<span class="number">53</span>,<span class="number">54</span>,<span class="number">55</span>,<span class="number">56</span>,<span class="number">57</span>,<span class="number">58</span>,<span class="number">59</span>,<span class="number">60</span>,<span class="number">61</span>,<span class="number">62</span>,<span class="number">63</span>,<span class="number">64</span>,<span class="number">65</span>,<span class="number">66</span>,<span class="number">67</span>,<span class="number">68</span>,<span class="number">69</span>,<span class="number">70</span>,<span class="number">71</span>,<span class="number">72</span>,<span class="number">73</span>,<span class="number">74</span>,<span class="number">75</span>,<span class="number">76</span>,<span class="number">77</span>,<span class="number">78</span>,<span class="number">79</span>,<span class="number">80</span>,<span class="number">81</span>,<span class="number">82</span>,<span class="number">83</span>,<span class="number">84</span>,<span class="number">85</span>,<span class="number">86</span>,<span class="number">87</span>,<span class="number">88</span>,<span class="number">89</span>,<span class="number">90</span>,<span class="number">9</span>  </span><br><span class="line"><span class="number">1</span>,<span class="number">92</span>,<span class="number">93</span>,<span class="number">94</span>,<span class="number">95</span>,<span class="number">96</span>,<span class="number">97</span>,<span class="number">98</span>,<span class="number">99</span>,<span class="number">100</span>,<span class="number">101</span>,<span class="number">102</span>,<span class="number">103</span>,<span class="number">104</span>,<span class="number">105</span>,<span class="number">106</span>,<span class="number">107</span>,<span class="number">108</span>,<span class="number">109</span>,<span class="number">110</span>,<span class="number">111</span>,<span class="number">112</span>,<span class="number">113</span>,<span class="number">114</span>,<span class="number">115</span>,<span class="number">116</span>,<span class="number">117</span>,<span class="number">118</span>,<span class="number">119</span>,<span class="number">120</span>,<span class="number">121</span>,<span class="number">122</span>,<span class="number">123</span>,<span class="number">124</span>,<span class="number">125</span>,<span class="number">12</span>  </span><br><span class="line"><span class="number">6</span>,<span class="number">127</span>,<span class="number">128</span>,<span class="number">129</span>,<span class="number">130</span>,<span class="number">131</span>,<span class="number">132</span>,<span class="number">133</span>,<span class="number">134</span>,<span class="number">135</span>,<span class="number">136</span>,<span class="number">137</span>,<span class="number">138</span>,<span class="number">139</span>,<span class="number">140</span>,<span class="number">141</span>,<span class="number">142</span>,<span class="number">143</span>,<span class="number">144</span>,<span class="number">145</span>,<span class="number">146</span>,<span class="number">147</span>,<span class="number">148</span>,<span class="number">149</span>,<span class="number">150</span>,<span class="number">151</span>,<span class="number">152</span>,<span class="number">153</span>,<span class="number">154</span>,<span class="number">155</span>,<span class="number">156</span>,<span class="number">157</span>,<span class="number">158</span>,<span class="number">15</span>  </span><br><span class="line"><span class="number">9</span>,<span class="number">160</span>,<span class="number">161</span>,<span class="number">162</span>,<span class="number">163</span>,<span class="number">164</span>,<span class="number">165</span>,<span class="number">166</span>,<span class="number">167</span>,<span class="number">168</span>,<span class="number">169</span>,<span class="number">170</span>,<span class="number">171</span>,<span class="number">172</span>,<span class="number">173</span>,<span class="number">174</span>,<span class="number">175</span>,<span class="number">176</span>,<span class="number">177</span>,<span class="number">178</span>,<span class="number">179</span>,<span class="number">180</span>,<span class="number">181</span>,<span class="number">182</span>,<span class="number">183</span>,<span class="number">184</span>,<span class="number">185</span>,<span class="number">186</span>,<span class="number">187</span>,<span class="number">188</span>,<span class="number">189</span>,<span class="number">190</span>,<span class="number">191</span>,<span class="number">19</span>  </span><br><span class="line"><span class="number">2</span>,<span class="number">193</span>,<span class="number">194</span>,<span class="number">195</span>,<span class="number">196</span>,<span class="number">197</span>,<span class="number">198</span>,<span class="number">199</span>,<span class="number">200</span>,<span class="number">201</span>,<span class="number">202</span>,<span class="number">203</span>,<span class="number">204</span>,<span class="number">205</span>,<span class="number">206</span>,<span class="number">207</span>,<span class="number">208</span>,<span class="number">209</span>,<span class="number">210</span>,<span class="number">211</span>,<span class="number">212</span>,<span class="number">213</span>,<span class="number">214</span>,<span class="number">215</span>,<span class="number">216</span>,<span class="number">217</span>,<span class="number">218</span>,<span class="number">219</span>,<span class="number">220</span>,<span class="number">221</span>,<span class="number">222</span>,<span class="number">223</span>,<span class="number">224</span>,<span class="number">22</span>  </span><br><span class="line"><span class="number">5</span>,<span class="number">226</span>,<span class="number">227</span>,<span class="number">228</span>,<span class="number">229</span>,<span class="number">230</span>,<span class="number">231</span>,<span class="number">232</span>,<span class="number">233</span>,<span class="number">234</span>,<span class="number">235</span>,<span class="number">236</span>,<span class="number">237</span>,<span class="number">238</span>,<span class="number">239</span>,<span class="number">240</span>,<span class="number">241</span>,<span class="number">242</span>,<span class="number">243</span>,<span class="number">244</span>,<span class="number">245</span>,<span class="number">246</span>,<span class="number">247</span>,<span class="number">248</span>,<span class="number">249</span>,<span class="number">250</span>,<span class="number">251</span>,<span class="number">252</span>,<span class="number">253</span>,<span class="number">254</span>,<span class="number">255</span>,<span class="number">256</span>,<span class="number">257</span>,<span class="number">25</span>  </span><br><span class="line"><span class="number">8</span>,<span class="number">259</span>,<span class="number">260</span>,<span class="number">261</span>,<span class="number">262</span>,<span class="number">263</span>,<span class="number">264</span>,<span class="number">265</span>,<span class="number">266</span>,<span class="number">267</span>,<span class="number">268</span>,<span class="number">269</span>,<span class="number">270</span>,<span class="number">271</span>,<span class="number">272</span>,<span class="number">273</span>,<span class="number">274</span>,<span class="number">275</span>,<span class="number">276</span>,<span class="number">277</span>,<span class="number">278</span>,<span class="number">279</span>,<span class="number">280</span>,<span class="number">281</span>,<span class="number">282</span>,<span class="number">283</span>,<span class="number">284</span>,<span class="number">285</span>,<span class="number">286</span>,<span class="number">287</span>,<span class="number">288</span>,<span class="number">289</span>,<span class="number">290</span>,<span class="number">29</span>  </span><br><span class="line"><span class="number">1</span>,<span class="number">292</span>,<span class="number">293</span>,<span class="number">294</span>,<span class="number">295</span>,<span class="number">296</span>,<span class="number">297</span>,<span class="number">298</span>,<span class="number">299</span>,<span class="number">300</span>,<span class="number">301</span>,<span class="number">302</span>,<span class="number">303</span>,<span class="number">304</span>,<span class="number">305</span>,<span class="number">306</span>,<span class="number">307</span>,<span class="number">308</span>,<span class="number">309</span>,<span class="number">310</span>,<span class="number">311</span>,<span class="number">312</span>,<span class="number">313</span>,<span class="number">314</span>,<span class="number">315</span>,<span class="number">316</span>,<span class="number">317</span>,<span class="number">318</span>,<span class="number">319</span>,<span class="number">320</span>,<span class="number">321</span>,<span class="number">322</span>,<span class="number">323</span>,<span class="number">32</span>  </span><br><span class="line"><span class="number">4</span>,<span class="number">325</span>,<span class="number">326</span>,<span class="number">327</span>,<span class="number">328</span>,<span class="number">329</span>,<span class="number">330</span>,<span class="number">331</span>,<span class="number">332</span>,<span class="number">333</span>,<span class="number">334</span>,<span class="number">335</span>,<span class="number">336</span>,<span class="number">337</span>,<span class="number">338</span>,<span class="number">339</span>,<span class="number">340</span>,<span class="number">341</span>,<span class="number">342</span>,<span class="number">343</span>,<span class="number">344</span>,<span class="number">345</span>,<span class="number">346</span>,<span class="number">347</span>,<span class="number">348</span>,<span class="number">349</span>,<span class="number">350</span>,<span class="number">351</span>,<span class="number">352</span>,<span class="number">353</span>,<span class="number">354</span>,<span class="number">355</span>,<span class="number">356</span>,<span class="number">35</span>  </span><br><span class="line"><span class="number">7</span>,<span class="number">358</span>,<span class="number">359</span>,<span class="number">360</span>,<span class="number">361</span>,<span class="number">362</span>,<span class="number">363</span>,<span class="number">364</span>,<span class="number">365</span>,<span class="number">366</span>,<span class="number">367</span>,<span class="number">368</span>,<span class="number">369</span>,<span class="number">370</span>,<span class="number">371</span>,<span class="number">372</span>,<span class="number">373</span>,<span class="number">374</span>,<span class="number">375</span>,<span class="number">376</span>,<span class="number">377</span>,<span class="number">378</span>,<span class="number">379</span>,<span class="number">380</span>,<span class="number">381</span>,<span class="number">382</span>,<span class="number">383</span>,<span class="number">384</span>,<span class="number">385</span>,<span class="number">386</span>,<span class="number">387</span>,<span class="number">388</span>,<span class="number">389</span>,<span class="number">39</span>  </span><br><span class="line"><span class="number">0</span>,<span class="number">391</span>,<span class="number">392</span>,<span class="number">393</span>,<span class="number">394</span>,<span class="number">395</span>,<span class="number">396</span>,<span class="number">397</span>,<span class="number">398</span>,<span class="number">399</span>,<span class="number">400</span>,<span class="number">401</span>,<span class="number">402</span>,<span class="number">403</span>,<span class="number">404</span>,<span class="number">405</span>,<span class="number">406</span>,<span class="number">407</span>,<span class="number">408</span>,<span class="number">409</span>,<span class="number">410</span>,<span class="number">411</span>,<span class="number">412</span>,<span class="number">413</span>,<span class="number">414</span>,<span class="number">415</span>,<span class="number">416</span>,<span class="number">417</span>,<span class="number">418</span>,<span class="number">419</span>,<span class="number">420</span>,<span class="number">421</span>,<span class="number">422</span>,<span class="number">42</span>  </span><br><span class="line"><span class="number">3</span>,<span class="number">424</span>,<span class="number">425</span>,<span class="number">426</span>,<span class="number">427</span>,<span class="number">428</span>,<span class="number">429</span>,<span class="number">430</span>,<span class="number">431</span>,<span class="number">432</span>,<span class="number">433</span>,<span class="number">434</span>,<span class="number">435</span>,<span class="number">436</span>,<span class="number">437</span>,<span class="number">438</span>,<span class="number">439</span>,<span class="number">440</span>,<span class="number">441</span>,<span class="number">442</span>,<span class="number">443</span>,<span class="number">444</span>,<span class="number">445</span>,<span class="number">446</span>,<span class="number">447</span>,<span class="number">448</span>,<span class="number">449</span>,<span class="number">450</span>,<span class="number">451</span>,<span class="number">452</span>,<span class="number">453</span>,<span class="number">454</span>,<span class="number">455</span>,<span class="number">45</span>  </span><br><span class="line"><span class="number">6</span>,<span class="number">457</span>,<span class="number">458</span>,<span class="number">459</span>,<span class="number">460</span>,<span class="number">461</span>,<span class="number">462</span>,<span class="number">463</span>,<span class="number">464</span>,<span class="number">465</span>,<span class="number">466</span>,<span class="number">467</span>,<span class="number">468</span>,<span class="number">469</span>,<span class="number">470</span>,<span class="number">471</span>,<span class="number">472</span>,<span class="number">473</span>,<span class="number">474</span>,<span class="number">475</span>,<span class="number">476</span>,<span class="number">477</span>,<span class="number">478</span>,<span class="number">479</span>,<span class="number">480</span>,<span class="number">481</span>,<span class="number">482</span>,<span class="number">483</span>,<span class="number">484</span>,<span class="number">485</span>,<span class="number">486</span>,<span class="number">487</span>,<span class="number">488</span>,<span class="number">48</span>  </span><br><span class="line"><span class="number">9</span>,<span class="number">490</span>,<span class="number">491</span>,<span class="number">492</span>,<span class="number">493</span>,<span class="number">494</span>,<span class="number">495</span>,<span class="number">496</span>,<span class="number">497</span>,<span class="number">498</span>,<span class="number">499</span>,<span class="number">500</span>,<span class="number">501</span>,<span class="number">502</span>,<span class="number">503</span>,<span class="number">504</span>,<span class="number">505</span>,<span class="number">506</span>,<span class="number">507</span>,<span class="number">508</span>,<span class="number">509</span>,<span class="number">510</span>,<span class="number">511</span>,<span class="number">512</span>,<span class="number">513</span>,<span class="number">514</span>,<span class="number">515</span>,<span class="number">516</span>,<span class="number">517</span>,<span class="number">518</span>,<span class="number">519</span>,<span class="number">520</span>,<span class="number">521</span>,<span class="number">52</span>  </span><br><span class="line"><span class="number">2</span>,<span class="number">523</span>,<span class="number">524</span>,<span class="number">525</span>,<span class="number">526</span>,<span class="number">527</span>,<span class="number">528</span>,<span class="number">529</span>,<span class="number">530</span>,<span class="number">531</span>,<span class="number">532</span>,<span class="number">533</span>,<span class="number">534</span>,<span class="number">535</span>,<span class="number">536</span>,<span class="number">537</span>,<span class="number">538</span>,<span class="number">539</span>,<span class="number">540</span>,<span class="number">541</span>,<span class="number">542</span>,<span class="number">543</span>,<span class="number">544</span>,<span class="number">545</span>,<span class="number">546</span>,<span class="number">547</span>,<span class="number">548</span>,<span class="number">549</span>,<span class="number">550</span>,<span class="number">551</span>,<span class="number">552</span>,<span class="number">553</span>,<span class="number">554</span>,<span class="number">55</span>  </span><br><span class="line"><span class="number">5</span>,<span class="number">556</span>,<span class="number">557</span>,<span class="number">558</span>,<span class="number">559</span>,<span class="number">560</span>,<span class="number">561</span>,<span class="number">562</span>,<span class="number">563</span>,<span class="number">564</span>,<span class="number">565</span>,<span class="number">566</span>,<span class="number">567</span>,<span class="number">568</span>,<span class="number">569</span>,<span class="number">570</span>,<span class="number">571</span>,<span class="number">572</span>,<span class="number">573</span>,<span class="number">574</span>,<span class="number">575</span>,<span class="number">576</span>,<span class="number">577</span>,<span class="number">578</span>,<span class="number">579</span>,<span class="number">580</span>,<span class="number">581</span>,<span class="number">582</span>,<span class="number">583</span>,<span class="number">584</span>,<span class="number">585</span>,<span class="number">586</span>,<span class="number">587</span>,<span class="number">58</span>  </span><br><span class="line"><span class="number">8</span>,<span class="number">589</span>,<span class="number">590</span>,<span class="number">591</span>,<span class="number">592</span>,<span class="number">593</span>,<span class="number">594</span>,<span class="number">595</span>,<span class="number">596</span>,<span class="number">597</span>,<span class="number">598</span>,<span class="number">599</span>,<span class="number">600</span>,<span class="number">601</span>,<span class="number">602</span>,<span class="number">603</span>,<span class="number">604</span>,<span class="number">605</span>,<span class="number">606</span>,<span class="number">607</span>,<span class="number">608</span>,<span class="number">609</span>,<span class="number">610</span>,<span class="number">611</span>,<span class="number">612</span>,<span class="number">613</span>,<span class="number">614</span>,<span class="number">615</span>,<span class="number">616</span>,<span class="number">617</span>,<span class="number">618</span>,<span class="number">619</span>,<span class="number">620</span>,<span class="number">62</span>  </span><br><span class="line"><span class="number">1</span>,<span class="number">622</span>,<span class="number">623</span>,<span class="number">624</span>,<span class="number">625</span>,<span class="number">626</span>,<span class="number">627</span>,<span class="number">628</span>,<span class="number">629</span>,<span class="number">630</span>,<span class="number">631</span>,<span class="number">632</span>,<span class="number">633</span>,<span class="number">634</span>,<span class="number">635</span>,<span class="number">636</span>,<span class="number">637</span>,<span class="number">638</span>,<span class="number">639</span>,<span class="number">640</span>,<span class="number">641</span>,<span class="number">642</span>,<span class="number">643</span>,<span class="number">644</span>,<span class="number">645</span>,<span class="number">646</span>,<span class="number">647</span>,<span class="number">648</span>,<span class="number">649</span>,<span class="number">650</span>,<span class="number">651</span>,<span class="number">652</span>,<span class="number">653</span>,<span class="number">65</span>  </span><br><span class="line"><span class="number">4</span>,<span class="number">655</span>,<span class="number">656</span>,<span class="number">657</span>,<span class="number">658</span>,<span class="number">659</span>,<span class="number">660</span>,<span class="number">661</span>,<span class="number">662</span>,<span class="number">663</span>,<span class="number">664</span>,<span class="number">665</span>,<span class="number">666</span>,<span class="number">667</span>,<span class="number">668</span>,<span class="number">669</span>,<span class="number">670</span>,<span class="number">671</span>,<span class="number">672</span>,<span class="number">673</span>,<span class="number">674</span>,<span class="number">675</span>,<span class="number">676</span>,<span class="number">677</span>,<span class="number">678</span>,<span class="number">679</span>,<span class="number">680</span>,<span class="number">681</span>,<span class="number">682</span>,<span class="number">683</span>,<span class="number">684</span>,<span class="number">685</span>,<span class="number">686</span>,<span class="number">68</span>  </span><br><span class="line"><span class="number">7</span>,<span class="number">688</span>,<span class="number">689</span>,<span class="number">690</span>,<span class="number">691</span>,<span class="number">692</span>,<span class="number">693</span>,<span class="number">694</span>,<span class="number">695</span>,<span class="number">696</span>,<span class="number">697</span>,<span class="number">698</span>,<span class="number">699</span>,<span class="number">700</span>,<span class="number">701</span>,<span class="number">702</span>,<span class="number">703</span>,<span class="number">704</span>,<span class="number">705</span>,<span class="number">706</span>,<span class="number">707</span>,<span class="number">708</span>,<span class="number">709</span>,<span class="number">710</span>,<span class="number">711</span>,<span class="number">712</span>,<span class="number">713</span>,<span class="number">714</span>,<span class="number">715</span>,<span class="number">716</span>,<span class="number">717</span>,<span class="number">718</span>,<span class="number">719</span>,<span class="number">72</span>  </span><br><span class="line"><span class="number">0</span>,<span class="number">721</span>,<span class="number">722</span>,<span class="number">723</span>,<span class="number">724</span>,<span class="number">725</span>,<span class="number">726</span>,<span class="number">727</span>,<span class="number">728</span>,<span class="number">729</span>,<span class="number">730</span>,<span class="number">731</span>,<span class="number">732</span>,<span class="number">733</span>,<span class="number">734</span>,<span class="number">735</span>,<span class="number">736</span>,<span class="number">737</span>,<span class="number">738</span>,<span class="number">739</span>,<span class="number">740</span>,<span class="number">741</span>,<span class="number">742</span>,<span class="number">743</span>,<span class="number">744</span>,<span class="number">745</span>,<span class="number">746</span>,<span class="number">747</span>,<span class="number">748</span>,<span class="number">749</span>,<span class="number">750</span>,<span class="number">751</span>,<span class="number">752</span>,<span class="number">75</span>  </span><br><span class="line"><span class="number">3</span>,<span class="number">754</span>,<span class="number">755</span>,<span class="number">756</span>,<span class="number">757</span>,<span class="number">758</span>,<span class="number">759</span>,<span class="number">760</span>,<span class="number">761</span>,<span class="number">762</span>,<span class="number">763</span>,<span class="number">764</span>,<span class="number">765</span>,<span class="number">766</span>,<span class="number">767</span>,<span class="number">768</span>,<span class="number">769</span>,<span class="number">770</span>,<span class="number">771</span>,<span class="number">772</span>,<span class="number">773</span>,<span class="number">774</span>,<span class="number">775</span>,<span class="number">776</span>,<span class="number">777</span>,<span class="number">778</span>,<span class="number">779</span>,<span class="number">780</span>,<span class="number">781</span>,<span class="number">782</span>,<span class="number">783</span>,<span class="number">784</span>,<span class="number">785</span>,<span class="number">78</span>  </span><br><span class="line"><span class="number">6</span>,<span class="number">787</span>,<span class="number">788</span>,<span class="number">789</span>,<span class="number">790</span>,<span class="number">791</span>,<span class="number">792</span>,<span class="number">793</span>,<span class="number">794</span>,<span class="number">795</span>,<span class="number">796</span>,<span class="number">797</span>,<span class="number">798</span>,<span class="number">799</span>,<span class="number">800</span>,<span class="number">801</span>,<span class="number">802</span>,<span class="number">803</span>,<span class="number">804</span>,<span class="number">805</span>,<span class="number">806</span>,<span class="number">807</span>,<span class="number">808</span>,<span class="number">809</span>,<span class="number">810</span>,<span class="number">811</span>,<span class="number">812</span>,<span class="number">813</span>,<span class="number">814</span>,<span class="number">815</span>,<span class="number">816</span>,<span class="number">817</span>,<span class="number">818</span>,<span class="number">81</span>  </span><br><span class="line"><span class="number">9</span>,<span class="number">820</span>,<span class="number">821</span>,<span class="number">822</span>,<span class="number">823</span>,<span class="number">824</span>,<span class="number">825</span>,<span class="number">826</span>,<span class="number">827</span>,<span class="number">828</span>,<span class="number">829</span>,<span class="number">830</span>,<span class="number">831</span>,<span class="number">832</span>,<span class="number">833</span>,<span class="number">834</span>,<span class="number">835</span>,<span class="number">836</span>,<span class="number">837</span>,<span class="number">838</span>,<span class="number">839</span>,<span class="number">840</span>,<span class="number">841</span>,<span class="number">842</span>,<span class="number">843</span>,<span class="number">844</span>,<span class="number">845</span>,<span class="number">846</span>,<span class="number">847</span>,<span class="number">848</span>,<span class="number">849</span>,<span class="number">850</span>,<span class="number">851</span>,<span class="number">85</span>  </span><br><span class="line"><span class="number">2</span>,<span class="number">853</span>,<span class="number">854</span>,<span class="number">855</span>,<span class="number">856</span>,<span class="number">857</span>,<span class="number">858</span>,<span class="number">859</span>,<span class="number">860</span>,<span class="number">861</span>,<span class="number">862</span>,<span class="number">863</span>,<span class="number">864</span>,<span class="number">865</span>,<span class="number">866</span>,<span class="number">867</span>,<span class="number">868</span>,<span class="number">869</span>,<span class="number">870</span>,<span class="number">871</span>,<span class="number">872</span>,<span class="number">873</span>,<span class="number">874</span>,<span class="number">875</span>,<span class="number">876</span>,<span class="number">877</span>,<span class="number">878</span>,<span class="number">879</span>,<span class="number">880</span>,<span class="number">881</span>,<span class="number">882</span>,<span class="number">883</span>,<span class="number">884</span>,<span class="number">88</span>  </span><br><span class="line"><span class="number">5</span>,<span class="number">886</span>,<span class="number">887</span>,<span class="number">888</span>,<span class="number">889</span>,<span class="number">890</span>,<span class="number">891</span>,<span class="number">892</span>,<span class="number">893</span>,<span class="number">894</span>,<span class="number">895</span>,<span class="number">896</span>,<span class="number">897</span>,<span class="number">898</span>,<span class="number">899</span>,<span class="number">900</span>,<span class="number">901</span>,<span class="number">902</span>,<span class="number">903</span>,<span class="number">904</span>,<span class="number">905</span>,<span class="number">906</span>,<span class="number">907</span>,<span class="number">908</span>,<span class="number">909</span>,<span class="number">910</span>,<span class="number">911</span>,<span class="number">912</span>,<span class="number">913</span>,<span class="number">914</span>,<span class="number">915</span>,<span class="number">916</span>,<span class="number">917</span>,<span class="number">91</span>  </span><br><span class="line"><span class="number">8</span>,<span class="number">919</span>,<span class="number">920</span>,<span class="number">921</span>,<span class="number">922</span>,<span class="number">923</span>,<span class="number">924</span>,<span class="number">925</span>,<span class="number">926</span>,<span class="number">927</span>,<span class="number">928</span>,<span class="number">929</span>,<span class="number">930</span>,<span class="number">931</span>,<span class="number">932</span>,<span class="number">933</span>,<span class="number">934</span>,<span class="number">935</span>,<span class="number">936</span>,<span class="number">937</span>,<span class="number">938</span>,<span class="number">939</span>,<span class="number">940</span>,<span class="number">941</span>,<span class="number">942</span>,<span class="number">943</span>,<span class="number">944</span>,<span class="number">945</span>,<span class="number">946</span>,<span class="number">947</span>,<span class="number">948</span>,<span class="number">949</span>,<span class="number">950</span>,<span class="number">95</span>  </span><br><span class="line"><span class="number">1</span>,<span class="number">952</span>,<span class="number">953</span>,<span class="number">954</span>,<span class="number">955</span>,<span class="number">956</span>,<span class="number">957</span>,<span class="number">958</span>,<span class="number">959</span>,<span class="number">960</span>,<span class="number">961</span>,<span class="number">962</span>,<span class="number">963</span>,<span class="number">964</span>,<span class="number">965</span>,<span class="number">966</span>,<span class="number">967</span>,<span class="number">968</span>,<span class="number">969</span>,<span class="number">970</span>,<span class="number">971</span>,<span class="number">972</span>,<span class="number">973</span>,<span class="number">974</span>,<span class="number">975</span>,<span class="number">976</span>,<span class="number">977</span>,<span class="number">978</span>,<span class="number">979</span>,<span class="number">980</span>,<span class="number">981</span>,<span class="number">982</span>,<span class="number">983</span>,<span class="number">98</span>  </span><br><span class="line"><span class="number">4</span>,<span class="number">985</span>,<span class="number">986</span>,<span class="number">987</span>,<span class="number">988</span>,<span class="number">989</span>,<span class="number">990</span>,<span class="number">991</span>,<span class="number">992</span>,<span class="number">993</span>,<span class="number">994</span>,<span class="number">995</span>,<span class="number">996</span>,<span class="number">997</span>,<span class="number">998</span>,<span class="number">999</span>,<span class="number">1000</span>&#125;  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>备注：当default_statistics_target为 1000时，柱状图被分为 1000组。</p>
+<h1 id="场景二-attstattarget-100-时的场景"><a href="#场景二-attstattarget-100-时的场景" class="headerlink" title="场景二: attstattarget 100 时的场景"></a>场景二: attstattarget 100 时的场景</h1><p>更改表列上的attstattarget参数<br><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; alter <span class="keyword">table</span> test_11 <span class="comment">alter column id set STATISTICS 100</span>;  </span><br><span class="line">ALTER <span class="keyword">TABLE</span></span><br></pre></td></tr></table></figure></p>
+<p>验证下，attstattarget值已经改成100了<br><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select attrelid,attname,attstattarget from pg_attribute <span class="keyword">where</span> attrelid=<span class="number">14205208</span> and attname=('id');  </span><br><span class="line">attrelid | <span class="type">attname</span> | <span class="type">attstattarget</span>  </span><br><span class="line">----------+---------+---------------  </span><br><span class="line"><span class="number">14205208</span> | <span class="type">id</span> | <span class="type">100</span>  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>表分析,当执行 analyze 命令后，看下结果<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">skytf</span>=&gt; analyze test_11;  </span><br><span class="line"><span class="attribute">ANALYZE</span></span><br></pre></td></tr></table></figure></p>
+<p>再次查看柱状图<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select histogram_bounds from pg_stats where tablename='test_11' and attname='id';  </span><br><span class="line">  </span><br><span class="line"> histogram_bounds  </span><br><span class="line"></span><br><span class="line">------------------------------------------------------------------------------------------------------------------------------------  </span><br><span class="line">------------------------------------------------------------------------------------------------------------------------------------    </span><br><span class="line">&#123;<span class="number">1</span>,<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>,<span class="number">60</span>,<span class="number">70</span>,<span class="number">80</span>,<span class="number">90</span>,<span class="number">100</span>,<span class="number">110</span>,<span class="number">120</span>,<span class="number">130</span>,<span class="number">140</span>,<span class="number">150</span>,<span class="number">160</span>,<span class="number">170</span>,<span class="number">180</span>,<span class="number">190</span>,<span class="number">200</span>,<span class="number">210</span>,<span class="number">220</span>,<span class="number">230</span>,<span class="number">240</span>,<span class="number">250</span>,<span class="number">260</span>,<span class="number">270</span>,<span class="number">280</span>,<span class="number">290</span>,<span class="number">300</span>,<span class="number">310</span>,<span class="number">320</span>,<span class="number">330</span>,<span class="number">340</span>,<span class="number">3</span>  </span><br><span class="line"><span class="number">50</span>,<span class="number">360</span>,<span class="number">370</span>,<span class="number">380</span>,<span class="number">390</span>,<span class="number">400</span>,<span class="number">410</span>,<span class="number">420</span>,<span class="number">430</span>,<span class="number">440</span>,<span class="number">450</span>,<span class="number">460</span>,<span class="number">470</span>,<span class="number">480</span>,<span class="number">490</span>,<span class="number">500</span>,<span class="number">510</span>,<span class="number">520</span>,<span class="number">530</span>,<span class="number">540</span>,<span class="number">550</span>,<span class="number">560</span>,<span class="number">570</span>,<span class="number">580</span>,<span class="number">590</span>,<span class="number">600</span>,<span class="number">610</span>,<span class="number">620</span>,<span class="number">630</span>,<span class="number">640</span>,<span class="number">650</span>,<span class="number">660</span>,<span class="number">670</span>,<span class="number">6</span>  </span><br><span class="line"><span class="number">80</span>,<span class="number">690</span>,<span class="number">700</span>,<span class="number">710</span>,<span class="number">720</span>,<span class="number">730</span>,<span class="number">740</span>,<span class="number">750</span>,<span class="number">760</span>,<span class="number">770</span>,<span class="number">780</span>,<span class="number">790</span>,<span class="number">800</span>,<span class="number">810</span>,<span class="number">820</span>,<span class="number">830</span>,<span class="number">840</span>,<span class="number">850</span>,<span class="number">860</span>,<span class="number">870</span>,<span class="number">880</span>,<span class="number">890</span>,<span class="number">900</span>,<span class="number">910</span>,<span class="number">920</span>,<span class="number">930</span>,<span class="number">940</span>,<span class="number">950</span>,<span class="number">960</span>,<span class="number">970</span>,<span class="number">980</span>,<span class="number">990</span>,<span class="number">1000</span>&#125;  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>备注：表”test_11” 的列ID上的 histogram_bounds 已经被分成了100组。  </p>
+<h1 id="场景三-attstattarget-10-时的场景"><a href="#场景三-attstattarget-10-时的场景" class="headerlink" title="场景三: attstattarget 10 时的场景"></a>场景三: attstattarget 10 时的场景</h1><p>更改表列上的attstattarget参数<br><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; alter <span class="keyword">table</span> test_11 <span class="comment">alter column id set STATISTICS 10</span>;  </span><br><span class="line">ALTER <span class="keyword">TABLE</span></span><br></pre></td></tr></table></figure></p>
+<p>验证下，attstattarget值已经改成10了<br><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select attrelid,attname,attstattarget from pg_attribute <span class="keyword">where</span> attrelid=<span class="number">14205208</span> and attname=('id');  </span><br><span class="line">attrelid | <span class="type">attname</span> | <span class="type">attstattarget</span>  </span><br><span class="line">----------+---------+---------------  </span><br><span class="line"><span class="number">14205208</span> | <span class="type">id</span> | <span class="type">10</span>  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>表分析,当执行 analyze 命令后，看下结果<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">skytf</span>=&gt; analyze test_11;  </span><br><span class="line"><span class="attribute">ANALYZE</span></span><br></pre></td></tr></table></figure></p>
+<p>再次查看柱状图<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">skytf=&gt; select histogram_bounds from pg_stats where tablename='test_11' and attname='id';  </span><br><span class="line"> histogram_bounds  </span><br><span class="line">----------------------------------------------  </span><br><span class="line">&#123;<span class="number">1</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">300</span>,<span class="number">400</span>,<span class="number">500</span>,<span class="number">600</span>,<span class="number">700</span>,<span class="number">800</span>,<span class="number">900</span>,<span class="number">1000</span>&#125;  </span><br><span class="line">(<span class="number">1</span> row)</span><br></pre></td></tr></table></figure></p>
+<p>备注：表”test_11” 的列ID上的 histogram_bounds 已经被分成了10 组。  </p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><ol>
+<li>列上的柱状图信息可以通过 “alter table set STATISTICS “来更改，并通过视图 pg_attribute.attstattarget来查看列上的当前 statistics 值。  </li>
+<li><p>列上的柱状图被近似均匀的分割成 “pg_attribute.attstattarget” 组。即<br>当 pg_attribute.attstattarget 值为 1000时，则列上的柱状图分为 1000组,<br>当 pg_attribute.attstattarget 值为 100时， 则列上的柱状图分为 100组,<br>当 pg_attribute.attstattarget 值为 10时， 则列上的柱状图分为 10组。  </p>
+</li>
+<li><p>列上 STATISTICS 值越高，则柱状图分割的组越多，柱状图信息越详细 ,但做表分析时，所花的时间也稍长。</p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20110226204146.html" title="浅谈 PostgreSQL 的柱状图">https://postgres.fun/20110226204146.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20110225152056.html" rel="next" title="Using CONCURRENTLY without taking any locks when creating index">
+                <i class="fa fa-chevron-left"></i> Using CONCURRENTLY without taking any locks when creating index
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20110301163225.html" rel="prev" title="全表扫描 Cost 代价计算方法">
+                全表扫描 Cost 代价计算方法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#官网关于柱状图的描述"><span class="nav-number">1.</span> <span class="nav-text">官网关于柱状图的描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#场景一-attstattarget-1000-时的场景"><span class="nav-number">2.</span> <span class="nav-text">场景一: attstattarget 1000 时的场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#场景二-attstattarget-100-时的场景"><span class="nav-number">3.</span> <span class="nav-text">场景二: attstattarget 100 时的场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#场景三-attstattarget-10-时的场景"><span class="nav-number">4.</span> <span class="nav-text">场景三: attstattarget 10 时的场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">5.</span> <span class="nav-text">结论</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

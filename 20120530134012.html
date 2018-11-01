@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="pgstatspack_version_2.3.1 去年就已经出来了，一直没怎么去用，今天测试了下新版的 pgstatspack，新版的 statspack 报告的内容比以前详细很多，越来越像 Oracle 的 awr 报告了。关闭 pgstatspack 的安装 ，报告生成可以参考以前写的 blog: https://postgres.fun/20100810142325.html  今天主要演">
+<meta name="keywords" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pgstatspack_version_2.3.1 报告内容分析">
+<meta property="og:url" content="https://postgres.fun/20120530134012.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="pgstatspack_version_2.3.1 去年就已经出来了，一直没怎么去用，今天测试了下新版的 pgstatspack，新版的 statspack 报告的内容比以前详细很多，越来越像 Oracle 的 awr 报告了。关闭 pgstatspack 的安装 ，报告生成可以参考以前写的 blog: https://postgres.fun/20100810142325.html  今天主要演">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-04T01:33:56.430Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pgstatspack_version_2.3.1 报告内容分析">
+<meta name="twitter:description" content="pgstatspack_version_2.3.1 去年就已经出来了，一直没怎么去用，今天测试了下新版的 pgstatspack，新版的 statspack 报告的内容比以前详细很多，越来越像 Oracle 的 awr 报告了。关闭 pgstatspack 的安装 ，报告生成可以参考以前写的 blog: https://postgres.fun/20100810142325.html  今天主要演">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20120530134012.html"/>
+
+
+
+
+
+
+  <title>Pgstatspack_version_2.3.1 报告内容分析 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20120530134012.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Pgstatspack_version_2.3.1 报告内容分析</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2012-05-30T13:40:12+08:00">
+                2012-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20120530134012.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20120530134012.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20120530134012.html" class="leancloud_visitors" data-flag-title="Pgstatspack_version_2.3.1 报告内容分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>pgstatspack_version_2.3.1 去年就已经出来了，一直没怎么去用，今天测试了下新版的 pgstatspack，新版的 statspack 报告的内容比以前详细很多，越来越像 Oracle 的 awr 报告了。关闭 pgstatspack 的安装 ，报告生成可以参考以前写的 blog: <a href="https://postgres.fun/20100810142325.html">https://postgres.fun/20100810142325.html</a> </p>
+<p>今天主要演示新版 pgstatspack 报告内容。</p>
+<h1 id="Pgstatspack-报告内容"><a href="#Pgstatspack-报告内容" class="headerlink" title="Pgstatspack 报告内容"></a>Pgstatspack 报告内容</h1><p>以下是在很空闲的测试库上生成的 pgstatspack 报告，带”备注”是分析。  </p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">###########################################################################################################  </span><br><span class="line">PGStatspack version <span class="number">2.3</span> by [uwe.bartels@gmail.com](mailto:uwe.bartels@gmail.com)  </span><br><span class="line">###########################################################################################################</span><br><span class="line">Snapshot information  </span><br><span class="line">Begin snapshot :  </span><br><span class="line">snapid | ts | description  </span><br><span class="line">--------+---------------------------+----------------------  </span><br><span class="line"> <span class="number">1</span> | <span class="number">2012</span><span class="number">-05</span><span class="number">-30</span> <span class="number">09</span>:<span class="number">34</span>:<span class="number">10.05015</span> | my first pgstatspack  </span><br><span class="line">(<span class="number">1</span> row)</span><br><span class="line">End snapshot :  </span><br><span class="line">snapid | ts | description  </span><br><span class="line">--------+----------------------------+-----------------------  </span><br><span class="line"> <span class="number">2</span> | <span class="number">2012</span><span class="number">-05</span><span class="number">-30</span> <span class="number">09</span>:<span class="number">35</span>:<span class="number">17.261398</span> | my second pgstatspack  </span><br><span class="line">(<span class="number">1</span> row)</span><br><span class="line">Seconds <span class="keyword">in</span> snapshot: <span class="number">67.211248</span></span><br></pre></td></tr></table></figure>
+<p>备注：报告中需要根据 “Begin snapshot” 和 “ End snapshot “ 才能生成，这和 oracle 的 statpack 一样。</p>
+<h2 id="数据库版本和统计信息"><a href="#数据库版本和统计信息" class="headerlink" title="数据库版本和统计信息"></a>数据库版本和统计信息</h2><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Database version  </span><br><span class="line"> version  </span><br><span class="line">----------------------------------------------------------------------------------------------------------  </span><br><span class="line">PostgreSQL <span class="number">9.2</span>beta1 on i686-pc-linux-gnu, compiled by gcc (GCC) <span class="number">4.4</span><span class="number">.6</span> <span class="number">20110731</span> (Red Hat <span class="number">4.4</span><span class="number">.6</span><span class="number">-3</span>), <span class="number">32</span>-bit  </span><br><span class="line">(<span class="number">1</span> row)</span><br><span class="line">current_database | dbsize  </span><br><span class="line">------------------+--------  </span><br><span class="line">francs | <span class="number">312</span> MB  </span><br><span class="line">(<span class="number">1</span> row)</span><br><span class="line">  </span><br><span class="line">Database statistics  </span><br><span class="line">database | tps | hitrate | lio_ps | pio_ps | rollbk_ps  </span><br><span class="line">-----------+------+---------+--------+--------+-----------  </span><br><span class="line">francs | <span class="number">0.18</span> | <span class="number">99.00</span> | <span class="number">99.48</span> | <span class="number">0.71</span> | <span class="number">0.00</span>  </span><br><span class="line">postgres | <span class="number">0.06</span> | <span class="number">99.00</span> | <span class="number">3.84</span> | <span class="number">0.00</span> | <span class="number">0.00</span>  </span><br><span class="line">template1 | <span class="number">0.03</span> | <span class="number">98.00</span> | <span class="number">0.82</span> | <span class="number">0.00</span> | <span class="number">0.00</span>  </span><br><span class="line">template0 | <span class="number">0.00</span> | <span class="number">0.00</span> | <span class="number">0.00</span> | <span class="number">0.00</span> | <span class="number">0.00</span>  </span><br><span class="line">(<span class="number">4</span> rows)</span><br></pre></td></tr></table></figure>
+<p>备注：这里统计了快照之间数据库的信息.  </p>
+<ul>
+<li>tps: 快照之间提交的事务数。 (pg_stat_database.xact_commit)  </li>
+<li>hitrate： 快照之间缓存命中率 pg_stat_database.blks_hit - cache reads  </li>
+<li>pg_stat_database.blks_read - physical reads  </li>
+<li>lio_ps: 快照之间每秒逻辑读次数 (pg_stat_database.blks_hit + pg_stat_database.blks_read)  </li>
+<li>pio_ps: 快照之间每秒物理读次数 (pg_stat_database.blks_read )  </li>
+<li>rollbk_ps: 快照之间事务回滚的次数 (pg_stat_database.xact_rollback)</li>
+</ul>
+<h2 id="表数据变化-top-20"><a href="#表数据变化-top-20" class="headerlink" title="表数据变化 top 20"></a>表数据变化 top 20</h2><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Top 20 tables ordered by table size changes  </span><br><span class="line"> table |<span class="string"> table_growth </span>|<span class="string"> index_growth  </span></span><br><span class="line"><span class="string">------------------------------------+--------------+--------------  </span></span><br><span class="line"><span class="string">pg_catalog.pg_shseclabel </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_toast.pg_toast_2396 </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_ts_config </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">public.pgstatspack_tables </span>|<span class="string"> </span>|<span class="string"> 8192  </span></span><br><span class="line"><span class="string">pg_catalog.pg_ts_dict </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_foreign_server </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">francs.test_float4 </span>|<span class="string"> </span>|<span class="string">  </span></span><br><span class="line"><span class="string">pg_catalog.pg_language </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_toast.pg_toast_3596 </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">francs.test_check </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_cast </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">public.pgstatspack_indexes </span>|<span class="string"> </span>|<span class="string"> 8192  </span></span><br><span class="line"><span class="string">francs.test_dropindex </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_depend </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">public.pgstatspack_sequences </span>|<span class="string"> </span>|<span class="string"> 8192  </span></span><br><span class="line"><span class="string">public.pgstatspack_database </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_largeobject_metadata </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_authid </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_namespace </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">pg_catalog.pg_extension </span>|<span class="string"> </span>|<span class="string"> 0  </span></span><br><span class="line"><span class="string">(20 rows)</span></span><br></pre></td></tr></table></figure>
+<h2 id="Top-20-tables-ordered-by-high-table-to-index-read-ratio"><a href="#Top-20-tables-ordered-by-high-table-to-index-read-ratio" class="headerlink" title="Top 20 tables ordered by high table to index read ratio"></a>Top 20 tables ordered by high table to index read ratio</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">table | <span class="type">system_read_pct</span> | <span class="type">table_read_pct</span> | <span class="type">index_read_pct</span>  </span><br><span class="line">--------------------------+-----------------+----------------+----------------  </span><br><span class="line">francs.test_1 | <span class="type">38</span> | <span class="type">100</span> | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_class | <span class="type">22</span> | <span class="type">90</span> | <span class="type">9</span>  </span><br><span class="line">pg_catalog.pg_proc | <span class="type">19</span> | <span class="type">99</span> | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_names | <span class="type">8</span> | <span class="type">88</span> | <span class="type">11</span>  </span><br><span class="line">pg_catalog.pg_index | <span class="type">4</span> | <span class="type">91</span> | <span class="type">8</span>  </span><br><span class="line">pg_catalog.pg_attribute | <span class="type">2</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_opclass | <span class="type">1</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_am | <span class="type">0</span> | <span class="type">100</span> | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_database | <span class="type">0</span> | <span class="type">54</span> | <span class="type">45</span>  </span><br><span class="line">pg_catalog.pg_namespace | <span class="type">0</span> | <span class="type">25</span> | <span class="type">74</span>  </span><br><span class="line">pg_catalog.pg_amproc | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_type | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_amop | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_constraint | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_cast | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_authid | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_rewrite | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_statistic | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_operator | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">pg_catalog.pg_aggregate | <span class="type">0</span> | <span class="type">0</span> | <span class="type">100</span>  </span><br><span class="line">(<span class="number">20</span> rows)</span><br></pre></td></tr></table></figure>
+<h2 id="表数据插入-top-20"><a href="#表数据插入-top-20" class="headerlink" title="表数据插入 top 20"></a>表数据插入 top 20</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Top <span class="number">20</span> tables ordered <span class="built_in">by</span> inserts  </span><br><span class="line"> table | <span class="type">table_inserts</span>  </span><br><span class="line">------------------------------------+---------------  </span><br><span class="line">public.pgstatspack_names | <span class="type">325</span>  </span><br><span class="line">public.pgstatspack_indexes | <span class="type">135</span>  </span><br><span class="line">public.pgstatspack_tables | <span class="type">103</span>  </span><br><span class="line">public.pgstatspack_settings | <span class="type">45</span>  </span><br><span class="line">pg_catalog.pg_statistic | <span class="type">29</span>  </span><br><span class="line">public.pgstatspack_database | <span class="type">4</span>  </span><br><span class="line">public.pgstatspack_sequences | <span class="type">3</span>  </span><br><span class="line">public.pgstatspack_bgwriter | <span class="type">1</span>  </span><br><span class="line">public.pgstatspack_snap | <span class="type">1</span>  </span><br><span class="line">pg_catalog.pg_foreign_server | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_description | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_cast | <span class="type">0</span>  </span><br><span class="line">francs.test_dropindex | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_depend | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_ts_dict | <span class="type">0</span>  </span><br><span class="line">francs.test_check | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_rewrite | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_namespace | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_authid | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_largeobject_metadata | <span class="type">0</span>  </span><br><span class="line">(<span class="number">20</span> rows)</span><br></pre></td></tr></table></figure>
+<h2 id="表数据修改-top-20"><a href="#表数据修改-top-20" class="headerlink" title="表数据修改 top 20"></a>表数据修改 top 20</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Top <span class="number">20</span> tables ordered <span class="built_in">by</span> updates  </span><br><span class="line"> table | <span class="type">table_updates</span>  </span><br><span class="line">------------------------------------+---------------  </span><br><span class="line">pg_toast.pg_toast_3596 | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_ts_dict | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_language | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_names | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_cast | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_foreign_server | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_sequences | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_db_role_setting | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_namespace | <span class="type">0</span>  </span><br><span class="line">francs.test_check | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_description | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_indexes | <span class="type">0</span>  </span><br><span class="line">francs.test_dropindex | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_depend | <span class="type">0</span>  </span><br><span class="line">information_schema.sql_parts | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_database | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_largeobject_metadata | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_authid | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_rewrite | <span class="type">0</span>  </span><br><span class="line">francs.test_float4 | <span class="type">0</span>  </span><br><span class="line">(<span class="number">20</span> rows)</span><br></pre></td></tr></table></figure>
+<h2 id="表数据删除-top-20"><a href="#表数据删除-top-20" class="headerlink" title="表数据删除 top 20"></a>表数据删除 top 20</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Top <span class="number">20</span> tables ordered <span class="built_in">by</span> deletes  </span><br><span class="line"> table | <span class="type">table_deletes</span>  </span><br><span class="line">------------------------------------+---------------  </span><br><span class="line">pg_toast.pg_toast_3596 | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_ts_dict | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_language | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_names | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_cast | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_foreign_server | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_sequences | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_db_role_setting | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_namespace | <span class="type">0</span>  </span><br><span class="line">francs.test_check | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_description | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_indexes | <span class="type">0</span>  </span><br><span class="line">francs.test_dropindex | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_depend | <span class="type">0</span>  </span><br><span class="line">information_schema.sql_parts | <span class="type">0</span>  </span><br><span class="line">public.pgstatspack_database | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_largeobject_metadata | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_authid | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_rewrite | <span class="type">0</span>  </span><br><span class="line">francs.test_float4 | <span class="type">0</span>  </span><br><span class="line">(<span class="number">20</span> rows)</span><br></pre></td></tr></table></figure>
+<h2 id="表记录数据读取-top-20"><a href="#表记录数据读取-top-20" class="headerlink" title="表记录数据读取 top 20"></a>表记录数据读取 top 20</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Tables</span> ordered <span class="built_in">by</span> percentage of tuples scanned  </span><br><span class="line"> table | <span class="type">rows_read_pct</span> | <span class="type">tab_hitrate</span> | <span class="type">idx_hitrate</span> | <span class="type">tab_read</span> | <span class="type">tab_hit</span> | <span class="type">idx_read</span> | <span class="type">idx_hit</span>  </span><br><span class="line">--------------------------+---------------+-------------+-------------+----------+---------+----------+---------  </span><br><span class="line">francs.test_1 | <span class="type">38</span> | <span class="type">97</span> | <span class="type">0</span> | <span class="type">0</span> | <span class="type">45</span> | <span class="type">0</span> | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_class | <span class="type">22</span> | <span class="type">99</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">732</span> | <span class="type">0</span> | <span class="type">623</span>  </span><br><span class="line">pg_catalog.pg_proc | <span class="type">19</span> | <span class="type">99</span> | <span class="type">88</span> | <span class="type">0</span> | <span class="type">125</span> | <span class="type">0</span> | <span class="type">8</span>  </span><br><span class="line">public.pgstatspack_names | <span class="type">8</span> | <span class="type">99</span> | <span class="type">99</span> | <span class="type">5</span> | <span class="type">626</span> | <span class="type">7</span> | <span class="type">1351</span>  </span><br><span class="line">pg_catalog.pg_index | <span class="type">4</span> | <span class="type">99</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">124</span> | <span class="type">0</span> | <span class="type">105</span>  </span><br><span class="line">pg_catalog.pg_attribute | <span class="type">2</span> | <span class="type">99</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">309</span> | <span class="type">1</span> | <span class="type">611</span>  </span><br><span class="line">pg_catalog.pg_opclass | <span class="type">1</span> | <span class="type">99</span> | <span class="type">97</span> | <span class="type">0</span> | <span class="type">116</span> | <span class="type">0</span> | <span class="type">36</span>  </span><br><span class="line">pg_catalog.pg_aggregate | <span class="type">0</span> | <span class="type">66</span> | <span class="type">80</span> | <span class="type">0</span> | <span class="type">2</span> | <span class="type">0</span> | <span class="type">4</span>  </span><br><span class="line">pg_catalog.pg_attrdef | <span class="type">0</span> | <span class="type">75</span> | <span class="type">83</span> | <span class="type">0</span> | <span class="type">3</span> | <span class="type">0</span> | <span class="type">5</span>  </span><br><span class="line">pg_toast.pg_toast_2618 | <span class="type">0</span> | <span class="type">41</span> | <span class="type">88</span> | <span class="type">6</span> | <span class="type">5</span> | <span class="type">0</span> | <span class="type">8</span>  </span><br><span class="line">pg_catalog.pg_tablespace | <span class="type">0</span> | <span class="type">75</span> | <span class="type">83</span> | <span class="type">0</span> | <span class="type">3</span> | <span class="type">0</span> | <span class="type">5</span>  </span><br><span class="line">pg_catalog.pg_amproc | <span class="type">0</span> | <span class="type">95</span> | <span class="type">97</span> | <span class="type">0</span> | <span class="type">20</span> | <span class="type">0</span> | <span class="type">45</span>  </span><br><span class="line">pg_catalog.pg_am | <span class="type">0</span> | <span class="type">80</span> | <span class="type">0</span> | <span class="type">0</span> | <span class="type">4</span> | <span class="type">0</span> | <span class="type">0</span>  </span><br><span class="line">pg_catalog.pg_type | <span class="type">0</span> | <span class="type">94</span> | <span class="type">96</span> | <span class="type">0</span> | <span class="type">16</span> | <span class="type">0</span> | <span class="type">32</span>  </span><br><span class="line">pg_catalog.pg_amop | <span class="type">0</span> | <span class="type">97</span> | <span class="type">98</span> | <span class="type">0</span> | <span class="type">34</span> | <span class="type">0</span> | <span class="type">65</span>  </span><br><span class="line">pg_catalog.pg_database | <span class="type">0</span> | <span class="type">96</span> | <span class="type">96</span> | <span class="type">0</span> | <span class="type">26</span> | <span class="type">0</span> | <span class="type">32</span>  </span><br><span class="line">pg_catalog.pg_constraint | <span class="type">0</span> | <span class="type">50</span> | <span class="type">66</span> | <span class="type">0</span> | <span class="type">1</span> | <span class="type">0</span> | <span class="type">2</span>  </span><br><span class="line">pg_catalog.pg_cast | <span class="type">0</span> | <span class="type">96</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">25</span> | <span class="type">0</span> | <span class="type">109</span>  </span><br><span class="line">pg_catalog.pg_namespace | <span class="type">0</span> | <span class="type">99</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">149</span> | <span class="type">0</span> | <span class="type">145</span>  </span><br><span class="line">pg_catalog.pg_authid | <span class="type">0</span> | <span class="type">90</span> | <span class="type">94</span> | <span class="type">0</span> | <span class="type">9</span> | <span class="type">0</span> | <span class="type">16</span>  </span><br><span class="line">pg_catalog.pg_rewrite | <span class="type">0</span> | <span class="type">58</span> | <span class="type">92</span> | <span class="type">4</span> | <span class="type">7</span> | <span class="type">0</span> | <span class="type">12</span>  </span><br><span class="line">pg_catalog.pg_statistic | <span class="type">0</span> | <span class="type">97</span> | <span class="type">99</span> | <span class="type">0</span> | <span class="type">39</span> | <span class="type">0</span> | <span class="type">132</span>  </span><br><span class="line">pg_catalog.pg_operator | <span class="type">0</span> | <span class="type">94</span> | <span class="type">97</span> | <span class="type">0</span> | <span class="type">17</span> | <span class="type">0</span> | <span class="type">41</span>  </span><br><span class="line">(<span class="number">23</span> rows)</span><br></pre></td></tr></table></figure>
+<h2 id="索引扫描次数排序"><a href="#索引扫描次数排序" class="headerlink" title="索引扫描次数排序"></a>索引扫描次数排序</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Indexes ordered <span class="built_in">by</span> scans  </span><br><span class="line"> index | <span class="type">table</span> | <span class="type">scans</span> | <span class="type">tup_read</span> | <span class="type">tup_fetch</span> | <span class="type">idx_blks_read</span> | <span class="type">idx_blks_hit</span>  </span><br><span class="line">----------------------------------------------------+-------------------------------+-------+----------+-----------+---------------+--------------  </span><br><span class="line">pg_catalog.pg_class_oid_index | <span class="type">pg_catalog</span>.pg_class | <span class="type">547</span> | <span class="type">547</span> | <span class="type">547</span> | <span class="type">0</span> | <span class="type">550</span>  </span><br><span class="line">pg_catalog.pg_attribute_relid_attnum_index | <span class="type">pg_catalog</span>.pg_attribute | <span class="type">304</span> | <span class="type">736</span> | <span class="type">736</span> | <span class="type">1</span> | <span class="type">611</span>  </span><br><span class="line">public.idx_pgstatspack_names_name | <span class="type">public</span>.pgstatspack_names | <span class="type">284</span> | <span class="type">277</span> | <span class="type">277</span> | <span class="type">5</span> | <span class="type">1025</span>  </span><br><span class="line">pg_catalog.pg_namespace_oid_index | <span class="type">pg_catalog</span>.pg_namespace | <span class="type">138</span> | <span class="type">138</span> | <span class="type">138</span> | <span class="type">0</span> | <span class="type">140</span>  </span><br><span class="line">....</span><br><span class="line">略</span><br></pre></td></tr></table></figure>
+<h2 id="序列读取信息"><a href="#序列读取信息" class="headerlink" title="序列读取信息"></a>序列读取信息</h2><p>用于查找竞争激烈的序列<br><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Sequences ordered <span class="built_in">by</span> blks_read  </span><br><span class="line"> sequence | <span class="type">blks_read</span> | <span class="type">blks_hit</span>  </span><br><span class="line">--------------------------+-----------+----------  </span><br><span class="line">public.pgstatspackid | <span class="type">0</span> | <span class="type">1</span>  </span><br><span class="line">public.pgstatspacknameid | <span class="type">0</span> | <span class="type">325</span>  </span><br><span class="line">(<span class="number">2</span> rows)</span><br></pre></td></tr></table></figure></p>
+<h2 id="执行时间-top-20-的-sql"><a href="#执行时间-top-20-的-sql" class="headerlink" title="执行时间 top 20 的 sql"></a>执行时间 top 20 的 sql</h2><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Top 20 SQL statements ordered by total_time  </span><br><span class="line">calls | total_time | total_time_percent | rows |<span class="built_in"> user </span>| query  </span><br><span class="line">-------+------------+--------------------+------+------+-------  </span><br><span class="line">(0 rows)</span><br></pre></td></tr></table></figure>
+<p>备注：这个模块是新版的亮点，记得老版本没有统计 SQL 信息，查找 SQL 信息还得安装 pg_stat_statements 模块。</p>
+<h2 id="执行时间-top-20-的-function"><a href="#执行时间-top-20-的-function" class="headerlink" title="执行时间 top 20 的 function"></a>执行时间 top 20 的 function</h2><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Top 20<span class="built_in"> user </span>functions ordered by total_time  </span><br><span class="line">funcid | function_name | calls | total_time | self_time  </span><br><span class="line">--------+---------------+-------+------------+-----------  </span><br><span class="line">(0 rows)</span><br></pre></td></tr></table></figure>
+<h2 id="Backgroud-Writer-进程信息"><a href="#Backgroud-Writer-进程信息" class="headerlink" title="Backgroud Writer 进程信息"></a>Backgroud Writer 进程信息</h2><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">background writer stats  </span><br><span class="line">checkpoints_timed |<span class="string"> checkpoints_req </span>|<span class="string"> buffers_checkpoint </span>|<span class="string"> buffers_clean </span>|<span class="string"> maxwritten_clean </span>|<span class="string"> buffers_backend </span>|<span class="string"> buffers_alloc  </span></span><br><span class="line"><span class="string">-------------------+-----------------+--------------------+---------------+------------------+-----------------+---------------  </span></span><br><span class="line"><span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 47  </span></span><br><span class="line"><span class="string">(1 row)</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">background writer relative stats  </span></span><br><span class="line"><span class="string">checkpoints_timed </span>|<span class="string"> minutes_between_checkpoint </span>|<span class="string"> buffers_checkpoint </span>|<span class="string"> buffers_clean </span>|<span class="string"> buffers_backend </span>|<span class="string"> total_writes </span>|<span class="string"> avg_checkpoint_write  </span></span><br><span class="line"><span class="string">-------------------+----------------------------+--------------------+---------------+-----------------+--------------+----------------------  </span></span><br><span class="line"><span class="string"> </span>|<span class="string"> </span>|<span class="string"> </span>|<span class="string"> </span>|<span class="string"> </span>|<span class="string"> 0.000 MB/s </span>|<span class="string">  </span></span><br><span class="line"><span class="string">(1 row)</span></span><br></pre></td></tr></table></figure>
+<h2 id="当前参数配置"><a href="#当前参数配置" class="headerlink" title="当前参数配置"></a>当前参数配置</h2><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Parameters</span>  </span><br><span class="line"> name | <span class="type">start_setting</span> | <span class="type">stop_setting</span> | <span class="type">source</span>  </span><br><span class="line">----------------------------+----------------------------------------+----------------------------------------+----------------------  </span><br><span class="line">max_stack_depth | <span class="type">2048</span> | <span class="type">2048</span> | <span class="type">environment</span> variable  </span><br><span class="line">hba_file | <span class="type">/opt</span>/pgdata9<span class="number">.2</span>/pg_root/pg_hba.conf | <span class="type">/opt</span>/pgdata9<span class="number">.2</span>/pg_root/pg_hba.conf | <span class="type">override</span>  </span><br><span class="line">lc_time | <span class="type">C</span> | <span class="type">C</span> | <span class="type">configuration</span> file  </span><br><span class="line">archive_command | <span class="type">/bin</span>/date | <span class="type">/bin</span>/date | <span class="type">configuration</span> file  </span><br><span class="line">log_destination | <span class="type">csvlog</span> | <span class="type">csvlog</span> | <span class="type">configuration</span> file  </span><br><span class="line">autovacuum | <span class="type">on</span> | <span class="type">on</span> | <span class="type">configuration</span> file  </span><br><span class="line">.....</span><br><span class="line">略</span><br></pre></td></tr></table></figure>
+<h1 id="关于快照的删除"><a href="#关于快照的删除" class="headerlink" title="关于快照的删除"></a>关于快照的删除</h1><p>如果在生产库上部署了 pgstatpack ，则建议定期删除快照，否则上述的快照相关表会很大，快照删除脚本可写在 crontab 里，参考如下<br><figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">2 </span><span class="number">3</span> * * * /somepath/pgstatspack/bin/delete_snapshot.sh <span class="number">1</span>&gt; /some_path/log_file <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<p>快照删除脚本 delete_snapshot.sh 会调用函数 pgstatspack_delete_snap()，这个函数中可以设置删除多久以前的快照，默认删除 30 天 前的快照，如需修改，修改函数pgstatspack_delete_snap()以下代码：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">current_timestamp</span> - <span class="built_in">interval</span> <span class="string">'30 days'</span> <span class="keyword">INTO</span> old_snap_time;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20120530134012.html" title="Pgstatspack_version_2.3.1 报告内容分析">https://postgres.fun/20120530134012.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20120529211611.html" rel="next" title="PostgreSQL9.2Beta: Add a deadlock counter to the pg_stat_database system view ">
+                <i class="fa fa-chevron-left"></i> PostgreSQL9.2Beta: Add a deadlock counter to the pg_stat_database system view 
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20120530154449.html" rel="prev" title="PostgreSQL: epoch 新纪元时间的使用">
+                PostgreSQL: epoch 新纪元时间的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pgstatspack-报告内容"><span class="nav-number">1.</span> <span class="nav-text">Pgstatspack 报告内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库版本和统计信息"><span class="nav-number">1.1.</span> <span class="nav-text">数据库版本和统计信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表数据变化-top-20"><span class="nav-number">1.2.</span> <span class="nav-text">表数据变化 top 20</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Top-20-tables-ordered-by-high-table-to-index-read-ratio"><span class="nav-number">1.3.</span> <span class="nav-text">Top 20 tables ordered by high table to index read ratio</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表数据插入-top-20"><span class="nav-number">1.4.</span> <span class="nav-text">表数据插入 top 20</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表数据修改-top-20"><span class="nav-number">1.5.</span> <span class="nav-text">表数据修改 top 20</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表数据删除-top-20"><span class="nav-number">1.6.</span> <span class="nav-text">表数据删除 top 20</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表记录数据读取-top-20"><span class="nav-number">1.7.</span> <span class="nav-text">表记录数据读取 top 20</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引扫描次数排序"><span class="nav-number">1.8.</span> <span class="nav-text">索引扫描次数排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#序列读取信息"><span class="nav-number">1.9.</span> <span class="nav-text">序列读取信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行时间-top-20-的-sql"><span class="nav-number">1.10.</span> <span class="nav-text">执行时间 top 20 的 sql</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#执行时间-top-20-的-function"><span class="nav-number">1.11.</span> <span class="nav-text">执行时间 top 20 的 function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Backgroud-Writer-进程信息"><span class="nav-number">1.12.</span> <span class="nav-text">Backgroud Writer 进程信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当前参数配置"><span class="nav-number">1.13.</span> <span class="nav-text">当前参数配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于快照的删除"><span class="nav-number">2.</span> <span class="nav-text">关于快照的删除</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

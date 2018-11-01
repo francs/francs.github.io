@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="GreenPlum," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="关于 GreenPlum 的介绍可以参考前一篇文章，这篇文章主要介绍 GreenPlum 3.6.1 详细安装步骤。 1 实验环境1.1 硬件环境一台 2G内存的联想 SL410K 双核笔记本, 并安装三台Linux虚拟机。   1.2虚拟机配置    节点 IP 内存 硬盘     gpmaster 192.168.1.50 400MB 15GB   gpnode1 192.168.1.51">
+<meta name="keywords" content="GreenPlum">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GreenPlum 数据库安装">
+<meta property="og:url" content="https://postgres.fun/20110416144048.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="关于 GreenPlum 的介绍可以参考前一篇文章，这篇文章主要介绍 GreenPlum 3.6.1 详细安装步骤。 1 实验环境1.1 硬件环境一台 2G内存的联想 SL410K 双核笔记本, 并安装三台Linux虚拟机。   1.2虚拟机配置    节点 IP 内存 硬盘     gpmaster 192.168.1.50 400MB 15GB   gpnode1 192.168.1.51">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-04T01:33:49.380Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GreenPlum 数据库安装">
+<meta name="twitter:description" content="关于 GreenPlum 的介绍可以参考前一篇文章，这篇文章主要介绍 GreenPlum 3.6.1 详细安装步骤。 1 实验环境1.1 硬件环境一台 2G内存的联想 SL410K 双核笔记本, 并安装三台Linux虚拟机。   1.2虚拟机配置    节点 IP 内存 硬盘     gpmaster 192.168.1.50 400MB 15GB   gpnode1 192.168.1.51">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20110416144048.html"/>
+
+
+
+
+
+
+  <title>GreenPlum 数据库安装 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20110416144048.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">GreenPlum 数据库安装</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2011-04-16T14:40:48+08:00">
+                2011-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/GreenPlum/" itemprop="url" rel="index">
+                    <span itemprop="name">GreenPlum</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20110416144048.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20110416144048.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20110416144048.html" class="leancloud_visitors" data-flag-title="GreenPlum 数据库安装">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p> 关于 GreenPlum 的介绍可以参考前一篇文章，这篇文章主要介绍 GreenPlum 3.6.1 详细安装步骤。</p>
+<h1 id="1-实验环境"><a href="#1-实验环境" class="headerlink" title="1 实验环境"></a>1 实验环境</h1><p>1.1 硬件环境<br>一台 2G内存的联想 SL410K 双核笔记本, 并安装三台Linux虚拟机。  </p>
+<p>1.2虚拟机配置</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">节点</th>
+<th style="text-align:center">IP</th>
+<th style="text-align:center">内存</th>
+<th style="text-align:center">硬盘</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">gpmaster</td>
+<td style="text-align:center">192.168.1.50</td>
+<td style="text-align:center">400MB</td>
+<td style="text-align:center">15GB</td>
+</tr>
+<tr>
+<td style="text-align:center">gpnode1</td>
+<td style="text-align:center">192.168.1.51</td>
+<td style="text-align:center">400MB</td>
+<td style="text-align:center">15GB</td>
+</tr>
+<tr>
+<td style="text-align:center">gpnode2</td>
+<td style="text-align:center">192.168.1.52</td>
+<td style="text-align:center">400MB</td>
+<td style="text-align:center">15GB</td>
+</tr>
+</tbody>
+</table>
+<p>1.3 本文中用到的术语<br>master host : 主节点主机<br>segment host : 子节点主机</p>
+<h1 id="2修改master-segments主机参数-所有主机上执行"><a href="#2修改master-segments主机参数-所有主机上执行" class="headerlink" title="2修改master, segments主机参数 (所有主机上执行)"></a>2修改master, segments主机参数 (所有主机上执行)</h1><p>2.1 修改 /etc/sysctl.conf 添加以下<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kernel<span class="selector-class">.shmmax</span> = <span class="number">500000000</span>  </span><br><span class="line">kernel<span class="selector-class">.shmmni</span> = <span class="number">4096</span>  </span><br><span class="line">kernel<span class="selector-class">.shmall</span> = <span class="number">4000000000</span>  </span><br><span class="line">kernel<span class="selector-class">.sem</span> = <span class="number">250</span> <span class="number">64000</span> <span class="number">100</span> <span class="number">512</span>  </span><br><span class="line">net<span class="selector-class">.ipv4</span><span class="selector-class">.tcp_tw_recycle</span>=<span class="number">1</span>  </span><br><span class="line">net<span class="selector-class">.ipv4</span><span class="selector-class">.tcp_max_syn_backlog</span>=<span class="number">4096</span>  </span><br><span class="line">net<span class="selector-class">.core</span><span class="selector-class">.netdev_max_backlog</span>=<span class="number">10000</span>  </span><br><span class="line">vm.overcommit_memory=<span class="number">2</span></span><br></pre></td></tr></table></figure></p>
+<p>2.2 修改 /etc/security/limits.conf ,添加以下<br><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">* </span>soft nofile 65536  </span><br><span class="line"><span class="bullet">* </span>hard nofile 65536  </span><br><span class="line"><span class="bullet">* </span>soft nproc 131072  </span><br><span class="line"><span class="bullet">* </span>hard nproc 131072</span><br></pre></td></tr></table></figure></p>
+<p>2.3 修改 /etc/hosts ,添加以下<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.1</span><span class="selector-class">.50</span> <span class="selector-tag">gpmaster</span>  </span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.1</span><span class="selector-class">.51</span> <span class="selector-tag">gpnode1</span>  </span><br><span class="line">192<span class="selector-class">.168</span><span class="selector-class">.1</span><span class="selector-class">.52</span> <span class="selector-tag">gpnode2</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="3-增加操作系统greenplum用户并创建数据目录（所有节点上执行）"><a href="#3-增加操作系统greenplum用户并创建数据目录（所有节点上执行）" class="headerlink" title="3 增加操作系统greenplum用户并创建数据目录（所有节点上执行）"></a>3 增加操作系统greenplum用户并创建数据目录（所有节点上执行）</h1><p>3.1增加 greenplum 组和用户<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@gpmaster</span> greenplum-db]<span class="meta"># groupadd greenplum  </span></span><br><span class="line">[root<span class="symbol">@gpmaster</span> greenplum-db]<span class="meta"># useradd -g greenplum greenplum  </span></span><br><span class="line">[root<span class="symbol">@gpmaster</span> greenplum-db]<span class="meta"># passwd greenplum</span></span><br></pre></td></tr></table></figure></p>
+<p>3.2配置环境变量<br>将文件 /opt/greenplum-db/greenplum_path.sh 写入 /home/greenplum/.bash_profile<br>source .bash_profile</p>
+<p>3.3创建 segment 数据目录<br><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">mkdir</span> -p /<span class="meta">opt</span>/gp_data/<span class="meta">data</span>  </span><br><span class="line"><span class="symbol">chown</span> -R greenplum:greenplum /<span class="meta">opt</span>/gp_data/<span class="meta">data</span></span><br></pre></td></tr></table></figure></p>
+<p>3.4创建 sgement 镜像目录<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="regexp">/opt/</span>gp_data/mdata  </span><br><span class="line">chown -R <span class="string">greenplum:</span>greenplum <span class="regexp">/opt/</span>gp_data/mdata</span><br></pre></td></tr></table></figure></p>
+<p>说明：上面两个步骤也可以等配置好主机之前等效性用 gpssh 执行。  gpssh可以同时连接所有子节点主机并进行操作。</p>
+<h1 id="4-在Master节点上安装-Greenplum-软件"><a href="#4-在Master节点上安装-Greenplum-软件" class="headerlink" title="4 在Master节点上安装 Greenplum 软件"></a>4 在Master节点上安装 Greenplum 软件</h1><p>4.1 下载介质<br>在官网 <a href="http://gpn.greenplum.com/download.php" target="_blank" rel="noopener">http://gpn.greenplum.com/download.php</a> 下载</p>
+<p>4.2 解压<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unzip greenplum-db<span class="number">-3</span>[<span class="number">1</span>]<span class="number">.3</span><span class="number">.6</span><span class="number">.1</span>-build<span class="number">-1</span>-RHEL5-i386.zip</span><br></pre></td></tr></table></figure></p>
+<p>4.3 安装 Greenplum软件<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># /bin/bash greenplum-db<span class="number">-3.3</span><span class="number">.6</span><span class="number">.1</span>-build<span class="number">-1</span>-RHEL5-i386.bin</span><br></pre></td></tr></table></figure></p>
+<p>提示“yes” 接受协议 和安装路径, 默认的是“(/usr/local/greenplum-db-3.3.6.0)”  ，我这里选择的是 “/opt/greenplum-db-3.3.6.1” ,安装结束后会自动创建一个软链接,如  </p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@gpmaster opt]# ll /opt  </span><br><span class="line">lrwxrwxrwx <span class="number">1</span> root root <span class="number">22</span> <span class="number">04</span>-<span class="number">06</span> <span class="number">21</span>:<span class="number">30</span> greenplum-<span class="built_in">db</span> -&gt; ./greenplum-<span class="built_in">db</span>-<span class="number">3.3</span><span class="meta">.6</span><span class="meta">.1</span>  </span><br><span class="line">drwxr-xr-x <span class="number">11</span> root root <span class="number">4096</span> <span class="number">04</span>-<span class="number">06</span> <span class="number">21</span>:<span class="number">30</span> greenplum-<span class="built_in">db</span>-<span class="number">3.3</span><span class="meta">.6</span><span class="meta">.1</span></span><br></pre></td></tr></table></figure>
+<h1 id="5-在所有子节点主机上安装-greenplumn-软件"><a href="#5-在所有子节点主机上安装-greenplumn-软件" class="headerlink" title="5 在所有子节点主机上安装 greenplumn 软件"></a>5 在所有子节点主机上安装 greenplumn 软件</h1><p>5.1创建节点配置文件</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /<span class="built_in">home</span>/greenplum/all_host_file 添加以下内容  </span><br><span class="line">gpmaster  </span><br><span class="line">gpnode1  </span><br><span class="line">gpnode2</span><br></pre></td></tr></table></figure>
+<p>5.2 执行文件greenplum_path.sh,设定环境变量<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@gpmaster</span> greenplum]<span class="meta">#source /opt/greenplum-db/greenplum_path.sh</span></span><br></pre></td></tr></table></figure></p>
+<p>5.3以 root 用户交换密钥<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@gpmaster greenplum]# gpssh-exkeys -f /home/greenplum/all_host_file  </span><br><span class="line">[<span class="keyword">STEP</span> 1 of 5] create local ID <span class="keyword">and</span> authorize on local host  </span><br><span class="line"> <span class="built_in">..</span>. /root/.ssh/id_rsa file exists <span class="built_in">..</span>. key generation skipped</span><br><span class="line">[<span class="keyword">STEP</span> 2 of 5] keyscan all hosts <span class="keyword">and</span> update known_hosts file</span><br><span class="line">[<span class="keyword">STEP</span> 3 of 5] authorize current<span class="built_in"> user </span>on remote hosts  </span><br><span class="line"> <span class="built_in">..</span>. send <span class="keyword">to</span> gpnode1  </span><br><span class="line">    Enter password <span class="keyword">for</span> gpnode1:  </span><br><span class="line"> <span class="built_in">..</span>. send <span class="keyword">to</span> gpnode2</span><br><span class="line">[<span class="keyword">STEP</span> 4 of 5] determine common authentication file content</span><br><span class="line">[<span class="keyword">STEP</span> 5 of 5] copy authentication files <span class="keyword">to</span> all remote hosts  </span><br><span class="line"> <span class="built_in">..</span>. finished key exchange with gpnode1  </span><br><span class="line"> <span class="built_in">..</span>. finished key exchange with gpnode2</span><br><span class="line">[<span class="builtin-name">INFO</span>] completed successfully</span><br></pre></td></tr></table></figure></p>
+<p>5.4以 greenplum 用户交换密钥<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@gpmaster</span> greenplum]<span class="comment"># su - greenplum  </span></span><br><span class="line">[greenplum<span class="variable">@gpmaster</span> ~]<span class="variable">$ </span>gpssh-exkeys -f /home/greenplum/all_host_file</span><br></pre></td></tr></table></figure></p>
+<p>5.5将主节点上 greenplum 软件复制到 所有segments 主机 ( 主节点上操作 )<br><figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> cd /opt  </span><br><span class="line">tar cvf gp.tar greenplum-<span class="built_in">db</span>-<span class="number">3.3</span>.<span class="number">6.1</span></span><br><span class="line"><span class="number">2</span> source /opt/greenplum-<span class="built_in">db</span>/greenplum_path.sh</span><br><span class="line"><span class="number">3</span> 生成 all_host_file文件，添加以下  </span><br><span class="line">gpmaster  </span><br><span class="line">gpnode1  </span><br><span class="line">gpnode2</span><br><span class="line"><span class="number">4</span> gpscp -f greenplum-<span class="built_in">db</span>/all_host_file gp.tar =<span class="symbol">:</span>/opt</span><br><span class="line"><span class="number">5</span> gpssh -f greenplum-<span class="built_in">db</span>/all_host_file  </span><br><span class="line">=&gt; cd /opt  </span><br><span class="line">=&gt; tar xvf /opt/gp.tar  </span><br><span class="line">=&gt; chown -R greenpl<span class="symbol">um:gr</span>eenplum greenplum-<span class="built_in">db</span>;  </span><br><span class="line">=&gt; chown -R greenpl<span class="symbol">um:gr</span>eenplum greenplum-<span class="built_in">db</span>-<span class="number">3.3</span>.<span class="number">6.1</span>;  </span><br><span class="line">=&gt; <span class="built_in">ln</span> -s /opt/greenplum-<span class="built_in">db</span>-<span class="number">3.3</span>.<span class="number">6.1</span> /opt/greenplum-<span class="built_in">db</span></span><br></pre></td></tr></table></figure></p>
+<p>5.6同步系统时钟(如果配置了 ntpd服务)<br><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">gpssh</span> -f /<span class="meta">opt</span>/greenplum-db/all_hosts_file ntpd</span><br></pre></td></tr></table></figure></p>
+<h1 id="6-初始化-Greenplum-on-Master"><a href="#6-初始化-Greenplum-on-Master" class="headerlink" title="6 初始化 Greenplum (on Master )"></a>6 初始化 Greenplum (on Master )</h1><p>6.1 copy 配置文件模板<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="variable">$GPHOME</span><span class="regexp">/docs/</span>cli_help<span class="regexp">/gp_init_config_example /</span>home<span class="regexp">/greenplum/g</span>p_init_config</span><br></pre></td></tr></table></figure></p>
+<p>6.2修改配置文件 gp_init_config ，修改以下参数<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ARRAY_NAME=<span class="string">"Greenplum"</span>  </span><br><span class="line">MACHINE_LIST_FILE=/home/greenplum/multi_seg_host_file  </span><br><span class="line">SEG_PREFIX=gp  </span><br><span class="line">PORT_BASE=50000  </span><br><span class="line">declare -a DATA_DIRECTORY=(/opt/gp_data/data)  </span><br><span class="line">MASTER_HOSTNAME=gpmaster  </span><br><span class="line">MASTER_DIRECTORY=/opt/gp_data  </span><br><span class="line">MASTER_PORT=5432  </span><br><span class="line">MIRROR_PORT_BASE=60000  </span><br><span class="line">declare -a MIRROR_DATA_DIRECTORY=(/opt/gp_data/mdata)</span><br></pre></td></tr></table></figure></p>
+<p>上面是偶配置的参数，比较重要的两个参数是 “DATA_DIRECTORY” 和 “MIRROR_DATA_DIRECTORY” ，DATA_DIRECTORY 是指 segment主机 primary 实例的数据目录，MIRROR_DATA_DIRECTORY是指 segment 主机 mirror 实例的数据目录，这样一份配置，当后面执行 gpinitsystem 时，会在每一台 segment<br>主机上创建一个 primary 实例和 一个 mirror 实例。</p>
+<p>6.3先检查下OS配置是否满足需求<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br></pre></td><td class="code"><pre><span class="line">[greenplum<span class="variable">@gpmaster</span> ~]<span class="variable">$ </span>gpcheckos -f all_host_file  </span><br><span class="line"><span class="symbol">checking:</span> postgres.md5 = <span class="number">62406</span>a6f410a5b324fcced3236150ee6  </span><br><span class="line"><span class="symbol">checking:</span> postgres.version = postgres (Greenplum Database) <span class="number">8.2</span>.<span class="number">13</span>  </span><br><span class="line"><span class="symbol">checking:</span> sync.time between (<span class="number">2011</span>-<span class="number">04</span>-<span class="number">13</span> <span class="number">19</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:</span><span class="number">31.696946</span>, <span class="number">2011</span>-<span class="number">04</span>-<span class="number">13</span> <span class="number">19</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:</span><span class="number">51.696946</span>)  </span><br><span class="line"><span class="symbol">checking:</span> platform.hostname  </span><br><span class="line"><span class="symbol">checking:</span> platform.memory  </span><br><span class="line"><span class="symbol">checking:</span> platform.memory = <span class="number">352321536</span>  </span><br><span class="line"><span class="symbol">checking:</span> platform.system = linux <span class="keyword">or</span> sunos  </span><br><span class="line"><span class="symbol">checking:</span> platform.system = linux  </span><br><span class="line"><span class="symbol">checking:</span> platform.release = <span class="number">2.6</span>.<span class="number">18</span>-<span class="number">194</span>.el5xen  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.kernel.shmall = <span class="number">4000000000</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.net.ipv4.tcp_max_syn_backlog = <span class="number">4096</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.vm.overcommit_memory = <span class="number">2</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.net.core.netdev_max_backlog = <span class="number">10000</span>  </span><br><span class="line"><span class="symbol">checking:</span> ulimit.nofile &gt;= <span class="number">65536</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.kernel.sem = <span class="number">250</span> <span class="number">64000</span> <span class="number">100</span> <span class="number">512</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.kernel.shmmax &gt;= <span class="number">500000000</span>  </span><br><span class="line"><span class="symbol">checking:</span> ulimit.nproc &gt;= <span class="number">131072</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.kernel.shmmni &gt;= <span class="number">4096</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.net.ipv4.ip_local_port_range = <span class="number">1025</span> <span class="number">65535</span>  </span><br><span class="line"><span class="symbol">checking:</span> sysctl.net.ipv4.tcp_tw_recycle = <span class="number">1</span></span><br><span class="line"><span class="number">6.4</span>初始化 greenplumn ( Master 节点上执行 )  </span><br><span class="line">[greenplum<span class="variable">@gpmaster</span> ~]<span class="variable">$ </span>gpinitsystem -c <span class="symbol">gp_init_config20110413:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">07</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checking</span> configuration parameters, please wait...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span>09<span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Reading</span> Greenplum configuration file gp_init_config  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span>09<span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Locale</span> has <span class="keyword">not</span> been set <span class="keyword">in</span> gp_init_config, will set to default value  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">11</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Locale</span> set to en_US.utf8  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">15</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-No</span> DATABASE_NAME set, will exit following template1 updates  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">16</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-MASTER_MAX_CONNECT</span> <span class="keyword">not</span> set, will set to default value <span class="number">25</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">18</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> IP address array = <span class="number">192.168</span>.<span class="number">122.1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">18</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checking</span> configuration parameters, Completed  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">19</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> multi-home checks, please wait...  </span><br><span class="line">..  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Configuring</span> build <span class="keyword">for</span> standard array  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> multi-home checks, Completed  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">25</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Building</span> primary segment instance array, please wait...  </span><br><span class="line">..  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Building</span> group mirror array type , please wait...  </span><br><span class="line">..  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">45</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checking</span> Master host  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:</span><span class="number">48</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checking</span> new segment hosts, please wait...  </span><br><span class="line">....  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checking</span> new segment hosts, Completed  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">26</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> Database Creation Parameters  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">26</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:---------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">26</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> Configuration  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">27</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:---------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">27</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> instance name = Greenplum Database  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">27</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> hostname = gpmaster  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">28</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> port = <span class="number">5432</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">28</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> instance dir = <span class="regexp">/opt/gp</span>_data/gp-<span class="number">1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">28</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> LOCALE = en_US.utf8  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> segment prefix = gp  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">29</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> Database =  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> connections = <span class="number">25</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> buffers = <span class="number">128000</span>kB  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Segment</span> connections = <span class="number">125</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Segment</span> buffers = <span class="number">128000</span>kB  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Checkpoint</span> segments = <span class="number">8</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Encoding</span> = UNICODE  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">32</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Postgres</span> param file = Off  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">32</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Initdb</span> to be used = <span class="regexp">/opt/greenplum</span>-db/./bin/initdb  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-GP_LIBRARY_PATH</span> is = <span class="regexp">/opt/greenplum</span>-db/./lib  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Ulimit</span> check = Passed  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Segment</span> build type = Parallel  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Array</span> host connect type = Single hostname per node  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> IP address [<span class="number">1</span>] = <span class="number">192.168</span>.<span class="number">122.1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> IP address [<span class="number">2</span>] = <span class="number">192.168</span>.<span class="number">1.50</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> only build = Off  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Standby</span> Master = Not Configured  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Primary</span> segment <span class="comment"># = 1  </span></span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> Database segments = <span class="number">2</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Trusted</span> shell = ssh  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Number</span> segment hosts = <span class="number">2</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Mirror</span> port base = <span class="number">60000</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Mirror</span> segment <span class="comment"># = 1  </span></span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Mirroring</span> config = ON  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Mirroring</span> type = Group  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:----------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> Primary Segment Configuration  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:----------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-gpnode1</span> /opt/gp_data/data/gp<span class="number">0</span> <span class="number">50001</span> <span class="number">2</span> <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-gpnode2</span> /opt/gp_data/data/gp1 <span class="number">50001</span> <span class="number">3</span> <span class="number">1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:---------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> Mirror Segment Configuration  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:---------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-gpnode2</span> /opt/gp_data/mdata/gp<span class="number">0</span> <span class="number">60001</span> <span class="number">4</span> <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:</span><span class="number">42</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-gpnode1</span> /opt/gp_data/mdata/gp1 <span class="number">60001</span> <span class="number">5</span> <span class="number">1</span>  </span><br><span class="line">Continue with Greenplum creation Yy/Nn&gt;</span><br><span class="line">  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:</span><span class="number">04</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Building</span> the Master instance database, please wait...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Starting</span> the Master <span class="keyword">in</span> admin mode  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">32</span><span class="symbol">:</span>08<span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> parallel build of primary segment instances  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">32</span><span class="symbol">:</span>08<span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Spawning</span> parallel processes batch [<span class="number">1</span>], please wait...  </span><br><span class="line">..  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">32</span><span class="symbol">:</span><span class="number">13</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Waiting</span> <span class="keyword">for</span> parallel processes batch [<span class="number">1</span>], please wait...  </span><br><span class="line">.......................................................  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">21</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Parallel</span> process exit status  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">21</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">21</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as completed = <span class="number">2</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">22</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as killed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">22</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as failed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">22</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> parallel build of mirror segment instances  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">25</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Spawning</span> parallel processes batch [<span class="number">1</span>], please wait...  </span><br><span class="line">..  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Waiting</span> <span class="keyword">for</span> parallel processes batch [<span class="number">1</span>], please wait...  </span><br><span class="line">....................................................  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Parallel</span> process exit status  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as completed = <span class="number">2</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as killed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as failed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Deleting</span> distributed backout files  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Removing</span> back out file  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-No</span> errors generated from parallel processes  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Restarting</span> the Greenplum instance <span class="keyword">in</span> production mode  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Starting</span> gpstop with <span class="symbol">args:</span> <span class="string">'-a -i -d /opt/gp_data/gp-1'</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Gathering</span> information <span class="keyword">and</span> validating the environment...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Obtaining</span> Greenplum Master catalog information  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Obtaining</span> Segment details from master...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> <span class="symbol">Version:</span> <span class="string">'postgres (Greenplum Database) 3.3.6.1 build 1'</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-There</span> are <span class="number">0</span> connections to the database  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> Master instance shutdown with mode=<span class="string">'immediate'</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> host=gpmaster  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> Master instance shutdown with mode=immediate  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> segment instance directory=<span class="regexp">/opt/gp</span>_data/gp-<span class="number">1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">43</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-No</span> standby master host configured  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">47</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> parallel segment instance shutdown, please wait...  </span><br><span class="line">..........  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Parallel</span> process exit status  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as completed = <span class="number">4</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as failed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> instances marked invalid <span class="keyword">and</span> bypassed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Successfully</span> shutdown <span class="number">4</span> of <span class="number">4</span> segment instances  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">57</span><span class="symbol">:gpstop</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Database</span> successfully shutdown with no errors reported  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">59</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Starting</span> gpstart with <span class="symbol">args:</span> <span class="string">'-a -d /opt/gp_data/gp-1'</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:</span><span class="number">59</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Gathering</span> information <span class="keyword">and</span> validating the environment...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-local</span> Greenplum <span class="symbol">Version:</span> <span class="string">'postgres (Greenplum Database) 3.3.6.1 build 1'</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">00</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Starting</span> Master instance <span class="keyword">in</span> admin mode  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">01</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Obtaining</span> Greenplum Master catalog information  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">01</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Obtaining</span> Segment details from master...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">01</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Master</span> Started...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">01</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Shutting</span> down master  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">10</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-No</span> standby master configured. skipping...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">13</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Commencing</span> parallel segment instance startup, please wait...  </span><br><span class="line">...........  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Process</span> results...  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-----------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as completed = <span class="number">4</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> processes marked as failed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-----------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Total</span> instances marked invalid <span class="keyword">and</span> bypassed = <span class="number">0</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Successfully</span> started <span class="number">4</span> of <span class="number">4</span> segment instances  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-----------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">24</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Starting</span> Master instance gpmaster directory /opt/gp_data/gp-<span class="number">1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">28</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Command</span> pg_ctl reports Master gpmaster instance active  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">28</span><span class="symbol">:gpstart</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Database</span> successfully started with no errors reported  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">30</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Completed</span> restart of Greenplum instance <span class="keyword">in</span> production mode  </span><br><span class="line"><span class="symbol">psql:</span> <span class="symbol">FATAL:</span> building <span class="symbol">Gang:</span> Primary <span class="keyword">and</span> mirror both unavailable <span class="keyword">for</span> segment <span class="number">0</span> (i <span class="number">1</span> j <span class="number">2</span>) (cdbgang.<span class="symbol">c:</span><span class="number">1332</span>)  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">31</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[WARN]<span class="symbol">:-Issue</span> with update Greenplum superuser password  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Scanning</span> utility log file <span class="keyword">for</span> any warning messages  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[WARN]<span class="symbol">:-*</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">33</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[WARN]<span class="symbol">:-Scan</span> of log file indicates that some warnings <span class="keyword">or</span> errors  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[WARN]<span class="symbol">:-were</span> generated during the array creation  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">34</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Please</span> review contents of log file  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-/home/greenplum/gpAdminLogs/gpinitsystem_20110413</span>.log  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-To</span> determine level of criticality  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-These</span> messages could be from a previous run of the utility  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-that</span> was called today!  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">36</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[WARN]<span class="symbol">:-*</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Greenplum</span> Database instance successfully created  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">37</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-To</span> complete the environment configuration, please  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-update</span> greenplum .bashrc file with the following  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">38</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-</span><span class="number">1</span>. Ensure that the greenplum_path.sh file is sourced  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-</span><span class="number">2</span>. Add <span class="string">"export MASTER_DATA_DIRECTORY=/opt/gp_data/gp-1"</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">39</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-</span> to access the Greenplum scripts <span class="keyword">for</span> this <span class="symbol">instance:</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-</span> <span class="keyword">or</span>, <span class="keyword">use</span> -d /opt/gp_data/gp-<span class="number">1</span> option <span class="keyword">for</span> the Greenplum scripts  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-</span> Example gpstate -d /opt/gp_data/gp-<span class="number">1</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">40</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Script</span> log file = <span class="regexp">/home/greenplum</span><span class="regexp">/gpAdminLogs/gpinitsystem</span>_20110413.log  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-To</span> remove instance, run gpdeletesystem utility  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-To</span> initialize a Standby Master Segment <span class="keyword">for</span> this Greenplum instance  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">41</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Review</span> options <span class="keyword">for</span> gpinitstandby  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">42</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------------</span>  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">42</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-The</span> Master /opt/gp_data/gp-<span class="number">1</span>/pg_hba.conf post gpinitsystem  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">43</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-has</span> been configured to allow all hosts within this new  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">43</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-array</span> to intercommunicate. Any hosts external to this  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">43</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-new</span> array must be explicitly added to this file  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">44</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-Refer</span> to the Greenplum Admin support guide which is  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">44</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-located</span> <span class="keyword">in</span> the /opt/greenplum-db/./docs directory  </span><br><span class="line"><span class="number">20110413</span><span class="symbol">:</span><span class="number">20</span><span class="symbol">:</span><span class="number">35</span><span class="symbol">:</span><span class="number">44</span><span class="symbol">:gpinitsystem</span><span class="symbol">:gpmaster</span><span class="symbol">:greenplum-</span>[INFO]<span class="symbol">:-------------------------------------------------------</span></span><br></pre></td></tr></table></figure></p>
+<p>根据输出文件信息，看到”-[INFO]:-Greenplum Database instance successfully created” 说明 Greenplum  安装成功。</p>
+<p>6.4 修改 .bash_profile,增加一行,配置 Maser 节点环境变量<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">MASTER_DATA_DIRECTORY</span>=/opt/gp_data/gp-1  </span><br><span class="line">source .bash_profile</span><br></pre></td></tr></table></figure></p>
+<h1 id="7-测试"><a href="#7-测试" class="headerlink" title="7 测试"></a>7 测试</h1><p>7.1连接测试<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[greenplum<span class="meta">@gpmaster</span> ~]$ psql template1  </span><br><span class="line">template1=<span class="comment"># l  </span></span><br><span class="line"> List of databases  </span><br><span class="line"> Name |<span class="string"> Owner </span>|<span class="string"> Encoding  </span></span><br><span class="line"><span class="string">-----------+-----------+----------  </span></span><br><span class="line"><span class="string">postgres </span>|<span class="string"> greenplum </span>|<span class="string"> UTF8  </span></span><br><span class="line"><span class="string">template0 </span>|<span class="string"> greenplum </span>|<span class="string"> UTF8  </span></span><br><span class="line"><span class="string">template1 </span>|<span class="string"> greenplum </span>|<span class="string"> UTF8  </span></span><br><span class="line"><span class="string">(3 rows)</span></span><br></pre></td></tr></table></figure></p>
+<p>7.2创建用户<br><figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">template1=# <span class="keyword">CREATE</span> <span class="keyword">ROLE</span> warehouse LOGIN ENCRYPTED <span class="keyword">PASSWORD</span> <span class="string">'warehouse'</span>  </span><br><span class="line">template1-# superuser noinherit nocreatedb nocreaterole ;  </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">ROLE</span></span><br></pre></td></tr></table></figure></p>
+<p>7.3建库<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">template1=# CREATE DATABASE warehouse  </span><br><span class="line"><span class="meta">template1-#</span><span class="bash"> WITH OWNER = warehouse  </span></span><br><span class="line"><span class="meta">template1-#</span><span class="bash"> TEMPLATE = template0  </span></span><br><span class="line"><span class="meta">template1-#</span><span class="bash"> ENCODING = <span class="string">'UTF8'</span> ;  </span></span><br><span class="line">CREATE DATABASE</span><br></pre></td></tr></table></figure></p>
+<h1 id="8-常见问题"><a href="#8-常见问题" class="headerlink" title="8 常见问题"></a>8 常见问题</h1><p>8.1 Master 连接不上，报以下 Error<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[greenplum@gpmaster ~]$ psql template1  </span><br><span class="line">psql: FATAL: building Gang: Primary <span class="keyword">and</span><span class="built_in"> mirror </span>both unavailable <span class="keyword">for</span> segment 0 (i 1 j 2) (cdbgang.c:1332)</span><br></pre></td></tr></table></figure></p>
+<p>同时数据库日志信息 ( csv log )<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">2011-04-13 20:48:42.195865 CST,,,p13846,th1756048,,,,0,con3,,seg-1,,,,,<span class="string">"LOG"</span>,<span class="string">"00000"</span>,"FTS: <span class="keyword">test</span> connection failed, dbid 2 dbname postgres <span class="keyword">error</span> message 'could not connect to server: <span class="keyword">No</span> route to host  </span><br><span class="line"> Is the server running <span class="keyword">on</span> host <span class="string">""</span>gpnode1<span class="string">""</span> and accepting  </span><br><span class="line"> TCP/IP connections <span class="keyword">on</span> port 50001?  </span><br><span class="line">':136",,,,,,,0,,,,  </span><br><span class="line">2011-04-13 20:48:42.196164 CST,,,p13846,th1756048,,,,0,con3,,seg-1,,,,,<span class="string">"LOG"</span>,<span class="string">"00000"</span>,<span class="string">"Found a fault with a segment 0 segment-dbid 2"</span>,,,,,,,0,,,,  </span><br><span class="line">2011-04-13 20:48:42.196727 CST,,,p13846,th14052240,,,,0,con3,,seg-1,,,,,<span class="string">"LOG"</span>,<span class="string">"00000"</span>,"FTS: <span class="keyword">test</span> connection failed, dbid 4 dbname postgres <span class="keyword">error</span> message 'could not connect to server: <span class="keyword">No</span> route to host  </span><br><span class="line"> Is the server running <span class="keyword">on</span> host <span class="string">""</span>gpnode2<span class="string">""</span> and accepting  </span><br><span class="line"> TCP/IP connections <span class="keyword">on</span> port 60001?  </span><br><span class="line">':136",,,,,,,0,,,,</span><br></pre></td></tr></table></figure></p>
+<p>解决方法：从数据库日志可以看出Master无法连接 gpnode1 的 50001端口和 gpnode2 的 60001 端口，原因是防火墙问题端口权限没打开，只要开通数据库端口权限即可；</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20110416144048.html" title="GreenPlum 数据库安装">https://postgres.fun/20110416144048.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GreenPlum/" rel="tag"># GreenPlum</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20110414163131.html" rel="next" title="GreenPlum 原理篇之一：体系结构简介">
+                <i class="fa fa-chevron-left"></i> GreenPlum 原理篇之一：体系结构简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20110418121800.html" rel="prev" title="GreenPlum 问题一例 ERROR: Interconnect timeout: Unable to complete setup of all connections within time limit.">
+                GreenPlum 问题一例 ERROR: Interconnect timeout: Unable to complete setup of all connections within time limit. <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-实验环境"><span class="nav-number">1.</span> <span class="nav-text">1 实验环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2修改master-segments主机参数-所有主机上执行"><span class="nav-number">2.</span> <span class="nav-text">2修改master, segments主机参数 (所有主机上执行)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-增加操作系统greenplum用户并创建数据目录（所有节点上执行）"><span class="nav-number">3.</span> <span class="nav-text">3 增加操作系统greenplum用户并创建数据目录（所有节点上执行）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-在Master节点上安装-Greenplum-软件"><span class="nav-number">4.</span> <span class="nav-text">4 在Master节点上安装 Greenplum 软件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-在所有子节点主机上安装-greenplumn-软件"><span class="nav-number">5.</span> <span class="nav-text">5 在所有子节点主机上安装 greenplumn 软件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-初始化-Greenplum-on-Master"><span class="nav-number">6.</span> <span class="nav-text">6 初始化 Greenplum (on Master )</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-测试"><span class="nav-number">7.</span> <span class="nav-text">7 测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-常见问题"><span class="nav-number">8.</span> <span class="nav-text">8 常见问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

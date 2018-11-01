@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Pgpool-II," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="最近准备研究下 Pgpool-II(后续简称pgpool) ，之前很早就了解 pgpool 具有连接池，复制，负载均衡，并行查询，以及 HA 功能，今天打算测试下 pgpool 的 HA 功能，暂不考虑其它。   环境信息基本信息硬件：笔记本两台虚拟机db1: 192.168.2.37db2:  192.168.2.38pgpool:  192.168.2.200  ( pgpool 使用 VIP">
+<meta name="keywords" content="Pgpool-II">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL 流复制 + Pgpool-II 实现高可用 HA">
+<meta property="og:url" content="https://postgres.fun/20141003185223.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="最近准备研究下 Pgpool-II(后续简称pgpool) ，之前很早就了解 pgpool 具有连接池，复制，负载均衡，并行查询，以及 HA 功能，今天打算测试下 pgpool 的 HA 功能，暂不考虑其它。   环境信息基本信息硬件：笔记本两台虚拟机db1: 192.168.2.37db2:  192.168.2.38pgpool:  192.168.2.200  ( pgpool 使用 VIP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://postgres.fun/images/pgpool_arc.png">
+<meta property="og:image" content="https://postgres.fun/images/pgpool_auth.png">
+<meta property="og:updated_time" content="2018-09-04T01:34:13.547Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PostgreSQL 流复制 + Pgpool-II 实现高可用 HA">
+<meta name="twitter:description" content="最近准备研究下 Pgpool-II(后续简称pgpool) ，之前很早就了解 pgpool 具有连接池，复制，负载均衡，并行查询，以及 HA 功能，今天打算测试下 pgpool 的 HA 功能，暂不考虑其它。   环境信息基本信息硬件：笔记本两台虚拟机db1: 192.168.2.37db2:  192.168.2.38pgpool:  192.168.2.200  ( pgpool 使用 VIP">
+<meta name="twitter:image" content="https://postgres.fun/images/pgpool_arc.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20141003185223.html"/>
+
+
+
+
+
+
+  <title>PostgreSQL 流复制 + Pgpool-II 实现高可用 HA | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20141003185223.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PostgreSQL 流复制 + Pgpool-II 实现高可用 HA</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-10-03T18:52:23+08:00">
+                2014-10-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PG高可用性/" itemprop="url" rel="index">
+                    <span itemprop="name">PG高可用性</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20141003185223.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20141003185223.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20141003185223.html" class="leancloud_visitors" data-flag-title="PostgreSQL 流复制 + Pgpool-II 实现高可用 HA">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近准备研究下 Pgpool-II(后续简称pgpool) ，之前很早就了解 pgpool 具有连接池，复制，负载均衡，并行查询，以及 HA 功能，今天打算测试下 pgpool 的 HA 功能，暂不考虑其它。  </p>
+<h1 id="环境信息"><a href="#环境信息" class="headerlink" title="环境信息"></a>环境信息</h1><p>基本信息<br>硬件：笔记本两台虚拟机<br>db1: 192.168.2.37<br>db2:  192.168.2.38<br>pgpool:  192.168.2.200  ( pgpool 使用 VIP, VIP 可以在 db1 , db2 上漂移  )<br>系统: RHEL 6.2<br>PostgreSQL  版本：  9.3.5<br>备注：PostgreSQL 流复制环境搭建略，也可参考 <a href="https://postgres.fun/20130702100240.html">PostgreSQL：使用 pg_basebackup 搭建流复制环境</a> 。  </p>
+<h1 id="Pgpool-实验环境架构图"><a href="#Pgpool-实验环境架构图" class="headerlink" title="Pgpool 实验环境架构图"></a>Pgpool 实验环境架构图</h1><p><img src="/images/pgpool_arc.png" alt=""></p>
+<center>pgpool 部署架构规划图 </center>
+
+<p>备注: watchdog可以避免 pgpool 的单点故障。  </p>
+<h1 id="编译安装-Pgpool-两节点安装"><a href="#编译安装-Pgpool-两节点安装" class="headerlink" title="编译安装 Pgpool ( 两节点安装)"></a>编译安装 Pgpool ( 两节点安装)</h1><p>下载pgpool软件<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">http:</span><span class="comment">//www.pgpool.net/download.php?f=pgpool-II-3.3.4.tar.gz</span></span><br></pre></td></tr></table></figure></p>
+<p>安装 pgpool<br><figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@db1 soft_bak]<span class="comment"># tar xvf pgpool-II-3.3.4.tar.gz   </span></span><br><span class="line">[root@db1 pgpool-II<span class="number">-3.3</span><span class="number">.4</span>]<span class="comment"># mkdir -p /opt/pgpool  </span></span><br><span class="line">[root@db1 pgpool-II<span class="number">-3.3</span><span class="number">.4</span>]<span class="comment"># source /home/pg93/.bash_profile  </span></span><br><span class="line"></span><br><span class="line">[root@db1 pgpool-II<span class="number">-3.3</span><span class="number">.4</span>]<span class="comment">#./configure --prefix=/opt/pgpool -with-pgsql=path -with-pgsql=/opt/pgsql_9.3.3 --with-openssl   </span></span><br><span class="line">[root@db1 pgpool-II<span class="number">-3.3</span><span class="number">.4</span>]<span class="comment"># make   </span></span><br><span class="line">[root@db1 pgpool-II<span class="number">-3.3</span><span class="number">.4</span>]<span class="comment"># make install</span></span><br><span class="line">  </span><br><span class="line">configure 错误  </span><br><span class="line">checking <span class="keyword">for</span>  PQexecPrepared  <span class="keyword">in</span>  -lpq...  <span class="literal">no</span>  </span><br><span class="line">configure: error: libpq <span class="keyword">is</span>  <span class="keyword">not</span> installed <span class="keyword">or</span> libpq <span class="keyword">is</span> old</span><br></pre></td></tr></table></figure></p>
+<p>备注：如果出现这个错误，说明找不到 PostgreSQL lib 库， configure 加上 -with-pgsql 选项即可。  </p>
+<h1 id="安装-Pgpool-相关函数"><a href="#安装-Pgpool-相关函数" class="headerlink" title="安装 Pgpool 相关函数"></a>安装 Pgpool 相关函数</h1><p>pgpool 函数虽然不是必需安装，但建议安装 pgpool_regclass, pgpool_recovery 函数。  </p>
+<p>安装 pgpool_regclass, pgpool_recovery (recommended)<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@db1</span> sql]<span class="meta"># cd /opt/soft_bak/pgpool-II-3.3.4/sql  </span></span><br><span class="line">[root<span class="symbol">@db1</span> sql]<span class="meta"># source /home/pg93/.bash_profile  </span></span><br><span class="line">[root<span class="symbol">@db1</span> sql]<span class="meta"># make   </span></span><br><span class="line">[root<span class="symbol">@db1</span> sql]<span class="meta"># make install</span></span><br></pre></td></tr></table></figure></p>
+<p>备注：之后在 $PGHOME/share/extension 目录下生成以下文件。  </p>
+<p>pgpool 相关文件<br><figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 extension]$ ll /opt/pgsql_9.3.3/share/extension/pgpool*    </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 791 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool_recovery--1.0.sql  </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 160 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool_recovery.control  </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 551 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool-recovery.sql  </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 283 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool_regclass--1.0.sql  </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 152 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool_regclass.control  </span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root root<span class="number"> 142 </span> Sep <span class="number"> 30 </span> 15:56  /opt/pgsql_9.3.3/share/extension/pgpool-regclass.sql</span><br></pre></td></tr></table></figure></p>
+<p>在模板库 template1 创建 pgpool_regclass<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 extension]$ psql template1  </span><br><span class="line">psql (9.3.3)  </span><br><span class="line">Type  <span class="string">"help"</span>  <span class="keyword">for</span> help.  </span><br><span class="line">  </span><br><span class="line"><span class="attribute">template1</span>=# create extension pgpool_regclass;   </span><br><span class="line">CREATE EXTENSION  </span><br><span class="line">  </span><br><span class="line"><span class="attribute">template1</span>=# CREATE EXTENSION pgpool_recovery;  </span><br><span class="line">CREATE EXTENSION</span><br></pre></td></tr></table></figure></p>
+<p>查看新增加的recovery 管理函数<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">template1</span>=# \df  </span><br><span class="line"> List of functions  </span><br><span class="line">Schema  | Name |  Result data<span class="built_in"> type </span>| Argument data types |<span class="built_in"> Type </span>  </span><br><span class="line">--------+---------------------+------------------+----------------------------------------------------------------+--------  </span><br><span class="line">public  | pgpool_pgctl |  boolean | action text, stop_mode text | normal  </span><br><span class="line">public  | pgpool_recovery |  boolean | script_name text, remote_host text, remote_data_directory text | normal  </span><br><span class="line">public  | pgpool_remote_start |  boolean | remote_host text, remote_data_directory text | normal  </span><br><span class="line">public  | pgpool_switch_xlog | text | arcive_dir text | normal  </span><br><span class="line">(4 rows)</span><br></pre></td></tr></table></figure></p>
+<p>备注： 每个库都需要安装 pgpool_regclass，为了方便在 template1 上安装 pgpool_regclass，以后新建的库都以 template1 为模板库。  </p>
+<h1 id="数据库配置"><a href="#数据库配置" class="headerlink" title="数据库配置"></a>数据库配置</h1><p>recovery.conf 配置<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">recovery_target_timeline</span> =  <span class="string">'latest'</span>  </span><br><span class="line"><span class="attr">standby_mode</span> = <span class="literal">on</span>  </span><br><span class="line"><span class="attr">primary_conninfo</span> =  <span class="string">'host=192.168.2.38 port=1921 user=repuser'</span></span><br></pre></td></tr></table></figure></p>
+<p>备注: primary_conninfo 的 host 分别配置对端 host IP.  </p>
+<p>.pgpass文件配置<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="meta">@db</span>1 pg_root]$ cat ~/.pgpass  </span><br><span class="line"><span class="number">192.168</span><span class="number">.2</span><span class="number">.37</span>:<span class="number">1921</span>:<span class="string">replication:</span><span class="string">repuser:</span>rep123us345er  </span><br><span class="line"><span class="number">192.168</span><span class="number">.2</span><span class="number">.38</span>:<span class="number">1921</span>:<span class="string">replication:</span><span class="string">repuser:</span>rep123us345er</span><br></pre></td></tr></table></figure></p>
+<p>postgresql.conf 配置略  </p>
+<h1 id="配置-Pgpool-II-两节点操作"><a href="#配置-Pgpool-II-两节点操作" class="headerlink" title="配置 Pgpool-II ( 两节点操作)"></a>配置 Pgpool-II ( 两节点操作)</h1><p>配置 pcp.conf<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="variable">@db1</span> etc]<span class="comment"># cd /opt/pgpool/etc  </span></span><br><span class="line">[root<span class="variable">@db1</span> etc]<span class="comment"># cp pcp.conf.sample pcp.conf  </span></span><br><span class="line">  </span><br><span class="line">[pg93<span class="variable">@db1</span> etc]<span class="variable">$ </span>pg_md5 -u pgpool -p   </span><br><span class="line"><span class="symbol">password:</span>    </span><br><span class="line">ba777e4c2f15c11ea8ac3be7e0440aa<span class="number">0</span></span><br></pre></td></tr></table></figure></p>
+<p>备注: pgpool 提供 pcp 接口，可以查看，管理 pgpool 的状态，并且可以远程操作 pgpool ， pcp.conf 用来对 pcp 相关命令认证的文件，格式为 USERID:MD5PASSWD。  </p>
+<p>编写 pcp.conf 文件，写入以下<br><figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># USERID:MD5PASSWD  </span></span><br><span class="line"><span class="symbol">pgpool:</span>ba777e4c2f15c11ea8ac3be7e0440aa0</span><br></pre></td></tr></table></figure></p>
+<p>配置 /etc/hosts<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@db1 ~]# cat /etc/hosts  </span><br><span class="line"><span class="number">127.0</span><span class="meta">.0</span><span class="meta">.1</span> localhost localhost.localdomain localhost4 localhost4.localdomain4  </span><br><span class="line">::<span class="number">1</span> localhost localhost.localdomain localhost6 localhost6.localdomain6  </span><br><span class="line">  </span><br><span class="line"><span class="number">192.168</span><span class="meta">.2</span><span class="meta">.37</span> db1  </span><br><span class="line"><span class="number">192.168</span><span class="meta">.2</span><span class="meta">.38</span> db2</span><br></pre></td></tr></table></figure></p>
+<p>配置 ifconfig, arping 执行权限<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@db1</span> pgpool]<span class="meta"># chmod u+s /sbin/ifconfig  </span></span><br><span class="line">[root<span class="symbol">@db1</span> pgpool]<span class="meta"># chmod u+s /usr/sbin/</span></span><br><span class="line">备注: 以理普通用户能够执行以上命令， failover_command 命令要用到。</span><br></pre></td></tr></table></figure></p>
+<p>配置两节点信任关系 , 例如 db1 上的 pg93 配置信任关系，免密码登录 db2.<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pg93@db1 ~]$ ssh-keygen   </span><br><span class="line">[pg93@db1 ~]$ ssh-copy-id pg93@db2  </span><br><span class="line">[pg93@db1 ~]$ ssh pg93@db2  </span><br><span class="line">[pg93@db2 ~]$ <span class="keyword">exit</span></span><br></pre></td></tr></table></figure></p>
+<p>备注: 此操作在 db2 上也操作一次, failover_command 命令要用到。  </p>
+<p>配置 pgpool.conf<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@db1 etc]# <span class="keyword">cd</span> /<span class="keyword">opt</span>/pgpool/etc   </span><br><span class="line">[root@db1 etc]# <span class="keyword">cp</span> pgpool.<span class="keyword">conf</span>.sample pgpool.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure></p>
+<p>开启日志<br>在日志 /etc/rsyslog.conf 加入以下行<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># pgpool   </span></span><br><span class="line">local0.* /var/<span class="built_in">log</span>/pgpool.<span class="built_in">log</span></span><br></pre></td></tr></table></figure></p>
+<p>重启 rsyslog 服务<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@db1 ~]# /etc/init.d/rsyslog restart  </span><br><span class="line">Shutting down<span class="built_in"> system </span>logger: [OK ]  </span><br><span class="line">Starting<span class="built_in"> system </span>logger: [OK ]</span><br></pre></td></tr></table></figure></p>
+<p>pgpool.conf 配置以下行<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">log_destination</span> =  <span class="string">'syslog'</span></span><br></pre></td></tr></table></figure></p>
+<p>备注：  这里使用 syslog。</p>
+<p>主节点的 pgpool.conf<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 etc]$ grep ^[a-z] pgpool.conf  </span><br><span class="line">listen_addresses =  '*'  </span><br><span class="line">port =  9999  </span><br><span class="line">socket_dir =  '/tmp'  </span><br><span class="line">pcp_port =  9898  </span><br><span class="line">pcp_socket_dir =  '/tmp'  </span><br><span class="line">backend_hostname0 =  'db1' <span class="comment">##配置数据节点 db1  </span></span><br><span class="line">backend_port0 =  1921  </span><br><span class="line">backend_weight0 =  1  </span><br><span class="line">backend_flag0 =  'ALLOW_TO_FAILOVER'  </span><br><span class="line">backend_hostname1 =  'db2' <span class="comment">##配置数据节点 db2  </span></span><br><span class="line">backend_port1 =  1921  </span><br><span class="line">backend_weight1 =  1  </span><br><span class="line">backend_flag1 =  'ALLOW_TO_FAILOVER'  </span><br><span class="line">enable_pool_hba = on  </span><br><span class="line">pool_passwd =  'pool_passwd'  </span><br><span class="line">authentication_timeout =  60  </span><br><span class="line">ssl = off  </span><br><span class="line">num_init_children =  32  </span><br><span class="line">max_pool =  4  </span><br><span class="line">child_life_time =  300  </span><br><span class="line">child_max_connections =  0  </span><br><span class="line">connection_life_time =  0  </span><br><span class="line">client_idle_limit =  0  </span><br><span class="line">log_destination =  'syslog'  </span><br><span class="line">print_timestamp = on  </span><br><span class="line">log_connections = on  </span><br><span class="line">log_hostname = on  </span><br><span class="line">log_statement = on  </span><br><span class="line">log_per_node_statement = off  </span><br><span class="line">log_standby_delay =  'none'  </span><br><span class="line">syslog_facility =  'LOCAL0'  </span><br><span class="line">syslog_ident =  'pgpool'  </span><br><span class="line">debug_level =  0  </span><br><span class="line">pid_file_name =  '/opt/pgpool/pgpool.pid'  </span><br><span class="line">logdir =  '/tmp'  </span><br><span class="line">connection_cache = on  </span><br><span class="line">reset_query_list =  'ABORT; DISCARD ALL'  </span><br><span class="line">replication_mode = off  </span><br><span class="line">replicate_select = off  </span><br><span class="line">insert_lock = on  </span><br><span class="line">lobj_lock_table =  ''  </span><br><span class="line">replication_stop_on_mismatch = off  </span><br><span class="line">failover_if_affected_tuples_mismatch = off  </span><br><span class="line">load_balance_mode = on  </span><br><span class="line">ignore_leading_white_space = on  </span><br><span class="line">white_function_list =  ''  </span><br><span class="line">black_function_list =  'nextval,setval'  </span><br><span class="line">master_slave_mode = on <span class="comment"># 设置流复制模式  </span></span><br><span class="line">master_slave_sub_mode =  'stream'  <span class="comment"># 设置流复制模式  </span></span><br><span class="line">sr_check_period =  5  </span><br><span class="line">sr_check_user =  'repuser'  </span><br><span class="line">sr_check_password =  'rep123us345er'  </span><br><span class="line">delay_threshold =  16000  </span><br><span class="line">follow_master_command =  ''  </span><br><span class="line">parallel_mode = off  </span><br><span class="line">pgpool2_hostname =  ''  </span><br><span class="line">system_db_hostname =  'localhost'  </span><br><span class="line">system_db_port =  5432  </span><br><span class="line">system_db_dbname =  'pgpool'  </span><br><span class="line">system_db_schema =  'pgpool_catalog'  </span><br><span class="line">system_db_user =  'pgpool'  </span><br><span class="line">system_db_password =  ''  </span><br><span class="line">health_check_period =  5  </span><br><span class="line">health_check_timeout =  20  </span><br><span class="line">health_check_user =  'repuser'  </span><br><span class="line">health_check_password =  'rep123us345er'  </span><br><span class="line">health_check_max_retries =  3  </span><br><span class="line">health_check_retry_delay =  1  </span><br><span class="line">failover_command =  '/opt/pgpool/failover_stream.sh %H ' <span class="comment">## 配置 failover 脚本，脚本内容下面会贴出。  </span></span><br><span class="line">failback_command =  ''  </span><br><span class="line">fail_over_on_backend_error = on  </span><br><span class="line">search_primary_node_timeout =  10  </span><br><span class="line">recovery_user =  'nobody'  </span><br><span class="line">recovery_password =  ''  </span><br><span class="line">recovery_1st_stage_command =  ''  </span><br><span class="line">recovery_2nd_stage_command =  ''  </span><br><span class="line">recovery_timeout =  90  </span><br><span class="line">client_idle_limit_in_recovery =  0  </span><br><span class="line">use_watchdog = on  </span><br><span class="line">trusted_servers =  ''  </span><br><span class="line">ping_path =  '/bin'  </span><br><span class="line">wd_hostname =  'db1'  </span><br><span class="line">wd_port =  9000  </span><br><span class="line">wd_authkey =  ''  </span><br><span class="line">delegate_IP =  '192.168.2.200' <span class="comment">## 配置 pgpool 的 VIP，避免 pgpool 的单点故障  </span></span><br><span class="line">ifconfig_path =  '/sbin' <span class="comment">## 以下几个网卡命令不需要修改。  </span></span><br><span class="line">if_up_cmd =  'ifconfig eth0:0 inet $_IP_$ netmask 255.255.255.0'  </span><br><span class="line">if_down_cmd =  'ifconfig eth0:0 down'  </span><br><span class="line">arping_path =  '/usr/sbin' <span class="comment"># arping command path  </span></span><br><span class="line">arping_cmd =  'arping -U $_IP_$ -w 1'  </span><br><span class="line">clear_memqcache_on_escalation = on  </span><br><span class="line">wd_escalation_command =  ''  </span><br><span class="line">wd_lifecheck_method =  'heartbeat'  </span><br><span class="line">wd_interval =  10  </span><br><span class="line">wd_heartbeat_port =  9694  </span><br><span class="line">wd_heartbeat_keepalive =  2  </span><br><span class="line">wd_heartbeat_deadtime =  30  </span><br><span class="line">heartbeat_destination0 =  'db2' <span class="comment"># 配置对端的 hostname  </span></span><br><span class="line">heartbeat_destination_port0 =  9694    </span><br><span class="line">heartbeat_device0 =  'eth0'    </span><br><span class="line">wd_life_point =  3  </span><br><span class="line">wd_lifecheck_query =  'SELECT 1'  </span><br><span class="line">wd_lifecheck_dbname =  'template1'  </span><br><span class="line">wd_lifecheck_user =  'nobody'  </span><br><span class="line">wd_lifecheck_password =  ''  </span><br><span class="line">other_pgpool_hostname0 =  'db2' <span class="comment">## 配置对端的 pgpool  </span></span><br><span class="line">other_pgpool_port0 =  9999  </span><br><span class="line">other_wd_port0 =  9000  </span><br><span class="line">relcache_expire =  0  </span><br><span class="line">relcache_size =  256  </span><br><span class="line">check_temp_table = on  </span><br><span class="line">memory_cache_enabled = off  </span><br><span class="line">memqcache_method =  'shmem'  </span><br><span class="line">memqcache_memcached_host =  'localhost'  </span><br><span class="line">memqcache_memcached_port =  11211  </span><br><span class="line">memqcache_total_size =  67108864  </span><br><span class="line">memqcache_max_num_cache =  1000000  </span><br><span class="line">memqcache_expire =  0  </span><br><span class="line">memqcache_auto_cache_invalidation = on  </span><br><span class="line">memqcache_maxcache =  409600  </span><br><span class="line">memqcache_cache_block_size =  1048576  </span><br><span class="line">memqcache_oiddir =  '/var/log/pgpool/oiddir'  </span><br><span class="line">white_memqcache_table_list =  ''  </span><br><span class="line">black_memqcache_table_list =  ''</span><br></pre></td></tr></table></figure></p>
+<p>备节点的 pgpool.conf<br><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db2 etc]$ grep ^[a-z] pgpool.conf  </span><br><span class="line">listen_addresses =  '*'  </span><br><span class="line">port =  9999  </span><br><span class="line">socket_dir =  '/tmp'  </span><br><span class="line">pcp_port =  9898  </span><br><span class="line">pcp_socket_dir =  '/tmp'  </span><br><span class="line">backend_hostname0 =  'db1'  </span><br><span class="line">backend_port0 =  1921  </span><br><span class="line">backend_weight0 =  1  </span><br><span class="line">backend_flag0 =  'ALLOW_TO_FAILOVER'  </span><br><span class="line">backend_hostname1 =  'db2'  </span><br><span class="line">backend_port1 =  1921  </span><br><span class="line">backend_weight1 =  1  </span><br><span class="line">backend_flag1 =  'ALLOW_TO_FAILOVER'  </span><br><span class="line">enable_pool_hba = on  </span><br><span class="line">pool_passwd =  'pool_passwd'  </span><br><span class="line">authentication_timeout =  60  </span><br><span class="line">ssl = off  </span><br><span class="line">num_init_children =  32  </span><br><span class="line">max_pool =  4  </span><br><span class="line">child_life_time =  300  </span><br><span class="line">child_max_connections =  0  </span><br><span class="line">connection_life_time =  0  </span><br><span class="line">client_idle_limit =  0  </span><br><span class="line">log_destination =  'syslog'  </span><br><span class="line">print_timestamp = on  </span><br><span class="line">log_connections = on  </span><br><span class="line">log_hostname = on  </span><br><span class="line">log_statement = on  </span><br><span class="line">log_per_node_statement = off  </span><br><span class="line">log_standby_delay =  'none'  </span><br><span class="line">syslog_facility =  'LOCAL0'  </span><br><span class="line">syslog_ident =  'pgpool'  </span><br><span class="line">debug_level =  0  </span><br><span class="line">pid_file_name =  '/opt/pgpool/pgpool.pid'  </span><br><span class="line">logdir =  '/tmp'  </span><br><span class="line">connection_cache = on  </span><br><span class="line">reset_query_list =  'ABORT; DISCARD ALL'  </span><br><span class="line">replication_mode = off  </span><br><span class="line">replicate_select = off  </span><br><span class="line">insert_lock = on  </span><br><span class="line">lobj_lock_table =  ''  </span><br><span class="line">replication_stop_on_mismatch = off  </span><br><span class="line">failover_if_affected_tuples_mismatch = off  </span><br><span class="line">load_balance_mode = on  </span><br><span class="line">ignore_leading_white_space = on  </span><br><span class="line">white_function_list =  ''  </span><br><span class="line">black_function_list =  'nextval,setval'  </span><br><span class="line">master_slave_mode = on  </span><br><span class="line">master_slave_sub_mode =  'stream'  </span><br><span class="line">sr_check_period =  0  </span><br><span class="line">sr_check_user =  'repuser'  </span><br><span class="line">sr_check_password =  'rep123us345er'  </span><br><span class="line">delay_threshold =  16000  </span><br><span class="line">follow_master_command =  ''  </span><br><span class="line">parallel_mode = off  </span><br><span class="line">pgpool2_hostname =  ''  </span><br><span class="line">system_db_hostname =  'localhost'  </span><br><span class="line">system_db_port =  5432  </span><br><span class="line">system_db_dbname =  'pgpool'  </span><br><span class="line">system_db_schema =  'pgpool_catalog'  </span><br><span class="line">system_db_user =  'pgpool'  </span><br><span class="line">system_db_password =  ''  </span><br><span class="line">health_check_period =  0  </span><br><span class="line">health_check_timeout =  20  </span><br><span class="line">health_check_user =  'nobody'  </span><br><span class="line">health_check_password =  ''  </span><br><span class="line">health_check_max_retries =  0  </span><br><span class="line">health_check_retry_delay =  1  </span><br><span class="line">failover_command =  '/opt/pgpool/failover_stream.sh %H '  </span><br><span class="line">failback_command =  ''  </span><br><span class="line">fail_over_on_backend_error = on  </span><br><span class="line">search_primary_node_timeout =  10  </span><br><span class="line">recovery_user =  'nobody'  </span><br><span class="line">recovery_password =  ''  </span><br><span class="line">recovery_1st_stage_command =  ''  </span><br><span class="line">recovery_2nd_stage_command =  ''  </span><br><span class="line">recovery_timeout =  90  </span><br><span class="line">client_idle_limit_in_recovery =  0  </span><br><span class="line">use_watchdog = on  </span><br><span class="line">trusted_servers =  ''  </span><br><span class="line">ping_path =  '/bin'  </span><br><span class="line">wd_hostname =  'db2'  </span><br><span class="line">wd_port =  9000  </span><br><span class="line">wd_authkey =  ''  </span><br><span class="line">delegate_IP =  '192.168.2.200'  </span><br><span class="line">ifconfig_path =  '/sbin'  </span><br><span class="line">if_up_cmd =  'ifconfig eth0:0 inet $_IP_$ netmask 255.255.255.0'  </span><br><span class="line">if_down_cmd =  'ifconfig eth0:0 down'  </span><br><span class="line">arping_path =  '/usr/sbin' <span class="comment"># arping command path  </span></span><br><span class="line">arping_cmd =  'arping -U $_IP_$ -w 1'  </span><br><span class="line">clear_memqcache_on_escalation = on  </span><br><span class="line">wd_escalation_command =  ''  </span><br><span class="line">wd_lifecheck_method =  'heartbeat'  </span><br><span class="line">wd_interval =  10  </span><br><span class="line">wd_heartbeat_port =  9694  </span><br><span class="line">wd_heartbeat_keepalive =  2  </span><br><span class="line">wd_heartbeat_deadtime =  30  </span><br><span class="line">heartbeat_destination0 =  'db1'  </span><br><span class="line">heartbeat_destination_port0 =  9694    </span><br><span class="line">heartbeat_device0 =  'eth0'  </span><br><span class="line">wd_life_point =  3  </span><br><span class="line">wd_lifecheck_query =  'SELECT 1'  </span><br><span class="line">wd_lifecheck_dbname =  'template1'  </span><br><span class="line">wd_lifecheck_user =  'nobody'  </span><br><span class="line">wd_lifecheck_password =  ''  </span><br><span class="line">other_pgpool_hostname0 =  'db1'  </span><br><span class="line">other_pgpool_port0 =  9999  </span><br><span class="line">other_wd_port0 =  9000  </span><br><span class="line">relcache_expire =  0  </span><br><span class="line">relcache_size =  256  </span><br><span class="line">check_temp_table = on  </span><br><span class="line">memory_cache_enabled = off  </span><br><span class="line">memqcache_method =  'shmem'  </span><br><span class="line">memqcache_memcached_host =  'localhost'  </span><br><span class="line">memqcache_memcached_port =  11211  </span><br><span class="line">memqcache_total_size =  67108864  </span><br><span class="line">memqcache_max_num_cache =  1000000  </span><br><span class="line">memqcache_expire =  0  </span><br><span class="line">memqcache_auto_cache_invalidation = on  </span><br><span class="line">memqcache_maxcache =  409600  </span><br><span class="line">memqcache_cache_block_size =  1048576  </span><br><span class="line">memqcache_oiddir =  '/var/log/pgpool/oiddir'  </span><br><span class="line">white_memqcache_table_list =  ''  </span><br><span class="line">black_memqcache_table_list =  ''</span><br></pre></td></tr></table></figure></p>
+<p>/opt/pgpool/failover_stream.sh 脚本内容<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 etc]$ cat /opt/pgpool/failover_stream.sh   </span><br><span class="line"><span class="meta">#! /bin/sh  </span></span><br><span class="line"><span class="comment"># Failover command for streaming replication.  </span></span><br><span class="line"><span class="comment"># Arguments: $1: new master hostname.   </span></span><br><span class="line">  </span><br><span class="line">new_master=<span class="variable">$1</span>  </span><br><span class="line">trigger_command=<span class="string">"<span class="variable">$PGHOME</span>/bin/pg_ctl promote -D <span class="variable">$PGDATA</span>"</span>  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># Prompte standby database.  </span></span><br><span class="line">/usr/bin/ssh -T <span class="variable">$new_master</span> <span class="variable">$trigger_command</span>   </span><br><span class="line">  </span><br><span class="line"><span class="built_in">exit</span>  0;</span><br></pre></td></tr></table></figure></p>
+<p>备注： 我这里定义的 failover 脚本和 pgpool 手册上的脚本不同，这里使用了 <code>pg_ctl promote</code> 的切换方式，一方面以文件触发的形式个人觉得不是很好。另一方面：当以 trigger file 形式实现 HA 时会遇到不能来回切换的问题。  </p>
+<p>如果仔细看，可以看到这个切换脚本并不严谨，每当有节点离线时，它都会触发一次，也就是说如果当前掉线的是备节点，它也会到对端主库执行一次 failover_command 命令，不过没关系，并不影响。   </p>
+<p>启动 pgpool<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="variable">@db2</span> etc]<span class="variable">$ </span>pgpool</span><br></pre></td></tr></table></figure></p>
+<p>备注： 此时可以查看 /var/log/pgpool.log 日志了，注意两节点都启动。  </p>
+<p>pgpool 关闭命令<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="variable">@db2</span> etc]<span class="variable">$ </span>pgpool -m fast stop</span><br></pre></td></tr></table></figure></p>
+<p>pgpool reload 命令<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="variable">@db1</span> etc]<span class="variable">$ </span>pgpool reload</span><br></pre></td></tr></table></figure></p>
+<p>关于连接异常问题<br><img src="/images/pgpool_auth.png" alt=""><br>备注： 这个表格很好地描述了各种连接异常问题，对照表格很容易找到原因。  </p>
+<p>在本机 ubuntu 查看 pgpool 状态<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">francs@francs:~$ lsb_release -a  </span><br><span class="line"><span class="literal">No</span> LSB modules are available.  </span><br><span class="line">Distributor ID:Ubuntu  </span><br><span class="line">Description:Ubuntu  14.04.1 LTS  </span><br><span class="line">Release:14.04  </span><br><span class="line">Codename: trusty  </span><br><span class="line">  </span><br><span class="line">francs@francs:~$ psql -h 192.168.2.200  -p 9999 postgres postgres  </span><br><span class="line">Password  <span class="keyword">for</span><span class="built_in"> user </span>postgres:    </span><br><span class="line">psql (9.3.5,<span class="built_in"> server </span>9.3.3)  </span><br><span class="line">Type  <span class="string">"help"</span>  <span class="keyword">for</span> help.  </span><br><span class="line">  </span><br><span class="line"><span class="attribute">postgres</span>=# show pool_nodes;  </span><br><span class="line">node_id | hostname |<span class="built_in"> port </span>| status | lb_weight | role   </span><br><span class="line">---------+----------+------+--------+-----------+---------  </span><br><span class="line">0 | db1 |  1921  |  2 |  0.500000 | standby  </span><br><span class="line">1 | db2 |  1921  |  2 |  0.500000 | primary</span><br></pre></td></tr></table></figure></p>
+<p>备注: db2 为 primary, db1 为 standby。 status 为 2 ，表示正常连接; 关于 status 状态，如下  </p>
+<ul>
+<li>0 - This state is only used during the initialization. PCP will never display it.  </li>
+<li>1 - Node is up. No connections yet.  </li>
+<li>2 - Node is up. Connections are pooled.  </li>
+<li>3 - Node is down.  </li>
+</ul>
+<h1 id="HA-验证"><a href="#HA-验证" class="headerlink" title="HA 验证"></a>HA 验证</h1><p> 根据上面 show_nodes 输出， 此时 db2 节点为主库， db1 节点为备库，并且 pgpool 目前跑在 db1 上，下面分别测试以下情形:  </p>
+<h2 id="关-db2-上的数据库"><a href="#关-db2-上的数据库" class="headerlink" title="关 db2 上的数据库"></a>关 db2 上的数据库</h2><p>db2 关闭数据库<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db2 etc]$ pg_ctl stop -m fast  </span><br><span class="line">waiting <span class="keyword">for</span><span class="built_in"> server </span><span class="keyword">to</span> shut down<span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span>.  done  </span><br><span class="line">server stopped</span><br></pre></td></tr></table></figure></p>
+<p>db1 上测试<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="meta">@db</span>1 etc]$ pg_controldata | grep cluster  </span><br><span class="line">Database cluster <span class="string">state:</span> <span class="keyword">in</span> production  </span><br><span class="line">[pg93<span class="meta">@db</span>1 etc]$   </span><br><span class="line">  </span><br><span class="line">[pg93<span class="meta">@db</span>1 etc]$ ll <span class="regexp">/database/</span>pg93<span class="regexp">/pg_root/</span>recovery.done    </span><br><span class="line">-rw-r--r--  <span class="number">1</span> pg93 pg93 <span class="number">4.8</span>K  Oct <span class="number">2</span>  <span class="number">09</span>:<span class="number">05</span>  <span class="regexp">/database/</span>pg93<span class="regexp">/pg_root/</span>recovery.done</span><br></pre></td></tr></table></figure></p>
+<p>备注：可以看到db1 节点已完成从 standby 角色切换到 primary ，并且 $PGDATA/recovery.conf 文件变成 recovery.done  。  </p>
+<p>查看 pgpool 状态<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">francs@francs:~$ psql -h 192.168.2.200  -p 9999 postgres postgres  </span><br><span class="line">Password  <span class="keyword">for</span><span class="built_in"> user </span>postgres:    </span><br><span class="line">psql (9.3.5,<span class="built_in"> server </span>9.3.3)  </span><br><span class="line">Type  <span class="string">"help"</span>  <span class="keyword">for</span> help.  </span><br><span class="line">  </span><br><span class="line"><span class="attribute">postgres</span>=# show pool_nodes;  </span><br><span class="line">node_id | hostname |<span class="built_in"> port </span>| status | lb_weight | role   </span><br><span class="line">---------+----------+------+--------+-----------+---------  </span><br><span class="line">0 | db1 |  1921  |  2 |  0.500000 | primary  </span><br><span class="line">1 | db2 |  1921  |  3 |  0.500000 | standby  </span><br><span class="line">(2 rows)</span><br></pre></td></tr></table></figure></p>
+<p>备注:db1 已转换成primary 角色。 db2 状态为  3  ，表示 down 状态。  </p>
+<p>接下来以 standby 身份启动 db2<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pg93@db2 pg_root]$ mv recovery.done recovery.conf  </span><br><span class="line">[pg93@db2 pg_root]$ pg_ctl start</span><br></pre></td></tr></table></figure></p>
+<p>db1 上操作，添加 db2 节点信息<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 etc]$ pcp_attach_node -d 5 db2 9898 pgpool pgpool 1  </span><br><span class="line">DEBUG: send: <span class="attribute">tos</span>=<span class="string">"R"</span>, <span class="attribute">len</span>=44  </span><br><span class="line">DEBUG: recv: <span class="attribute">tos</span>=<span class="string">"r"</span>, <span class="attribute">len</span>=21, <span class="attribute">data</span>=AuthenticationOK  </span><br><span class="line">DEBUG: send: <span class="attribute">tos</span>=<span class="string">"D"</span>, <span class="attribute">len</span>=6  </span><br><span class="line">DEBUG: recv: <span class="attribute">tos</span>=<span class="string">"c"</span>, <span class="attribute">len</span>=20, <span class="attribute">data</span>=CommandComplete  </span><br><span class="line">DEBUG: send: <span class="attribute">tos</span>=<span class="string">"X"</span>, <span class="attribute">len</span>=4</span><br></pre></td></tr></table></figure></p>
+<p>db2 状态恢复<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[pg93@db1 etc]$ psql -p 9999  -U postgres  </span><br><span class="line">Password  <span class="keyword">for</span><span class="built_in"> user </span>postgres:    </span><br><span class="line">psql (9.3.3)  </span><br><span class="line">Type  <span class="string">"help"</span>  <span class="keyword">for</span> help.  </span><br><span class="line">  </span><br><span class="line"><span class="attribute">postgres</span>=# show pool_nodes;  </span><br><span class="line">node_id | hostname |<span class="built_in"> port </span>| status | lb_weight | role   </span><br><span class="line">---------+----------+------+--------+-----------+---------  </span><br><span class="line">0 | db1 |  1921  |  2 |  0.500000 | primary  </span><br><span class="line">1 | db2 |  1921  |  2 |  0.500000 | standby  </span><br><span class="line">(2 rows)</span><br></pre></td></tr></table></figure></p>
+<p>备注：切换成功  </p>
+<h2 id="关-pgpool-master"><a href="#关-pgpool-master" class="headerlink" title="关 pgpool master"></a>关 pgpool master</h2><p>pgpool VIP :192.168.2.200 从 db1 飘到 db2，注意此时仅 pgpool 的 VIP 飘移， db1,db2 上的数据库角色不变, pgpool 的切换非常容易，关闭 pgpool 的脚本如下：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[pg93<span class="variable">@db2</span> etc]<span class="variable">$ </span>pgpool -m fast stop</span><br></pre></td></tr></table></figure></p>
+<h2 id="db1-掉电-power-off"><a href="#db1-掉电-power-off" class="headerlink" title="db1 掉电 power off"></a>db1 掉电 power off</h2><p>这里通过 vmwaer 执行 power off 模拟断电的情况， 在 db1(现在的 Primary 节点) 执行 power off ，发现 pgpool VIP 能切换到 db1 ，同时 db1 上的数据库切换成 primary ，切换成功。  </p>
+<p>第二种，第三种情况就不贴详细日志了。  </p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://www.pgpool.net/mediawiki/index.php/FAQ" target="_blank" rel="noopener">pgpool -II page FAQ</a></li>
+<li><a href="http://dz.sdut.edu.cn/blog/subaochen/?p=444" target="_blank" rel="noopener">使用pgpool II的watchdog消除单点故障</a></li>
+<li><a href="http://dz.sdut.edu.cn/blog/subaochen/?p=430" target="_blank" rel="noopener">postgresql 9.1的failover配置及其管理</a></li>
+<li><a href="https://postgres.fun/20141004113758.html">Pgpool 流复制模式压力测试</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20141003185223.html" title="PostgreSQL 流复制 + Pgpool-II 实现高可用 HA">https://postgres.fun/20141003185223.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Pgpool-II/" rel="tag"># Pgpool-II</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20140922093513.html" rel="next" title="PL/Proxy之三: 增加数据节点">
+                <i class="fa fa-chevron-left"></i> PL/Proxy之三: 增加数据节点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20141004113758.html" rel="prev" title="Pgpool-II 流复制模式压力测试">
+                Pgpool-II 流复制模式压力测试 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境信息"><span class="nav-number">1.</span> <span class="nav-text">环境信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pgpool-实验环境架构图"><span class="nav-number">2.</span> <span class="nav-text">Pgpool 实验环境架构图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译安装-Pgpool-两节点安装"><span class="nav-number">3.</span> <span class="nav-text">编译安装 Pgpool ( 两节点安装)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-Pgpool-相关函数"><span class="nav-number">4.</span> <span class="nav-text">安装 Pgpool 相关函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库配置"><span class="nav-number">5.</span> <span class="nav-text">数据库配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置-Pgpool-II-两节点操作"><span class="nav-number">6.</span> <span class="nav-text">配置 Pgpool-II ( 两节点操作)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HA-验证"><span class="nav-number">7.</span> <span class="nav-text">HA 验证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关-db2-上的数据库"><span class="nav-number">7.1.</span> <span class="nav-text">关 db2 上的数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关-pgpool-master"><span class="nav-number">7.2.</span> <span class="nav-text">关 pgpool master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#db1-掉电-power-off"><span class="nav-number">7.3.</span> <span class="nav-text">db1 掉电 power off</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

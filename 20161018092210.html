@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL活动," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="自2011年以来，PG大象会（Postgres Conference China）已经举办至第6届。2016年大会由平安科技和平安壹钱包作为总冠名赞助商，中国Postgres用户会（China Postgres User Group，简称：CPUG）主办，是一场汇聚各界PostgreSQL大拿、交流最新业界技术动态和真实应用案例的盛宴。PG大象会的成功举办推动了PostgreSQL数据库在中国的发">
+<meta name="keywords" content="PostgreSQL活动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Postgres中国用户大会 2016（PG大象会）">
+<meta property="og:url" content="https://postgres.fun/20161018092210.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="自2011年以来，PG大象会（Postgres Conference China）已经举办至第6届。2016年大会由平安科技和平安壹钱包作为总冠名赞助商，中国Postgres用户会（China Postgres User Group，简称：CPUG）主办，是一场汇聚各界PostgreSQL大拿、交流最新业界技术动态和真实应用案例的盛宴。PG大象会的成功举办推动了PostgreSQL数据库在中国的发">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://postgres.fun/images/pgconf_2016.png">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30492479493373931.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30682479493603942.png">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30292479474135709.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30282479474275718.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30672479474455730.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30832479474625743.jpeg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30462479474805756.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30702479474915763.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30742479475065771.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30422479475175781.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30152479475305787.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30882479475385792.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30712479475575807.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30952479475705810.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30372479475795812.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30582479475915821.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30972479476045829.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30552479476105833.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30852479476575855.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30582479476695863.jpg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30672481773425877.jpeg">
+<meta property="og:image" content="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30842481779746262.jpg">
+<meta property="og:updated_time" content="2018-09-04T01:34:20.878Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Postgres中国用户大会 2016（PG大象会）">
+<meta name="twitter:description" content="自2011年以来，PG大象会（Postgres Conference China）已经举办至第6届。2016年大会由平安科技和平安壹钱包作为总冠名赞助商，中国Postgres用户会（China Postgres User Group，简称：CPUG）主办，是一场汇聚各界PostgreSQL大拿、交流最新业界技术动态和真实应用案例的盛宴。PG大象会的成功举办推动了PostgreSQL数据库在中国的发">
+<meta name="twitter:image" content="https://postgres.fun/images/pgconf_2016.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20161018092210.html"/>
+
+
+
+
+
+
+  <title>Postgres中国用户大会 2016（PG大象会） | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20161018092210.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Postgres中国用户大会 2016（PG大象会）</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-18T09:22:10+08:00">
+                2016-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/PG大会活动/" itemprop="url" rel="index">
+                    <span itemprop="name">PG大会活动</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20161018092210.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20161018092210.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20161018092210.html" class="leancloud_visitors" data-flag-title="Postgres中国用户大会 2016（PG大象会）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/images/pgconf_2016.png" alt=""><br>自2011年以来，PG大象会（Postgres Conference China）已经举办至第6届。2016年大会由平安科技和平安壹钱包作为总冠名赞助商，中国Postgres用户会（China Postgres User Group，简称：CPUG）主办，是一场汇聚各界PostgreSQL大拿、交流最新业界技术动态和真实应用案例的盛宴。PG大象会的成功举办推动了PostgreSQL数据库在中国的发展，也起到了联系PG中国社区和国外社区的作用。<br>时间：2016年10月27日至10月28日<br>地点：上海浦东假日酒店<br>组委会：胡怡文、萧少聪、赵振平、侯松、周正中、杨楂文<br>媒体合作：赵振平（18911070380）<br>联系人：<br>   活动报名：余星<br>   演讲主题：谈伟<br>   赞助事事宜：朱贤文<br>   媒体宣传：周到京、谭峰、媛媛<br>   摄影: 蒋齐飞<br>报名链接：<a href="http://www.huodongxing.com/event/8352217821400" target="_blank" rel="noopener">http://www.huodongxing.com/event/8352217821400</a></p>
+<h1 id="大会主题"><a href="#大会主题" class="headerlink" title="大会主题"></a>大会主题</h1><p>自1996年PostgreSQL正式发布支持SQL引擎的关系型数据库产品，自今已经20年，2016年是PostgreSQL的20周年华诞，同时2016年也是可以说是PostgreSQL中国发展的元年。今年大会将设立5大主题分会场，分享并探讨PostgreSQL在新互联网时代的技术架构。</p>
+<ol>
+<li>PostgreSQL PostGIS+JSON加速移动互联网及物联网发展</li>
+<li>用户经验分享，PostgreSQL迁移的最佳实践</li>
+<li>各社区互动：No Only PostgreSQL (PG + MySQL/Redis/MongoDB/Hadoop/ES/云计算等)</li>
+<li>PostgreSQL的分布式架构设计(PG-XC/XL/X2/XZ、Greenplum、CitusDB等)</li>
+<li>PostgreSQL黑科技的实际使用（流式计算、GPU、LLVM等）</li>
+</ol>
+<h1 id="大会简介"><a href="#大会简介" class="headerlink" title="大会简介"></a>大会简介</h1><p>会议报名规模预计将超过500人，嘉宾阵容强大，特邀欧洲，俄罗斯，日本数据库方面专家助阵，国内顶级PostgreSQL数据库专家也悉数到场：<br>Postgres-XL的项目发起人：Mason Sharp<br>EnterpriseDB亚太区资深数据库专家：Katsuji Takatsuru<br>平安科技数据库技术部总监：汪洋<br>阿里云数据库专家：周正中(德哥)，PostgreSQL中国用户会创始人之一<br>……<br>嘉宾们所属的单位也都在业内享负盛名，包括：<br>国外企业：Pivotal（美国EMC旗下）、EnterpriseDB（美国）、NTT（日本）等<br>国内企业：平安科技、平安壹钱包、阿里云、腾讯云、山东瀚高、去哪儿网、探探科技、云徙科技、成都文武信息、飞象数据等<br>知名学府：武汉大学、上海师范大学、上海交通大学</p>
+<h1 id="大会日程"><a href="#大会日程" class="headerlink" title="大会日程"></a>大会日程</h1><ul>
+<li><p>27日上午：主会场<br>时间    主题                            嘉宾     公司<br>09:30 - 09:50     开幕致辞之社区发言                            萧少聪    PG中国社区<br>09:50 - 10:10     开幕致辞之企业发言                            陈立明    平安科技<br>10:10 - 10:55      PostgreSQL 数据库前世今生    周正中     PG中国社区<br>10:55 - 11:40      PG+金融的架构演进之路    汪洋     平安科技<br>11:40 - 12:00      集 体 照</p>
+</li>
+<li><p>27日下午：分会场1（PostgreSQL+应用实践、运维技巧）<br>时间      主题                  嘉宾     公司<br>14:00 - 14:40     PostgreSQL应用开发最佳实践     周正中     阿里云<br>14:40 - 15:20      PostgreSQL和探探见证四亿次心动     张文升     探探科技<br>15:20 - 15:40     中场休息<br>15:40 - 16:20      PostgreSQL预写式日志解析于应用实践     王硕     山东瀚高<br>16:20 - 17:00      实现 PostgreSQL逻辑复制实战     王青松     飞象数据</p>
+</li>
+<li><p>27日下午：分会场2（GIS+JSON加速移动互联网及物联网发展）<br>时间    主题                  嘉宾     公司<br>14:00 - 14:40     工业大数据初探                          赵振平      北京太阳塔信息科技<br>14:40 - 15:20     The power of PostgreSQL exposed with automatically generated API endpoints.    Sylvain Verly    Coderbunker<br>15:20 - 15:40     中场休息<br>15:40 - 16:20    智慧物流与PostgreSQL     何祖文      贵州云飞科技<br>16:20 - 17:00     数据库设计中对JSON的使用     孙鹏        北京英资教育科技</p>
+</li>
+<li><p>27日下午：分会场3（PostgreSQL在金融行业的应用）<br>时间    主题                         嘉宾      公司<br>14:00 - 14:40    金融级PostgreSQL数据库监控与优化    梁海安    平安科技<br>14:40 - 15:20      从金融架构师的视角看数据库                            张晓通    平安壹钱包<br>15:20 - 15:40     中场休息<br>15:40 - 16:20      浅谈PostgreSQL 高可用架构     余星     平安壹钱包<br>16:20 - 17:00      PostgreSQL“反向代理”Redis        高金芳      平安科技</p>
+</li>
+<li><p>28日上午：分会场1（PostgreSQL迁移的最佳实践）<br>时间    主题               嘉宾     公司<br>09:00 - 09:40      从ACID的D看三种主流关系型数据库         王鹏冲     平安科技<br>09:40 - 10:20     从Sybase迁移到PostgreSQL的那些事儿      赖伟    飞象数据<br>10:20 - 10:40      中场休息<br>10:40 - 11:20      Oracle到PostgreSQL/Greenplum数据迁移及优化             朱贤文       成都文武信息<br>11:20 -12:00      Oracle DBA的PostgreSQL转型之路    曾文旌       阿里云</p>
+</li>
+<li><p>28日上午：分会场2（PostgreSQL分布式架构实践）<br>时间     主题               嘉宾    公司<br>09:00 - 09:40  run your PG on ZFS 朱贤文    成都文武信息<br>09:40 - 10:20      PGXZ在微信支付系统中的应用       李跃森      腾讯云<br>10:20 - 10:40    中场休息<br>10:40 - 11:20    Spark over OneProxy/PostgreSQL     楼方鑫      平民软件<br>11:20 - 12:00    Greenplum 5.0及战略规划    陆公瑜     Pivotal</p>
+</li>
+<li><p>28日上午：分会场3（Not Only PostgreSQL）<br>时间     主题                         嘉宾      公司<br>09:00 - 09:40     抽丝剥茧之MySQL疑难杂症排查         叶金荣      知数堂<br>09:40 - 10:20      Hbase的最佳实践及优化      陈飚    Cloudera<br>10:20 - 10:40      中场休息<br>10:40 - 11:20      大数据实时流计算风云榜      陈旭      平安壹钱包<br>11:20 - 12:00     固态硬盘的前世今生                      钟勇    宝存科技</p>
+</li>
+<li><p>28日下午：分会场1（PostgreSQL特性分析）<br>时间    主题                         嘉宾     公司<br>14:00 - 14:40    数据库多版本实现                        唐成    杭州云徙科技<br>14:40 - 15:20      PG自适应流复制技术实现    姜瑞海    山东瀚高<br>15:20 - 15:40       中场休息<br>15:40 - 16:20      sharding单元化（based on postgres_fdw)最佳实践                周正中    阿里云<br>16:20 - 17:00      PostgreSQL优化器浅析     范孝剑       阿里云</p>
+</li>
+<li><p>28日下午：分会场2（PostgreSQL分布式及大数据实践）<br>时间     主题                嘉宾    公司<br>14:00 - 14:40      DeepGreen DB: 性能优化、开发方向     C.K. Tan    Vitesse Data, Inc.<br>14:40 - 15:20     Postgres-XC/XL/X2                           Mason    华为<br>15:20 - 15:40     中场休息<br>15:40 - 16:20      Hadoop最新结构化存储利器Kudu介绍    陈飚    Cloudera<br>16:20 - 17:00     阿里云ApsaraDB for Greenplum介绍    张广舟    阿里云</p>
+</li>
+<li><p>28日下午：分会场3（PostgreSQL + 技术研发）<br>时间    主题                嘉宾    公司<br>14:00 - 14:40     PostgreSQL数据库源码初探    陈刚    平安科技<br>14:40 - 15:20    从PG实现FLASHBACK模块谈小白如何开始内核开发        兰海    武汉大学<br>15:20 - 15:30    中场休息<br>15:30 - 16:10    PostgreSQL流复制优化      张文杰      阿里云<br>16:10 - 16:50      PostgreSQL窗口聚集函数执行优化    宋光旋      华东师范大学<br>16:50 - 17:30    MongoDB分布式架构演进                张友东      阿里云</p>
+</li>
+</ul>
+<h1 id="演讲嘉宾及主题简介"><a href="#演讲嘉宾及主题简介" class="headerlink" title="演讲嘉宾及主题简介"></a>演讲嘉宾及主题简介</h1><p><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30492479493373931.jpg" alt="汪洋.jpg"><br>平安科技 数据库技术部总监<br>汪洋<br>演讲主题：PG+金融的架构演进之路<br>开源技术乃未来之势，并且随着多年的发展逐步趋于成熟，数据库领域也无例外。但有人对于在金融服务领域引入开源产品，特别是开源数据库产品，始终心存怀疑，担心对系统稳定、性能以及数据安全产生负面影响，以至影响企业声誉，甚或造成经济损失。本演讲通过平安科技2年来的实际经验，向大家讲述如何在一家财富全球500强中排名第41位的金融帝国中，展开帝国反击战，大胆引入且使用PostgreSQL开源数据库,并通过系统化的推进，实现PG+金融的完美结合！让PG不仅是开源世界中最强大的数据库，也同样成为服务金融行业的最强大开源数据库！<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30682479493603942.png" alt="digoal1.png"><br>阿里云高级技术专家<br>周正中<br>演讲主题：PostgreSQL 最佳实践<br>本次分享的主题，将给大家介绍PostgreSQL的最佳实践，让它能够稳定的承载几十万甚至几百万的TPS；几十TB甚至几百TB的数据量；同时也会包含部分阿里云ApsaraDB for PostgreSQL的内核优化的分享。PostgreSQL是40几年陈的产品，算是关系数据库中的老大哥，但是它依旧保持着飞速的迭代和发展。这是为什么呢？通过本次分享，将给大家展示PostgreSQL的发展历程，每个时代的里程碑特性，背后的故事和应用场景，帮助大家更好的理解PostgreSQL的生态圈子，社区的设计理念，未来的Roadmap。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30292479474135709.jpg" alt="CKTAN.JPG"><br>Vitesse Data, Inc. 发起人<br>C.K. Tan<br>演讲主题：DeepGreen DB: 性能优化、开发方向<br>DeepGreen DB 通过采用 JIT, bloomfilter, post-optimization 等技术，较 Greenplum DB 性能有了多倍的提高。我们简单介绍这些优化技术，并讨论这些技术的应用范围。之后，我们介绍在性能优化工作之外 DeepGreen DB 如何同 PostgreSQL ODS， Hadoop/S3 集成，从而为用户提供一个整体的数据湖解决方案<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30282479474275718.jpg" alt="楼方鑫.jpg"><br>平民软件创始人<br>楼方鑫<br>演讲主题：Spark over OneProxy/PostgreSQL<br>Spark over Distributed PostgreSQL/MySQL Cluster通过中间层代理软件OneProxy将数据根据规则合理而均衡地分布到多台PostgreSQL数据库，通过特定的Spark Connector来让OneProxy作为Spark的外挂Partition Manager，连接Spark和PostgreSQL集群，进行在线数据的即时分析，是一个省事省心的方案，可以和Greenplum一较高下。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30672479474455730.jpg" alt="李跃森.jpeg"><br>腾讯云数据库架构师<br>李跃森<br>演讲主题：PGXZ在微信支付中的应用<br>pgxz的动态扩容解决方案，在不影响业务的前提下做到系统动态扩容;数据倾斜解决方案，有效应对严重的数据倾斜问题;高效的内置集群分区表，高效处理分区表，性能是原生分区的1-2个数量级;海量数据高速排序算法实现，上亿条数据快速排序输出;数据高可用保证，两地三中心的自动容灾能力.运维能力分享：索引膨胀问题的应对，索引重建和替换;数据膨胀问题的应对，在线vacuum full<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30832479474625743.jpeg" alt="何祖文.png"><br>贵州云飞科技研发部经理<br>何祖文<br>演讲主题：智慧物流与PostgreSQL<br>中小型物流企业运输业务复杂性，货物难以追踪甚至有追不到的情况。针对这种特殊的情况，我们做出了物流运输平台（TMS平台）。主题主要介绍的运输模块数据主要使用PG来进行存储，货物车辆的追踪，历史线路的轨迹回放查询。其中运用到具体的pg技术会跟着业务穿插介绍。主要有空间数据存储(Point,line,Polygon…)，PostGIS几何函数的使用()，GIST索引针对历史轨迹的查询优化等。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30462479474805756.jpg" alt="张广舟.JPG"><br>阿里云高级专家<br>张广舟<br>演讲主题：ApsaraDB for Greenplum介绍<br>Greenplum作为MPP数据库仓库领域的佼佼者，开源后受到广泛关注。阿里云也已经正式推出了基于Greenplum的云产品-ApsaraDB for Greenplum。本分享为大家介绍ApsaraDB for Greenplum的架构、功能设计、内核定制等<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30702479474915763.jpg" alt="孙鹏.jpg"><br>北京英资教育科技有限公司CEO<br>孙鹏<br>演讲主题：数据库设计中对JSON的使用<br>JSON数据格式由于其简洁性，越来越多的得到了开发者的青睐，我将演示如何在数据库设计中使用JSON/JSONB的数据类型，探讨对||、array_to_json等操作符和函数的使用，以加快系统的开发效率，降低应用层的编码行数<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30742479475065771.jpg" alt="叶金荣.jpg"><br>知数堂培训联合创始人<br>叶金荣<br>演讲主题：抽丝剥茧之MySQL疑难杂症排查<br>从一个故障排查案例入手，分析MySQL常见故障处理手法<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30422479475175781.jpg" alt="IMG_7237.JPG"><br>平安科技数据库技术专家<br>梁海安<br>演讲主题：金融级PostgreSQL数据库监控与优化<br>平安科技在2015年起引入开源PostgreSQL，经过两年的推广，已有上千个PG实例。本演讲通过平安科技2年来的实际运维经验，向大家讲述如何利用规范，自动化，精细运维等手段，在大幅增长的数据库规模同时保持数据库高可用<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30152479475305787.jpg" alt="王鹏冲.jpg"><br>平安科技数据库技术部分组经理<br>王鹏冲<br>演讲主题：从ACID的D看三种主流关系型数据库<br>多数关系型数据库使用预写日志协议（Write-Ahead Logging protocol ，WAL）来处理事务日志，但是每种数据库在具体事务日志的设计策略上又不尽相同。本环节就主流的三种关系型数据库Oracle、PostgreSQL、Mysql在事务日志的处理方式上尝试进行研究探讨、对比分析，以期加深对不同数据库的设计思想的理解，并能给予日常实践工作一定的指导意义。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30882479475385792.jpg" alt="陈刚.JPG"><br>平安科技数据库架构师<br>陈刚<br>演讲主题：PostgreSQL数据库源码初探<br>如何能深入了解该数据库的技术原理，如何在数据库中定制所需要的功能和特性，乃至于改造数据库核心功能？最有效的方法就是基于源码层面进行学习和研究。本演讲将从初学者的角度介绍PostgreSQL的源码学习心得，并且介绍如何基于插件的开发来扩充数据库的功能。同时也倡导大家都参与到PostgreSQL源码学习的队伍之中。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30712479475575807.jpg" alt="赵振平.jpg"><br>北京太阳塔信息科技CEO<br>赵振平<br>演讲主题：工业大数据初探<br>工业大数据是互联网、大数据和工业产业结合的产物，是中国制造2025、工业互联网、工业4.0等国家战略在企业的发力点。我们主要探索工业大数据的提出、工业互联网涉及的相关技术，以及工业大数据应用。涉及的技术有：条形码、二维码、RFID、工业传感器、工业自动控制系统、工业物联网<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30952479475705810.jpg" alt="高金芳.JPG"><br>平安科技数据库架构师<br>高金芳<br>演讲主题：Postgresql“反向代理”Redis<br>Redis是一个高性能的key-value数据库，它追求的是高效和简洁，在安全设计方面相对比较薄弱，没有用户的概念。本演讲将介绍使用PostgreSQL的外部表访问Redis，通过PostgreSQL权限管理方式对Redis进行后台管理<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30372479475795812.jpg" alt="兰海.jpg"><br>武汉大学计算机学院<br>兰海<br>演讲主题：从flashback功能谈如何内核定制开发<br>此次演讲将从一个具体的pg内核功能扩展上来，看如何进行内核的开发工作。Flashback是一系列闪回技术统称，包括了闪回查询，闪回表等。在商业产品oracle上有成熟和完善的闪回功能，而在开源的pg源码上没有有关的功能。本次主要在pg上实现闪回查询和闪回删除表。闪回查询能够在撤销段内搜素撤销的数据（“旧”数据），闪回删除表能够将已经删除的表“抢救回来”<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30582479475915821.jpg" alt="范孝剑.jpg"><br>阿里云资深开发工程师<br>范孝剑<br>演讲主题：PostgreSQL优化器浅析<br>在使用PostgreSQL数据库过程中，对SQL调优最常用的手段是使用explain查看执行计划，很多时候我们只关注了执行计划的结果而未深入了解执行计划是如何生成的。优化器作为数据库核心功能之一，也是数据库的“大脑”，理解优化器将有助于我们更好地优化SQL，本次分享主题将会为大家解开PostgreSQL优化器神秘的面纱。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30972479476045829.jpg" alt="张文杰.jpg"><br>阿里云开发工程师<br>张文杰<br>演讲主题：PostgreSQL流复制优化<br>虽然PG流复制功能越来越完善，但是仍然存在很多问题，例如主备延迟较大，主备断开，主备切换丢失数据，在一些场景下这些问题是不能忍受的。我们首先将简单介绍下目前PostgreSQL的流复制方案，然后以各种场景为例，具体去分析如何解决存在的问题，或者在一定程度上降低相应问题带来的风险。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30552479476105833.jpg" alt="宋光旋.jpg"><br>华东师范大学<br>宋光旋<br>演讲主题：PostgreSQL窗口聚集函数执行优化<br>在目前互联网应用步入大数据时代的背景下，针对高吞吐和实时响应等需求，已有的Window(窗口)函数的处理性能已经出现了瓶颈。因而我们修改了PostgreSQL的现有执行框架，提出一些通用的和针对某些特定聚集函数的优化方法，大幅度提高PostgreSQL窗口函数的执行速度。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30852479476575855.jpg" alt="张文升.jpeg"><br>探探科技<br>张文升<br>演讲主题：PostgreSQL和探探见证四亿次心动<br>以开始聊天，眼缘不错，趣味相投，向陌生人尴尬的搭讪说再见。探探，就是这样一款带你找到生命中的那个人的简单APP。它简单，也不简单。探探有4000万＋用户，日活跃用户400万＋，架构非常简单：go ＋ PostgreSQL。目前已有415462275对一见钟情已在探探相遇，记录仍在持续刷新中。左划无爱，右滑喜欢，PostgreSQL在背后支撑着每一次的推荐和滑动。本次将有探探为大家分享PostgreSQL如何见证4亿次心动。<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30582479476695863.jpg" alt="唐成.jpg"><br>杭州云徙科技云技术总监<br>唐成<br>演讲主题：数据库多版本实现<br>多版本并发控制技术是目前主流数据库的主流技术。目前，多版本并发控制被很多数据库或存储引擎采用，如Oracle，MS SQL Server 2005+, PostgreSQL, MySQL（InnoDB）等等。新的数据库存储引擎，几乎毫无例外的使用多版本而不是单版本加锁的方法实现并发控制。本演讲详细讲解了MVCC的原理，以及innodb、Oracle、PostgreSQL中多版本实现的一些技术内幕<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30672481773425877.jpeg" alt="赖伟.png"><br>飞象数据<br>赖伟<br>演讲主题：从Sybase迁移到PostgreSQL的那些事儿<br>从介绍飞象数据的数据库迁移方法论开始，以真实的Sybase数据库迁移到PostgreSQL实际项目为案例，介绍Sybase数据库迁移到PostgreSQL数据库的工具、流程<br><img src="http://cdn.huodongxing.com/file/20130626/119E1F18625ED2C3C83B222E24E7FA2BA8/30842481779746262.jpg" alt="陈飚.jpg"><br>Cloudera<br>陈飚<br>演讲主题：HBase最佳实践和优化<br>HBase的项目由Cloudera公司在约10年前贡献到开源社区，现在已经是全球最流行的NoSQL数据库之一，被很多厂商当为高可靠高性能键值查询场景的标准部署。作为Hadoop届的TOP1厂商，Cloudera有着世界上最广泛的大数据平台案例。在本次分享中Cloudera将介绍其客户生产环境中HBase的典型应用场景和案例，并结合多年大型集群部署和运维经验，介绍HBase在开发设计和参数配置时的最佳实践以及优化建议。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20161018092210.html" title="Postgres中国用户大会 2016（PG大象会）">https://postgres.fun/20161018092210.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL活动/" rel="tag"># PostgreSQL活动</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20161001001513.html" rel="next" title="PostgreSQL9.6 新特性汇总">
+                <i class="fa fa-chevron-left"></i> PostgreSQL9.6 新特性汇总
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20170307085812.html" rel="prev" title="FIO之一： 硬盘性能测试工具FIO初步使用">
+                FIO之一： 硬盘性能测试工具FIO初步使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#大会主题"><span class="nav-number">1.</span> <span class="nav-text">大会主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#大会简介"><span class="nav-number">2.</span> <span class="nav-text">大会简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#大会日程"><span class="nav-number">3.</span> <span class="nav-text">大会日程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#演讲嘉宾及主题简介"><span class="nav-number">4.</span> <span class="nav-text">演讲嘉宾及主题简介</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

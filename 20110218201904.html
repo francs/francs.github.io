@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Oracle," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="这篇记录是以前做数据库巡检项目时遇到的，今天记录到博客上当作经验分享。 09年12月31日下午3：30左右，在对 myschema 用户做EXP导出时有ORA-00600报错，并会生成一跟踪报错文件，随后每次导出均有此错误产生，详细如下： Exp 脚本1234567891011121314151617181920212223242526272829303132exp [system/system@">
+<meta name="keywords" content="Oracle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次 ORA-600 [12700] 故障案例">
+<meta property="og:url" content="https://postgres.fun/20110218201904.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="这篇记录是以前做数据库巡检项目时遇到的，今天记录到博客上当作经验分享。 09年12月31日下午3：30左右，在对 myschema 用户做EXP导出时有ORA-00600报错，并会生成一跟踪报错文件，随后每次导出均有此错误产生，详细如下： Exp 脚本1234567891011121314151617181920212223242526272829303132exp [system/system@">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-04T01:33:48.036Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次 ORA-600 [12700] 故障案例">
+<meta name="twitter:description" content="这篇记录是以前做数据库巡检项目时遇到的，今天记录到博客上当作经验分享。 09年12月31日下午3：30左右，在对 myschema 用户做EXP导出时有ORA-00600报错，并会生成一跟踪报错文件，随后每次导出均有此错误产生，详细如下： Exp 脚本1234567891011121314151617181920212223242526272829303132exp [system/system@">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20110218201904.html"/>
+
+
+
+
+
+
+  <title>记一次 ORA-600 [12700] 故障案例 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20110218201904.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">记一次 ORA-600 [12700] 故障案例</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2011-02-18T20:19:04+08:00">
+                2011-02-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Oracle/" itemprop="url" rel="index">
+                    <span itemprop="name">Oracle</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20110218201904.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20110218201904.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20110218201904.html" class="leancloud_visitors" data-flag-title="记一次 ORA-600 [12700] 故障案例">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇记录是以前做数据库巡检项目时遇到的，今天记录到博客上当作经验分享。</p>
+<p>09年12月31日下午3：30左右，在对 myschema 用户做EXP导出时有ORA-00600报错，并会生成一跟踪报错文件，随后每次导出均有此错误产生，详细如下：</p>
+<p>Exp 脚本<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">exp [system/system@txczyy](mailto:system/system@txczyy) owner=myschema statistics=Y rows=N file=<span class="string">'/arch/tf/1.dmp'</span> log=<span class="string">'/arch/tf/exp.log'</span></span><br><span class="line">exp<span class="selector-class">.log</span>  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_PASS  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_STATE  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_STATE_VALUE  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_TASK_EXECUTOR  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_TASK_GRANTER  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_TASK_TERM  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_TEMPLATE  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_VARIABLE  </span><br><span class="line">. . exporting <span class="selector-tag">table</span> WF_VARIABLE_VALUE  </span><br><span class="line">. exporting synonyms  </span><br><span class="line">. exporting view  </span><br><span class="line">EXP-<span class="number">00008</span>: ORACLE error <span class="number">600</span> encountered  </span><br><span class="line">ORA-<span class="number">00600</span>: internal error <span class="selector-tag">code</span>, arguments: [<span class="number">12700</span>], [<span class="number">2</span>], [<span class="number">4206885</span>], [<span class="number">26</span>], [<span class="number">0</span>], [<span class="number">24</span>], [], []  </span><br><span class="line">EXP-<span class="number">00056</span>: ORACLE error <span class="number">1403</span> encountered  </span><br><span class="line">ORA-<span class="number">01403</span>: no data found  </span><br><span class="line">EXP-<span class="number">00000</span>: Export terminated unsuccessfully</span><br><span class="line">alert<span class="selector-class">.log</span>  </span><br><span class="line">Wed Jan <span class="number">6</span> <span class="number">22</span>:<span class="number">02</span>:<span class="number">01</span> <span class="number">2010</span>  </span><br><span class="line">Errors <span class="keyword">in</span> file /oracle/app/admin/txczyy/udump/txczyy_ora_917632<span class="selector-class">.trc</span>:  </span><br><span class="line">ORA-<span class="number">00600</span>: internal error <span class="selector-tag">code</span>, arguments: [<span class="number">12700</span>], [<span class="number">2</span>], [<span class="number">4206885</span>], [<span class="number">26</span>], [<span class="number">0</span>], [<span class="number">24</span>], [], []  </span><br><span class="line">Wed Jan <span class="number">6</span> <span class="number">22</span>:<span class="number">02</span>:<span class="number">02</span> <span class="number">2010</span>  </span><br><span class="line">Errors <span class="keyword">in</span> file /oracle/app/admin/txczyy/udump/txczyy_ora_1249630<span class="selector-class">.trc</span>:  </span><br><span class="line">ORA-<span class="number">00600</span>: 内部错误代码，参数: [<span class="number">12700</span>], [<span class="number">2</span>], [<span class="number">4206885</span>], [<span class="number">26</span>], [<span class="number">0</span>], [<span class="number">24</span>], [], []  </span><br><span class="line">Wed Jan <span class="number">6</span> <span class="number">22</span>:<span class="number">07</span>:<span class="number">34</span> <span class="number">2010</span></span><br><span class="line">trace file  </span><br><span class="line">ksedmp: internal or fatal error  </span><br><span class="line">ORA-<span class="number">00600</span>: internal error <span class="selector-tag">code</span>, arguments: [<span class="number">12700</span>], [<span class="number">2</span>], [<span class="number">4206885</span>], [<span class="number">26</span>], [<span class="number">0</span>], [<span class="number">24</span>], [], []  </span><br><span class="line">Current SQL statement <span class="keyword">for</span> this session:  </span><br><span class="line">SELECT TOWNER, TNAME, NAME, LENGTH, PRECISION, SCALE, TYPE, ISNULL, CONNAME, COLID, INTCOLID, SEGCOLID, COMMENT$, DEFAULT$, DFLTLEN, ENABLED, DEFER, FLAGS, COLPROP, ADTNAME, ADTOWNER, CHARSETID, CHARSETFORM, FSPRECISION, LFPRECISION, CHARLEN, TFLAGS FROM SYS<span class="selector-class">.EXU8COL</span> WHERE TOBJID = :<span class="number">1</span> ORDER BY INTCOLID  </span><br><span class="line">----- Call Stack Trace -----</span><br></pre></td></tr></table></figure></p>
+<p>1.开SR 3-1284405961 METALINK上分析trc发现在查询对象46907时出错,笔记如下<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> Generic Note  </span><br><span class="line"><span class="comment">------------  </span></span><br><span class="line"> Hi,</span><br><span class="line">Trace file shows value of the bind variable as:</span><br><span class="line">bind 0: dty=2 mxl=22(22) mal=00 scl=00 pre=00 oacflg=00 oacfl2=0 size=24 offset=0  </span><br><span class="line">bfp=1104bb330 bln=22 avl=04 flg=05  </span><br><span class="line">value=46907  </span><br><span class="line"><span class="keyword">End</span> <span class="keyword">of</span> <span class="keyword">cursor</span> dump  </span><br><span class="line">* dump <span class="keyword">of</span> <span class="keyword">cursor</span> xsc=<span class="number">1104</span>dbdd8 </span><br><span class="line"><span class="keyword">Action</span> Plan  </span><br><span class="line">=========  </span><br><span class="line">Please <span class="keyword">check</span> the <span class="keyword">value</span> <span class="keyword">of</span> the <span class="keyword">following</span> <span class="keyword">query</span>:</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">status</span>, object_id, object_type, owner||<span class="string">'.'</span>||object_name <span class="string">"OWNER.OBJECT"</span>  </span><br><span class="line"><span class="keyword">FROM</span> dba_objects <span class="keyword">WHERE</span> <span class="keyword">status</span> != <span class="string">'VALID'</span> <span class="keyword">or</span> object_id=<span class="number">46907</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="number">4</span>,<span class="number">2</span>;</span><br><span class="line">Regards  </span><br><span class="line">Anudeep  </span><br><span class="line">GCS</span><br></pre></td></tr></table></figure></p>
+<p>2 既然ORACLE分析绑定变量46907有问题,而出错的sql里也有个绑定变量,所以尝试将46907代到以下sql执行试试 ,经查ID为46907的对象，是myschema用户下的视图： myschema.v_cp_av_data,<br>执行以下sql(将TOBJID值改成46907 ,trace文件里出错的sql)<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> TOWNER, TNAME, <span class="keyword">NAME</span>, <span class="keyword">LENGTH</span>, <span class="keyword">PRECISION</span>, SCALE, <span class="keyword">TYPE</span>, <span class="keyword">ISNULL</span>, CONNAME, COLID, INTCOLID, SEGCOLID,  </span><br><span class="line"><span class="keyword">COMMENT</span>$, <span class="keyword">DEFAULT</span>$, DFLTLEN, ENABLED, DEFER, FLAGS, COLPROP, ADTNAME, ADTOWNER, <span class="keyword">CHARSETID</span>, <span class="keyword">CHARSETFORM</span>,  </span><br><span class="line">FSPRECISION, LFPRECISION, CHARLEN, TFLAGS <span class="keyword">FROM</span> SYS.EXU8COL  </span><br><span class="line"><span class="keyword">WHERE</span> TOBJID = <span class="number">46907</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> INTCOLID</span><br></pre></td></tr></table></figure></p>
+<p>查询此视图,抛出以下错误：<br><figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ORA-<span class="number">00600</span>: 内部错误代码，参数: <span class="string">[12700]</span>, <span class="string">[2]</span>, <span class="string">[4206885]</span>, <span class="string">[26]</span>, <span class="string">[0]</span>, <span class="string">[24]</span>, <span class="string">[]</span>, <span class="string">[]</span></span><br></pre></td></tr></table></figure></p>
+<p>说明,问题就出现在这个视图上,当Oracle在查询SYS.EXU8COL时出错,发现SYS.exu8col是个视图</p>
+<p>3.即然这张view有问题,于是尝试重建视图 myschema.v_cp_av_data，看是否有效果<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">16</span>:<span class="number">19</span>:<span class="number">10</span> [SYS<span class="variable">@txczyy</span>](<span class="attribute">mailto</span>:SYS<span class="variable">@txczyy</span>)&gt; drop view myschema.v_cp_av_data;  </span><br><span class="line"><span class="selector-tag">drop</span> <span class="selector-tag">view</span> <span class="selector-tag">myschema</span><span class="selector-class">.v_cp_av_data</span>  </span><br><span class="line">*  </span><br><span class="line">第 <span class="selector-tag">1</span> 行出现错误:  </span><br><span class="line"><span class="selector-tag">ORA-00604</span>: 递归 <span class="selector-tag">SQL</span> 层 <span class="selector-tag">1</span> 出现错误  </span><br><span class="line"><span class="selector-tag">ORA-08102</span>: 未找到索引关键字，<span class="selector-tag">obj</span># <span class="selector-tag">46</span>，<span class="selector-tag">dba</span> <span class="selector-tag">4249996</span> (<span class="number">2</span>)</span><br></pre></td></tr></table></figure></p>
+<p>4.查看obj# 46对象为col$表的i_col2索引</p>
+<p>5.重建view行不通,于是,打算重建view引用相关表上的索引 即TABLE:myschema.CP_VOUCHER,依然行不通</p>
+<p>6.在经过以上操作行不通后,于是怀疑系统表col$有问题,  </p>
+<p>6.1 select * from col$ 正常<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">6.2 31:30 [<span class="string">SYS@txczyy</span>](<span class="link">mailto:SYS@txczyy</span>)&gt; select obj#,col# from col$ where obj#=46907;</span><br><span class="line"> OBJ# COL#  </span><br><span class="line">---------- ----------  </span><br><span class="line"> 46907 1  </span><br><span class="line"> 46907 2  </span><br><span class="line"> 46907 3  </span><br><span class="line"> 46907 4  </span><br><span class="line"> 46907 5  </span><br><span class="line"> 46907 6  </span><br><span class="line"> 46907 7</span><br><span class="line">已选择7行。</span><br></pre></td></tr></table></figure></p>
+<p>6.3 <code>select /*+ index(c i_col2) */ * from col$ c where obj#=46907;</code><br><figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ERROR:  </span></span><br><span class="line">ORA<span class="string">-00600</span>: internal error code, arguments: [12700], [2], [4206885], [26],  </span><br><span class="line">[4249996], [25], [], []</span><br></pre></td></tr></table></figure></p>
+<p>说明,查询走索引 i_col2时,ORACLE正好报这个600错误,问题就是col$表 和 i_col2索引的交叉引用有问题，<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ORA<span class="number">-600</span> [<span class="number">12700</span>]是索引项中的ROWID指向的数据没有，  </span><br><span class="line">ORA<span class="number">-8102</span> 是表中的某条数据没有对应的索引项。</span><br></pre></td></tr></table></figure></p>
+<p>7 尝试重建系系统表col$上的索引i_col2<br><figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SQL&gt; drop index i_col2;  </span><br><span class="line">drop index i_col2  </span><br><span class="line">*  </span><br><span class="line"><span class="keyword">ERROR </span>at line 1:  </span><br><span class="line">ORA<span class="string">-00701</span>: object necessary for warmstarting database cannot be altered</span><br></pre></td></tr></table></figure></p>
+<p>8 metalink回复<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> Generic Note  </span><br><span class="line"><span class="comment">------------  </span></span><br><span class="line">Hi,</span><br><span class="line">I am Balaji <span class="keyword">and</span> I Have reviewed <span class="keyword">the</span> SR <span class="keyword">as</span> per your request.</span><br><span class="line">Looking <span class="keyword">into</span> <span class="keyword">the</span> SR I understand that , <span class="keyword">the</span> index I_COL2 which is created <span class="keyword">on</span> <span class="title">the</span> <span class="title">table</span> <span class="title">COL</span>$ <span class="title">is</span> <span class="title">corrupted</span>.</span><br><span class="line">Unfortunately , <span class="keyword">the</span> object is <span class="keyword">a</span> bootstrap <span class="keyword">segment</span> , which cannot be modified <span class="keyword">using</span> <span class="keyword">the</span> sql scrpts.</span><br><span class="line">The best option here is <span class="built_in">to</span> perform <span class="keyword">the</span> restore / recovery <span class="built_in">from</span> <span class="keyword">the</span> <span class="keyword">last</span> good backup .</span><br><span class="line">In <span class="keyword">case</span> this is <span class="keyword">not</span> possible <span class="keyword">then</span> <span class="keyword">the</span> only option way ahead is <span class="built_in">to</span> perform <span class="keyword">an</span> export <span class="keyword">of</span> <span class="keyword">the</span> entire database <span class="keyword">and</span> import <span class="keyword">it</span>.</span><br><span class="line">You can go <span class="keyword">for</span> schema level export.</span><br><span class="line">Regards  </span><br><span class="line">Balaji</span><br></pre></td></tr></table></figure></p>
+<p>由于故障根源为系统表col$的rowid 和其上的 i_col2索引标识的rowid不匹配，而引起“数据块的”损坏，要清出此“坏块”必须重建此索引，但由于此表为系统表，如对其做重建操作，很可能发生意想不到的事故，故推荐用以下方案来解决此问题。<br>方案1.重新建立一数据库，然后将当前故障库中有用数据导入新建库中，而将此故障库保留并试图对索引做重建操作来解决。<br>方案2.停机并将故障库数据完全拷贝至其它相应服务器恢复测试。</p>
+<p>9 方案比较  </p>
+<p>方案1:<br> 保守方案,风险小,速度快（目前数据量较小）; 历时短  </p>
+<p>方案2:<br> 需要对Oracle系统表操作,首先在测试库上执行,风险评估可行方在生产库上执行,历时长;</p>
+<p>10 最后采用方案一新建DB,并导入TXCZ10用户的数据,问题解决</p>
+<p>附件一 view myschema.v_cp_av_data object_id=46907<br><figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">create</span> or replace view myschema.v_cp_av_data as  </span><br><span class="line"><span class="keyword">select </span><span class="meta">cp</span>.org_code,<span class="meta">cp</span>.nd,<span class="meta">cp</span>.process_inst_id,<span class="meta">cp</span>.co_code, <span class="meta">cp</span>.org_money, <span class="meta">cp</span>.cur_money, <span class="meta">cp</span>.fund_code from cp_voucher <span class="meta">cp</span>  </span><br><span class="line"><span class="symbol">where</span> <span class="meta">cp</span>.is_sum_cp_voucher=<span class="string">'0'</span> <span class="keyword">and </span><span class="meta">cp</span>.control_type=<span class="string">'1'</span> <span class="keyword">and </span><span class="meta">cp</span>.cp_adjust_code=<span class="string">'101'</span> <span class="keyword">and </span><span class="meta">cp</span>.is_valid=<span class="string">'1'</span> <span class="keyword">and </span><span class="meta">cp</span>.a_status_code=<span class="string">'2'</span><span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
+<p>附件二 关于 ORA-600 [12700] [a] [b] [c]<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">ORA<span class="number">-00600</span>: internal error code, arguments: [<span class="number">12700</span>], [<span class="number">2</span>], [<span class="number">4206885</span>], [<span class="number">26</span>]</span><br><span class="line">Note: For additional ORA<span class="number">-600</span> related information please <span class="built_in">read</span> Note:<span class="number">146580.1</span></span><br><span class="line">PURPOSE:  </span><br><span class="line"> This article discusses <span class="keyword">the</span> internal error <span class="string">"ORA-600 [12700]"</span>, what  </span><br><span class="line"> <span class="keyword">it</span> means <span class="keyword">and</span> possible actions. The information here is only applicable  </span><br><span class="line"> <span class="built_in">to</span> <span class="keyword">the</span> versions listed <span class="keyword">and</span> is provided only <span class="keyword">for</span> guidance.  </span><br><span class="line">  </span><br><span class="line">ERROR:  </span><br><span class="line"> ORA<span class="number">-600</span> [<span class="number">12700</span>] [<span class="keyword">a</span>] [b] [c]  </span><br><span class="line">  </span><br><span class="line">VERSIONS:  </span><br><span class="line"> versions <span class="number">6.0</span> <span class="built_in">to</span> <span class="number">9.2</span>  </span><br><span class="line">  </span><br><span class="line">DESCRIPTION:  </span><br><span class="line">  </span><br><span class="line"> Oracle is trying <span class="built_in">to</span> access <span class="keyword">a</span> row <span class="keyword">using</span> its ROWID, which has been  </span><br><span class="line"> obtained <span class="built_in">from</span> <span class="keyword">an</span> index.</span><br><span class="line"> A mismatch was found between <span class="keyword">the</span> index rowid <span class="keyword">and</span> <span class="keyword">the</span> data block <span class="keyword">it</span> is  </span><br><span class="line"> pointing <span class="built_in">to</span>. The rowid points <span class="built_in">to</span> <span class="keyword">a</span> non-existent row <span class="keyword">in</span> <span class="keyword">the</span> data block.  </span><br><span class="line"> The corruption can be <span class="keyword">in</span> data <span class="keyword">and</span>/<span class="keyword">or</span> index blocks.  </span><br><span class="line">  </span><br><span class="line"> ORA<span class="number">-600</span> [<span class="number">12700</span>] can also be reported due <span class="built_in">to</span> <span class="keyword">a</span> consistent <span class="built_in">read</span> (<span class="literal">CR</span>)  </span><br><span class="line"> problem.</span><br><span class="line"> The information dumped <span class="built_in">to</span> <span class="keyword">the</span> trace <span class="built_in">file</span> varies greatly between releases:</span><br><span class="line">- <span class="keyword">in</span> Oracle <span class="number">7.3</span>.x <span class="keyword">it</span> is ORA<span class="number">-600</span> [<span class="number">12700</span>][<span class="keyword">a</span>][b] , where  </span><br><span class="line"> Arg [<span class="keyword">a</span>] dba (Data Block Address)  </span><br><span class="line"> Arg [b] slot <span class="built_in">number</span> (<span class="built_in">number</span> <span class="keyword">of</span> <span class="keyword">the</span> row <span class="keyword">in</span> <span class="keyword">the</span> block pointed <span class="keyword">by</span> <span class="keyword">the</span> dba)</span><br><span class="line">- <span class="keyword">in</span> Oracle <span class="number">8.</span>x <span class="keyword">and</span> <span class="number">9.</span>x, <span class="keyword">it</span> is ORA<span class="number">-600</span> [<span class="number">12700</span>][<span class="keyword">a</span>][b][c] , where  </span><br><span class="line"> Arg [<span class="keyword">a</span>] dataobj<span class="comment"># from sys.obj$  </span></span><br><span class="line"> Arg [b] <span class="built_in">relative</span> dba <span class="keyword">of</span> <span class="keyword">the</span> data block  </span><br><span class="line"> Arg [c] slot <span class="built_in">number</span> <span class="keyword">of</span> <span class="keyword">the</span> row <span class="keyword">in</span> <span class="keyword">the</span> data block</span><br><span class="line"> The arguments <span class="keyword">of</span> <span class="keyword">the</span> ORA<span class="number">-600</span> [<span class="number">12700</span>] <span class="keyword">contains</span> information obtained  </span><br><span class="line"> <span class="built_in">from</span> <span class="keyword">the</span> index we are <span class="keyword">using</span>.</span><br><span class="line">FUNCTIONALITY:  </span><br><span class="line"> USER/ORACLE INTERFACE LAYER</span><br><span class="line">IMPACT:  </span><br><span class="line"> POSSIBLE CORRUPTION</span><br><span class="line">SUGGESTIONS:</span><br><span class="line"> Please refer <span class="built_in">to</span> Note:<span class="number">155933.1</span> <span class="string">"Resolving an ORA-600 [12700] error"</span>  </span><br><span class="line"> <span class="keyword">for</span> additional help <span class="keyword">with</span> diagnosing this problem.</span><br><span class="line"> If <span class="keyword">the</span> above note does <span class="keyword">not</span> help, <span class="keyword">then</span> please <span class="built_in">log</span> <span class="keyword">the</span> issue <span class="keyword">with</span> Oracle  </span><br><span class="line"> Support Services.</span><br><span class="line"> Known Issues:</span><br></pre></td></tr></table></figure></p>
+<p>查询块号<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">15:29:39 [<span class="string">SYS@txczyy</span>](<span class="link">mailto:SYS@txczyy</span>)&gt; select obj#,name from sys.obj$ where dataobj#=2;</span><br><span class="line"> OBJ# NAME  </span><br><span class="line">---------- ------------------------------  </span><br><span class="line"> 4 TAB$  </span><br><span class="line"> 2 C_OBJ#  </span><br><span class="line"> 19 IND$  </span><br><span class="line"> 21 COL$  </span><br><span class="line"> 20 ICOL$  </span><br><span class="line"> 5 CLU$  </span><br><span class="line"> 156 LOB$  </span><br><span class="line"> 283 COLTYPE$  </span><br><span class="line"> 286 SUBCOLTYPE$  </span><br><span class="line"> 288 ATTRCOL$  </span><br><span class="line"> 290 VIEWTRCOL$</span><br><span class="line"> OBJ# NAME  </span><br><span class="line">---------- ------------------------------  </span><br><span class="line"> 295 TYPE_MISC$  </span><br><span class="line"> 352 NTAB$  </span><br><span class="line"> 359 LIBRARY$  </span><br><span class="line"> 362 REFCON$  </span><br><span class="line"> 365 OPQTYPE$  </span><br><span class="line"> 367 ICOLDEP$</span><br><span class="line">15:31:00 [<span class="string">SYS@txczyy</span>](<span class="link">mailto:SYS@txczyy</span>)&gt; select dbms<span class="emphasis">_utility.data_</span>block<span class="emphasis">_address_</span>file(4206885),dbms<span class="emphasis">_utility.data_</span>block<span class="emphasis">_address_</span>block(4206885) from dual;</span><br><span class="line">DBMS<span class="emphasis">_UTILITY.DATA_</span>BLOCK<span class="emphasis">_ADDRESS_</span>FILE(4206885) DBMS<span class="emphasis">_UTILITY.DATA_</span>BLOCK<span class="emphasis">_ADDRESS_</span>BLOCK(4206885)  </span><br><span class="line">--------------------------------------------- ----------------------------------------------  </span><br><span class="line"> 1 12581</span><br><span class="line">19:31:30 [<span class="string">SYS@txczyy</span>](<span class="link">mailto:SYS@txczyy</span>)&gt; select obj#,col# from col$ where obj#=46907;</span><br><span class="line"> OBJ# COL#  </span><br><span class="line">---------- ----------  </span><br><span class="line"> 46907 1  </span><br><span class="line"> 46907 2  </span><br><span class="line"> 46907 3  </span><br><span class="line"> 46907 4  </span><br><span class="line"> 46907 5  </span><br><span class="line"> 46907 6  </span><br><span class="line"> 46907 7</span><br><span class="line">已选择7行。</span><br><span class="line">20:06:29 [<span class="string">SYS@txczyy</span>](<span class="link">mailto:SYS@txczyy</span>)&gt; select rowid,dbms<span class="emphasis">_rowid.rowid_</span>relative<span class="emphasis">_fno(rowid),dbms_</span>rowid.rowid<span class="emphasis">_block_</span>number(rowid) from col$ c where obj#=46907;</span><br><span class="line">ROWID DBMS<span class="emphasis">_ROWID.ROWID_</span>RELATIVE<span class="emphasis">_FNO(ROWID) DBMS_</span>ROWID.ROWID<span class="emphasis">_BLOCK_</span>NUMBER(ROWID)  </span><br><span class="line">------------------ ------------------------------------ ------------------------------------  </span><br><span class="line">AAAAACAABAAADElAAX 1 12581  </span><br><span class="line">AAAAACAABAAADElAAY 1 12581  </span><br><span class="line">AAAAACAABAAADElAAZ 1 12581  </span><br><span class="line">AAAAACAABAAADElAAo 1 12581  </span><br><span class="line">AAAAACAABAAADElAAp 1 12581  </span><br><span class="line">AAAAACAABAAADElAAq 1 12581  </span><br><span class="line">AAAAACAABAAADElAAr 1 12581</span><br></pre></td></tr></table></figure></p>
+<p>说明 block=12581发生坏块</p>
+<p>查看数据行在哪个块<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> depid,dept,dbms_rowid.rowid_block_number(<span class="keyword">rowid</span>) blcokno <span class="keyword">from</span> hw;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20110218201904.html" title="记一次 ORA-600 [12700] 故障案例">https://postgres.fun/20110218201904.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Oracle/" rel="tag"># Oracle</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20110217135035.html" rel="next" title="PostgreSQL 创建主键并设置自动递增的三种方法">
+                <i class="fa fa-chevron-left"></i> PostgreSQL 创建主键并设置自动递增的三种方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20110218203813.html" rel="prev" title="脚本建库导致 Oracle 组件未安装故障案例">
+                脚本建库导致 Oracle 组件未安装故障案例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

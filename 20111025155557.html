@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="最近在做 oracle 转 PostgreSQL 项目调研，部分业务需要由 oracle 数据库迁移到 PostgreSQL 平台，这几天在做这方面的调研，暂时有几分心得。   Oracle 转 pg 显然是一个比较复杂的工程，需要考虑的事情很多，如果是比较繁忙且数据量大的系统，这个工作量和难度是很大的。不管是大库还是小库，总有些理论是相同的。   前期调研 了解业务：在项目开始前，需要和开发人员">
+<meta name="keywords" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Migrate Oracle to PostgreSQL">
+<meta property="og:url" content="https://postgres.fun/20111025155557.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="最近在做 oracle 转 PostgreSQL 项目调研，部分业务需要由 oracle 数据库迁移到 PostgreSQL 平台，这几天在做这方面的调研，暂时有几分心得。   Oracle 转 pg 显然是一个比较复杂的工程，需要考虑的事情很多，如果是比较繁忙且数据量大的系统，这个工作量和难度是很大的。不管是大库还是小库，总有些理论是相同的。   前期调研 了解业务：在项目开始前，需要和开发人员">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://postgres.fun/images/oracle_to_pg.png">
+<meta property="og:updated_time" content="2018-09-04T01:33:52.538Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to Migrate Oracle to PostgreSQL">
+<meta name="twitter:description" content="最近在做 oracle 转 PostgreSQL 项目调研，部分业务需要由 oracle 数据库迁移到 PostgreSQL 平台，这几天在做这方面的调研，暂时有几分心得。   Oracle 转 pg 显然是一个比较复杂的工程，需要考虑的事情很多，如果是比较繁忙且数据量大的系统，这个工作量和难度是很大的。不管是大库还是小库，总有些理论是相同的。   前期调研 了解业务：在项目开始前，需要和开发人员">
+<meta name="twitter:image" content="https://postgres.fun/images/oracle_to_pg.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20111025155557.html"/>
+
+
+
+
+
+
+  <title>How to Migrate Oracle to PostgreSQL | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20111025155557.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">How to Migrate Oracle to PostgreSQL</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2011-10-25T15:55:57+08:00">
+                2011-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20111025155557.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20111025155557.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20111025155557.html" class="leancloud_visitors" data-flag-title="How to Migrate Oracle to PostgreSQL">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在做 oracle 转 PostgreSQL 项目调研，部分业务需要由 oracle 数据库迁移到 PostgreSQL 平台，这几天在做这方面的调研，暂时有几分心得。  </p>
+<p>Oracle 转 pg 显然是一个比较复杂的工程，需要考虑的事情很多，如果是比较繁忙且数据量大的系统，这个工作量和难度是很大的。不管是大库还是小库，总有些理论是相同的。  </p>
+<h1 id="前期调研"><a href="#前期调研" class="headerlink" title="前期调研"></a>前期调研</h1><ol>
+<li>了解业务：在项目开始前，需要和开发人员，项目经理进行充分的沟通，了解业务，了解原系统，了解数据分布；  </li>
+<li>表定义需改写: oracle 和 pg 数据类型不同，所以表定义脚本需要写；  </li>
+<li>哪些表需要迁数据？哪些表只需迁结构？  </li>
+<li>存储过程，函数需改写  </li>
+<li>是否使用 job?  </li>
+<li>数据库用户权限如何迁移？  </li>
+<li>大表如何迁移？  </li>
+</ol>
+<p>备注：前期需要调研的内容很多，这里只列出了想到的一部分，在真正实施过程中肯定会遇到更多的问题。</p>
+<h1 id="数据库方案调研"><a href="#数据库方案调研" class="headerlink" title="数据库方案调研"></a>数据库方案调研</h1><ol>
+<li>是否需要做高可用？  </li>
+<li>日志表是否需要分区？  </li>
+<li>是否需要做连接池？  </li>
+<li>根据业务特点进行个性化 postgresql 参数设置。  </li>
+<li>硬件资源需求（CPU, 内存，硬盘或存储）</li>
+</ol>
+<h1 id="数据类型对比"><a href="#数据类型对比" class="headerlink" title="数据类型对比"></a>数据类型对比</h1><p>Oracle 和 PG 数据类型对照表，如下：<br><img src="/images/oracle_to_pg.png" alt=""></p>
+<h1 id="数据库表迁移测试"><a href="#数据库表迁移测试" class="headerlink" title="数据库表迁移测试"></a>数据库表迁移测试</h1><p>接下来做个测试：是从oracle 库到 pg 库的数据迁移, 仅以迁移一张表为例。目标将 oracle 库中的表  sup.TBL_SUP_WEATHER_UPDATE_LOG 迁移到 pg 库。这里 pg 库已创建。</p>
+<p>oracle 库中的表结构<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">SQL&gt; desc sup.TBL_SUP_WEATHER_UPDATE_LOG;  </span><br><span class="line">Name Null? Type  </span><br><span class="line">----------------------------------------- -------- ----------------------------  </span><br><span class="line">ID NOT NULL NUMBER<span class="params">(<span class="number">11</span>)</span>  </span><br><span class="line">APP_ID NOT NULL NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">APP_VER NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">SHORT_NAME VARCHAR2<span class="params">(<span class="number">255</span>)</span>  </span><br><span class="line">HSMAN VARCHAR2<span class="params">(<span class="number">100</span>)</span>  </span><br><span class="line">HSTYPE VARCHAR2<span class="params">(<span class="number">100</span>)</span>  </span><br><span class="line">IMEI VARCHAR2<span class="params">(<span class="number">100</span>)</span>  </span><br><span class="line">IMSI VARCHAR2<span class="params">(<span class="number">100</span>)</span>  </span><br><span class="line">PLAT VARCHAR2<span class="params">(<span class="number">30</span>)</span>  </span><br><span class="line">REQ_TYPE NUMBER<span class="params">(<span class="number">1</span>)</span>  </span><br><span class="line">FEE_TYPE NUMBER<span class="params">(<span class="number">1</span>)</span>  </span><br><span class="line">WIDTH NUMBER<span class="params">(<span class="number">4</span>)</span>  </span><br><span class="line">HEIGHT NUMBER<span class="params">(<span class="number">4</span>)</span>  </span><br><span class="line">PROVIDER NUMBER<span class="params">(<span class="number">1</span>)</span>  </span><br><span class="line">MSG_CEN VARCHAR2<span class="params">(<span class="number">20</span>)</span>  </span><br><span class="line">PORTV NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">VMV NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">IP_ADDR VARCHAR2<span class="params">(<span class="number">15</span>)</span>  </span><br><span class="line">LOCAL_ADDRESS VARCHAR2<span class="params">(<span class="number">15</span>)</span>  </span><br><span class="line">LOCAL_PORT NUMBER<span class="params">(<span class="number">5</span>)</span>  </span><br><span class="line">RESPONSE_CODE NUMBER<span class="params">(<span class="number">3</span>)</span>  </span><br><span class="line">FILE_LEN NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">REQ_MD5 VARCHAR2<span class="params">(<span class="number">32</span>)</span>  </span><br><span class="line">RESP_MD5 VARCHAR2<span class="params">(<span class="number">32</span>)</span>  </span><br><span class="line">REQ_START_POS NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">RESP_START_POS NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">CHECK_INTERVAL NUMBER<span class="params">(<span class="number">10</span>)</span>  </span><br><span class="line">CHECK_AFTER_TIMES NUMBER<span class="params">(<span class="number">5</span>)</span>  </span><br><span class="line">RES_POLICY NUMBER<span class="params">(<span class="number">1</span>)</span>  </span><br><span class="line">RES_MD5 VARCHAR2<span class="params">(<span class="number">32</span>)</span>  </span><br><span class="line">CREATE_TIME DATE</span><br></pre></td></tr></table></figure></p>
+<p>在pg库中建表<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> TBL_SUP_WEATHER_UPDATE_LOG  </span><br><span class="line">(  </span><br><span class="line"><span class="keyword">ID</span> <span class="built_in">integer</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,  </span><br><span class="line">APP_ID <span class="built_in">integer</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> ,  </span><br><span class="line">APP_VER <span class="built_in">integer</span>,  </span><br><span class="line">SHORT_NAME <span class="built_in">VARCHAR</span>(<span class="number">255</span>),  </span><br><span class="line">HSMAN <span class="built_in">VARCHAR</span>(<span class="number">100</span>),  </span><br><span class="line">HSTYPE <span class="built_in">VARCHAR</span>(<span class="number">100</span>),  </span><br><span class="line">IMEI <span class="built_in">VARCHAR</span>(<span class="number">100</span>),  </span><br><span class="line">IMSI <span class="built_in">VARCHAR</span>(<span class="number">100</span>),  </span><br><span class="line">PLAT <span class="built_in">VARCHAR</span>(<span class="number">30</span>) ,  </span><br><span class="line">REQ_TYPE <span class="built_in">integer</span>,  </span><br><span class="line">FEE_TYPE <span class="built_in">integer</span>,  </span><br><span class="line">WIDTH <span class="built_in">integer</span>,  </span><br><span class="line">HEIGHT <span class="built_in">integer</span>,  </span><br><span class="line">PROVIDER <span class="built_in">integer</span>,  </span><br><span class="line">MSG_CEN <span class="built_in">VARCHAR</span>(<span class="number">20</span>),  </span><br><span class="line">PORTV <span class="built_in">integer</span>,  </span><br><span class="line">VMV <span class="built_in">integer</span>,  </span><br><span class="line">IP_ADDR <span class="built_in">VARCHAR</span>(<span class="number">15</span>),  </span><br><span class="line">LOCAL_ADDRESS <span class="built_in">VARCHAR</span>(<span class="number">15</span>),  </span><br><span class="line">LOCAL_PORT <span class="built_in">integer</span>,  </span><br><span class="line">RESPONSE_CODE <span class="built_in">integer</span>,  </span><br><span class="line">FILE_LEN <span class="built_in">integer</span>,  </span><br><span class="line">REQ_MD5 <span class="built_in">VARCHAR</span>(<span class="number">32</span>),  </span><br><span class="line">RESP_MD5 <span class="built_in">VARCHAR</span>(<span class="number">32</span>),  </span><br><span class="line">REQ_START_POS <span class="built_in">integer</span>,  </span><br><span class="line">RESP_START_POS <span class="built_in">integer</span>,  </span><br><span class="line">CHECK_INTERVAL <span class="built_in">integer</span>,  </span><br><span class="line">CHECK_AFTER_TIMES <span class="built_in">integer</span>,  </span><br><span class="line">RES_POLICY <span class="built_in">integer</span>,  </span><br><span class="line">RES_MD5 <span class="built_in">VARCHAR</span>(<span class="number">32</span>),  </span><br><span class="line">CREATE_TIME <span class="keyword">timestamp</span> <span class="keyword">without</span> <span class="keyword">time</span> zone  </span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p>备注：根据 oracle 和 pg 数据类型对应表，修改表定义中的数据类型即可得到相应的 pg 建表脚本。接下来几个脚本是用来取 oracle 数据的，并将数据导入到 pg 库中。  </p>
+<p>TBL_SUP_WEATHER_UPDATE_LOG.sql 脚本<br><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> termout <span class="comment">off</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">feedback off</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">verify off</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">echo off</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">pagesize 0</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">trims on</span>  </span><br><span class="line"><span class="keyword">set</span> <span class="comment">linesize 1000</span></span><br><span class="line">spool <span class="comment">"TBL_SUP_WEATHER_UPDATE_LOG.log"</span>  </span><br><span class="line">@ <span class="string">"SELECT_TBL_SUP_WEATHER_UPDATE_LOG.sql"</span>  </span><br><span class="line">spool <span class="comment">off</span>  </span><br><span class="line">exit</span><br></pre></td></tr></table></figure></p>
+<p>备注：这个脚本功能是将 oracle 数据导入到文本文件，为了使得 spool 出来的文本仅包含数据，脚本做了格式化；  </p>
+<p>SELECT_TBL_SUP_WEATHER_UPDATE_LOG.sql 脚本<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">select</span> <span class="comment">/*+ FULL(A) PARALLEL(A 8) */</span> <span class="selector-tag">nvl</span>(to_char(ID ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)||<span class="selector-tag">nvl</span>(to_char(APP_ID ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(APP_VER ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(SHORT_NAME ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(HSMAN ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(HSTYPE ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(IMEI ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(IMSI ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(PLAT ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(REQ_TYPE ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(FEE_TYPE ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(WIDTH ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(HEIGHT ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(PROVIDER ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(MSG_CEN ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(PORTV ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(VMV ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(IP_ADDR ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(LOCAL_ADDRESS ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(LOCAL_PORT ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(RESPONSE_CODE ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(FILE_LEN ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(REQ_MD5 ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(RESP_MD5 ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(REQ_START_POS ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(RESP_START_POS ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(CHECK_INTERVAL ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(CHECK_AFTER_TIMES), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(RES_POLICY ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(RES_MD5 ), <span class="string">'N'</span>) || <span class="selector-tag">chr</span>(<span class="number">9</span>)|| <span class="selector-tag">nvl</span>(to_char(CREATE_TIME ), <span class="string">'N'</span>) <span class="selector-tag">from</span> <span class="selector-tag">sup</span><span class="selector-class">.TBL_SUP_WEATHER_UPDATE_LOG</span> <span class="selector-tag">A</span>;</span><br></pre></td></tr></table></figure></p>
+<p>备注：这里需要注意两点：</p>
+<ol>
+<li>字段为空的用 “N” 填充，否则，在导入到 pg库中会报错；  </li>
+<li>在使用 nvl 参数时，date, NUMBER 字段需要转换成字符类型,为了方便，在使用 nvl 函数时, 建议所有字段都先转换成字符类型。 </li>
+</ol>
+<p>为了将 oracle 数据导出到 pg 能读取的格式，花了一番功夫才整出以上取数据 SQL。  </p>
+<p>执行脚本 TBL_SUP_WEATHER_UPDATE_LOG.sql 取数据<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[oracle@db_sup](mailto:oracle@db_sup)-&gt; sqlplus " /as sysdba"</span><br><span class="line">SQL*Plus: Release 10.2.0.4.0 - Production on Tue Oct 25 10:43:36 2011</span><br><span class="line">Copyright (c) 1982, 2007, Oracle. All Rights Reserved.</span><br><span class="line">Connected to:  </span><br><span class="line">Oracle Database 10g Enterprise Edition Release 10.2.0.4.0 - 64bit Production  </span><br><span class="line">With the Partitioning, OLAP, Data Mining and Real Application Testing options</span><br><span class="line">  </span><br><span class="line"><span class="meta">SQL&gt;</span><span class="bash"> @<span class="string">"TBL_SUP_WEATHER_UPDATE_LOG.sql"</span>Disconnected from Oracle Database 10g Enterprise Edition Release 10.2.0.4.0 - 64bit Production  </span></span><br><span class="line">With the Partitioning, OLAP, Data Mining and Real Application Testing options</span><br></pre></td></tr></table></figure></p>
+<p>备注：这里产生数据文件 TBL_SUP_WEATHER_UPDATE_LOG.log , 大小为 340M, 接下来将这个数据文件传到 pg 主机上。</p>
+<p>文件列表<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[oracle@db_sup](mailto:oracle@db_sup)-&gt; ll  </span><br><span class="line">total 340M  </span><br><span class="line">-rw-r--r-- 1 oracle oinstall 1.6K Oct 25 10:43 SELECT_TBL_SUP_WEATHER_UPDATE_LOG.sql  </span><br><span class="line">-rw-r--r-- 1 oracle oinstall 340M Oct 25 10:47 TBL_SUP_WEATHER_UPDATE_LOG.log  </span><br><span class="line">-rw-r--r-- 1 oracle oinstall 207 Oct 25 10:26 TBL_SUP_WEATHER_UPDATE_LOG.sql</span><br></pre></td></tr></table></figure></p>
+<p>将数据导入到 PG库<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[postgres<span class="meta">@db]$</span> psql -h 127.0.0.1 skytf_bak postgres  </span><br><span class="line">psql (9.0.1)  </span><br><span class="line">Type <span class="string">"help"</span> for help.</span><br><span class="line"></span><br><span class="line">skytf_bak=<span class="comment"># select count(*) from skytf.tbl_sup_weather_update_log;  </span></span><br><span class="line">count  </span><br><span class="line">-------  </span><br><span class="line"> 0  </span><br><span class="line">(1 row)</span><br><span class="line"></span><br><span class="line">skytf_bak=<span class="comment"># copy skytf.tbl_sup_weather_update_log from '/home/postgres/script/tf/TBL_SUP_WEATHER_UPDATE_LOG.log';  </span></span><br><span class="line">COPY 1479485skytf_bak=<span class="comment"># select count(*) from skytf.tbl_sup_weather_update_log;  </span></span><br><span class="line"> count  </span><br><span class="line">---------  </span><br><span class="line">1479485  </span><br><span class="line">(1 row)</span><br><span class="line"></span><br><span class="line">skytf_bak=<span class="comment"># select * From skytf.tbl_sup_weather_update_log limit 1;  </span></span><br><span class="line"> id |<span class="string"> app_id </span>|<span class="string"> app_ver </span>|<span class="string"> short_name </span>|<span class="string"> hsman </span>|<span class="string"> hstype </span>|<span class="string"> imei </span>|<span class="string"> imsi </span>|<span class="string"> plat </span>|<span class="string"> req_type </span>|<span class="string"> fee_t  </span></span><br><span class="line"><span class="string">ype </span>|<span class="string"> width </span>|<span class="string"> height </span>|<span class="string"> provider </span>|<span class="string"> msg_cen </span>|<span class="string"> portv </span>|<span class="string"> vmv </span>|<span class="string"> ip_addr </span>|<span class="string"> local_address </span>|<span class="string"> local_port </span>|<span class="string"> response_code </span>|<span class="string">  </span></span><br><span class="line"><span class="string">file_len </span>|<span class="string"> req_md5 </span>|<span class="string"> resp_md5 </span>|<span class="string"> req_start_pos </span>|<span class="string"> resp_start_pos </span>|<span class="string"> check_interval </span>|<span class="string"> check_after_times </span>|<span class="string"> res_policy </span>|<span class="string"> res_  </span></span><br><span class="line"><span class="string">md5 </span>|<span class="string"> create_time  </span></span><br><span class="line"><span class="string">-------+--------+---------+------------+----------+----------+----------------------+----------------------+------+----------+------  </span></span><br><span class="line"><span class="string">-----------------+---------------------  </span></span><br><span class="line"><span class="string">86712 </span>|<span class="string"> 2914 </span>|<span class="string"> 9000 </span>|<span class="string"> tianqi </span>|<span class="string"> b~1&amp;qqM= </span>|<span class="string"> zdzFow== </span>|<span class="string"> (Bzzb^zyL5zyftyy%fzy </span>|<span class="string"> )dzyLlyy$tzy$dyy~fzy </span>|<span class="string"> MTK </span>|<span class="string"> 0 </span>|<span class="string">  </span></span><br><span class="line"><span class="string"> 2 </span>|<span class="string"> 240 </span>|<span class="string"> 320 </span>|<span class="string"> </span>|<span class="string"> 8613800775500 </span>|<span class="string"> 101081180 </span>|<span class="string"> 1964 </span>|<span class="string"> 211.138.250.103 </span>|<span class="string"> 192.168.171.39 </span>|<span class="string"> 6011 </span>|<span class="string"> 404 </span>|<span class="string">  </span></span><br><span class="line"><span class="string"> </span>|<span class="string"> </span>|<span class="string"> </span>|<span class="string"> 0 </span>|<span class="string"> 0 </span>|<span class="string"> 10 </span>|<span class="string"> 10 </span>|<span class="string"> 1 </span>|<span class="string"> 683def7566d4099f  </span></span><br><span class="line"><span class="string">63589514dda23d9d </span>|<span class="string"> 2011-09-11 00:52:26</span></span><br></pre></td></tr></table></figure></p>
+<p>备注：到了这步，表 tbl_sup_weather_update_log 已成功从 oracle 库迁移到 pg库中。  </p>
+<h1 id="难点"><a href="#难点" class="headerlink" title="难点"></a>难点</h1><p>如何将大表从 oracle 库中迁移到 PostgreSQL?  </p>
+<p>可以利用第三方工具，如 “ESF Database Migration Toolkit “, 也可以使用本文的方法，或许还有其它方法，但是我们需要最快的方法，尽可能的减少迁移时间。  </p>
+<p>备注：本文只是 Oracle 转 PostgreSQL 初始经验总结。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://wiki.postgresql.org/wiki/Oracle_to_Postgres_Conversion" target="_blank" rel="noopener">http://wiki.postgresql.org/wiki/Oracle_to_Postgres_Conversion</a>  </li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20111025155557.html" title="How to Migrate Oracle to PostgreSQL">https://postgres.fun/20111025155557.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20111022113035.html" rel="next" title="探索：PostgreSQL 的 UPDATE 操作">
+                <i class="fa fa-chevron-left"></i> 探索：PostgreSQL 的 UPDATE 操作
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/20111025211743.html" rel="prev" title="Like 查询优化一例">
+                Like 查询优化一例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">542</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前期调研"><span class="nav-number">1.</span> <span class="nav-text">前期调研</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库方案调研"><span class="nav-number">2.</span> <span class="nav-text">数据库方案调研</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据类型对比"><span class="nav-number">3.</span> <span class="nav-text">数据类型对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库表迁移测试"><span class="nav-number">4.</span> <span class="nav-text">数据库表迁移测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#难点"><span class="nav-number">5.</span> <span class="nav-text">难点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
