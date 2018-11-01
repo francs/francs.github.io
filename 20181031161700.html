@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PostgreSQL," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="关于 JITPostgreSQL 11 版本的一个重量级新特性是引入了 JIT (Just-in-Time) 编译来加速SQL中的表达式计算效率。 JIT 表达式的编译使用LLVM项目编译器的架构来提升在WHERE条件、指定列表、聚合以及一些内部操作表达式的编译执行。 使用 JIT 必须在首先编译安装 LLVM ，之后编译安装 PostgreSQL 时设置 --with-llvm 选项，本文主要包">
+<meta name="keywords" content="PostgreSQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率">
+<meta property="og:url" content="https://postgres.fun/20181031161700.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="关于 JITPostgreSQL 11 版本的一个重量级新特性是引入了 JIT (Just-in-Time) 编译来加速SQL中的表达式计算效率。 JIT 表达式的编译使用LLVM项目编译器的架构来提升在WHERE条件、指定列表、聚合以及一些内部操作表达式的编译执行。 使用 JIT 必须在首先编译安装 LLVM ，之后编译安装 PostgreSQL 时设置 --with-llvm 选项，本文主要包">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-31T08:38:45.776Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率">
+<meta name="twitter:description" content="关于 JITPostgreSQL 11 版本的一个重量级新特性是引入了 JIT (Just-in-Time) 编译来加速SQL中的表达式计算效率。 JIT 表达式的编译使用LLVM项目编译器的架构来提升在WHERE条件、指定列表、聚合以及一些内部操作表达式的编译执行。 使用 JIT 必须在首先编译安装 LLVM ，之后编译安装 PostgreSQL 时设置 --with-llvm 选项，本文主要包">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20181031161700.html"/>
+
+
+
+
+
+
+  <title>PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20181031161700.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-31T16:17:15+08:00">
+                2018-10-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20181031161700.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20181031161700.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20181031161700.html" class="leancloud_visitors" data-flag-title="PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="关于-JIT"><a href="#关于-JIT" class="headerlink" title="关于 JIT"></a>关于 JIT</h1><p>PostgreSQL 11 版本的一个重量级新特性是引入了 <a href="https://www.postgresql.org/docs/11/static/jit.html" target="_blank" rel="noopener"><strong>JIT (Just-in-Time)</strong></a> 编译来加速SQL中的表达式计算效率。</p>
+<p>JIT 表达式的编译使用LLVM项目编译器的架构来提升在WHERE条件、指定列表、聚合以及一些内部操作表达式的编译执行。</p>
+<p>使用 JIT 必须在首先编译安装 <a href="https://llvm.org/" target="_blank" rel="noopener"><strong>LLVM</strong></a> ，之后编译安装 PostgreSQL 时设置 <code>--with-llvm</code> 选项，本文主要包括两部分，如下:</p>
+<ul>
+<li>CentOS7 编译安装 LLVM。</li>
+<li>CentOS7 编译安装PostgreSQL 11，启用并演示 JIT。</li>
+</ul>
+<h1 id="JIT-使用场景"><a href="#JIT-使用场景" class="headerlink" title="JIT 使用场景"></a>JIT 使用场景</h1><p>JIT 常用于CPU密集型SQL(分析统计SQL)，执行很快的SQL使用JIT由于产生一定开销，反而可能引起性能下降。</p>
+<h1 id="手册-Release说明"><a href="#手册-Release说明" class="headerlink" title="手册 Release说明"></a>手册 Release说明</h1><blockquote>
+<p>Add <strong>Just-in-Time (JIT)</strong> compilation of some parts of query plans to improve execution speed (Andres Freund)<br>This feature requires LLVM to be available. It is not currently enabled by default, even in builds that support it.</p>
+</blockquote>
+<h1 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h1><p>操作系统: CentOS Linux release 7.4.1708 (Core)<br>硬件环境: 8核4G/80G 的云主机</p>
+<h1 id="LLVM安装前提条件"><a href="#LLVM安装前提条件" class="headerlink" title="LLVM安装前提条件"></a>LLVM安装前提条件</h1><p>LLVM 安装依赖较多，如下：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">The minimum required <span class="built_in">version</span> <span class="keyword">of</span> LLVM <span class="keyword">is</span> currently <span class="number">3.9</span>  <span class="comment">--本实验使用 LLVM5.0</span></span><br><span class="line">CMake. Version <span class="number">3.4</span><span class="number">.3</span> <span class="keyword">is</span> <span class="keyword">the</span> minimum required.          <span class="comment">--本实验使用 cmake 3.12.3</span></span><br><span class="line">Python <span class="number">2.7</span> <span class="keyword">or</span> newer <span class="keyword">is</span> required                        <span class="comment">--本实验使用 Python 2.7.5</span></span><br><span class="line">GCC <span class="built_in">version</span> must be <span class="keyword">at</span> least <span class="number">4.8</span>!                      <span class="comment">--本实验使用 gcc 4.8.5</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装-Cmake-3-9-6"><a href="#安装-Cmake-3-9-6" class="headerlink" title="安装 Cmake 3.9.6"></a>安装 Cmake 3.9.6</h1><p>下载并编译安装 cmake 3.9.6，如下:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget -c https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> tar xvf cmake-3.12.3.tar.gz</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> cmake-3.12.3</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./bootstrap</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j 4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="安装Python-2-7-9"><a href="#安装Python-2-7-9" class="headerlink" title="安装Python 2.7.9"></a>安装Python 2.7.9</h1><p>下载并编译安装 python 2.7.9，如下:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget -c https://www.python.org/downloads/release/python-279/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> tar jxvf Python-2.7.9.tgz</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> Python-2.7.9</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./configure</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装-LLVM-5-0-2"><a href="#安装-LLVM-5-0-2" class="headerlink" title="安装 LLVM 5.0.2"></a>安装 LLVM 5.0.2</h1><p>LLVM 的安装步骤较繁琐，并且编译安装过程时间较长，性能好的机器能减少编译时间，注意操作系统需启用 <code>swap</code>，否则编译过程中会报错,本人开始编译安装时没有启用 <code>swap</code>，折腾了很久。</p>
+<h2 id="下载LLVM安装介质"><a href="#下载LLVM安装介质" class="headerlink" title="下载LLVM安装介质"></a>下载LLVM安装介质</h2><p>在 <a href="http://releases.llvm.org/download.html" target="_blank" rel="noopener"><strong>LLVM官网</strong></a>下载安装介质，如下:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">llvm-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">cfe-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">clang-tools-extra-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">compiler-rt-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">libcxx-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">libcxxabi-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br><span class="line"><span class="selector-tag">libunwind-5</span><span class="selector-class">.0</span><span class="selector-class">.2</span><span class="selector-class">.src</span><span class="selector-class">.tar</span><span class="selector-class">.xz</span></span><br></pre></td></tr></table></figure>
+<h2 id="编译安装LLVM"><a href="#编译安装LLVM" class="headerlink" title="编译安装LLVM"></a>编译安装LLVM</h2><p>解压 llvm-7.0.0.src.tar.xz<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /opt/soft_bak/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> tar xvf llvm-7.0.0.src.tar.xz</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> mv llvm-7.0.0.src llvm</span></span><br></pre></td></tr></table></figure></p>
+<p>解压安装包并重命名，目录结构对应如下，如下:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">安装包</th>
+<th style="text-align:left">安装目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">llvm-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/llvm</td>
+</tr>
+<tr>
+<td style="text-align:left">cfe-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/tools/clang</td>
+</tr>
+<tr>
+<td style="text-align:left">clang-tools-extra-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/tools/clang/tools/extra</td>
+</tr>
+<tr>
+<td style="text-align:left">compiler-rt-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/projects/compiler-rt</td>
+</tr>
+<tr>
+<td style="text-align:left">libcxx-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/projects/libcxx</td>
+</tr>
+<tr>
+<td style="text-align:left">libcxxabi-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/projects/libcxxabi</td>
+</tr>
+<tr>
+<td style="text-align:left">libunwind-5.0.2.src.tar.xz</td>
+<td style="text-align:left">/opt/soft_bak/projects/libunwind</td>
+</tr>
+</tbody>
+</table>
+<p>LLVM 官网的其它安装包非必须，可根据情况选择。</p>
+<p>编译安装 LLVM，如下:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> mkdir -p /opt/soft_bak/llvm_build/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> /opt/soft_bak/llvm_build/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cmake -G <span class="string">"Unix Makefiles"</span> -DCMAKE_INSTALL_PREFIX=/usr/<span class="built_in">local</span>/llvm -DCLANG_DEFAULT_CXX_STDLIB=libc++ -DCMAKE_BUILD_TYPE=<span class="string">"Release"</span> /opt/soft_bak/llvm</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j 4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure></p>
+<p>设置环境变量，如下:<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export PATH=<span class="variable">$PATH</span><span class="symbol">:/usr/local/llvm/bin</span></span><br><span class="line">export LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span><span class="symbol">:/usr/local/llvm/lib</span></span><br></pre></td></tr></table></figure></p>
+<p>查看版本<br><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-attr">[root@pghost7 ~]</span># <span class="selector-tag">llvm-cat</span> <span class="selector-tag">--version</span></span><br><span class="line"><span class="selector-tag">LLVM</span> (<span class="attribute">http</span>:<span class="comment">//llvm.org/):</span></span><br><span class="line">  LLVM version <span class="number">5.0</span>.<span class="number">2</span></span><br><span class="line">  Optimized build.</span><br><span class="line">  Default <span class="attribute">target</span>: x86_64-unknown-linux-gnu</span><br><span class="line">  Host <span class="attribute">CPU</span>: broadwell</span><br><span class="line"></span><br><span class="line">[root<span class="variable">@pghost7</span> ~]# clang --version</span><br><span class="line">clang version <span class="number">5.0</span>.<span class="number">2</span> (tags/RELEASE_502/final)</span><br><span class="line"><span class="attribute">Target</span>: x86_64-unknown-linux-gnu</span><br><span class="line">Thread <span class="attribute">model</span>: posix</span><br><span class="line"><span class="attribute">InstalledDir</span>: /usr/local/llvm/bin</span><br></pre></td></tr></table></figure></p>
+<p>至此 LLVM 已安装成功。</p>
+<h1 id="PostgreSQL-11-安装"><a href="#PostgreSQL-11-安装" class="headerlink" title="PostgreSQL 11 安装"></a>PostgreSQL 11 安装</h1><p>安装相关包，如下:<br><figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># yum -y install gcc <span class="built_in">readline</span> <span class="built_in">readline</span>-devel zlib zlib-devel python-devel</span><br></pre></td></tr></table></figure></p>
+<p>下载PostgreSQL 11 并编译安装，如下:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> wget -c https://ftp.postgresql.org/pub/<span class="built_in">source</span>/v11.0/postgresql-11.0.tar.bz2</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> tar xvf postgresql-11.0.tar.bz2</span></span><br><span class="line"><span class="meta">#</span><span class="bash">./configure --prefix=/opt/pgsql_11.0 --with-wal-blocksize=16 -with-pgport=1930 --with-llvm LLVM_CONFIG=<span class="string">'/usr/local/llvm/bin/llvm-config'</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make wolrd -j 4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install-world</span></span><br></pre></td></tr></table></figure></p>
+<p>设置 <code>.bash_profile</code> ，如下:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGPORT</span>=1930</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGUSER</span>=postgres</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGDATA</span>=/database/pg11/pg_root</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">LANG</span>=en_US.utf8</span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGHOME</span>=/opt/pgsql_11.0</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">LD_LIBRARY_PATH</span>=<span class="variable">$PGHOME</span>/lib:/lib64:/usr/lib64:/usr/local/lib64:/lib:/usr/lib:/usr/local/lib</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">DATE</span>=`date +<span class="string">"%Y%m%d%H%M"</span>`</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PGHOME</span>/bin:$PATH:.</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">MANPATH</span>=<span class="variable">$PGHOME</span>/share/man:$MANPATH</span><br><span class="line">alias <span class="attribute">rm</span>=<span class="string">'rm -i'</span></span><br><span class="line">alias <span class="attribute">ll</span>=<span class="string">'ls -lh'</span></span><br></pre></td></tr></table></figure></p>
+<p>使用 <code>initdb</code> 初始化数据库，如下:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[pg11@pghost7 pg_root]$ initdb -D /database/pg11/pg_root <span class="attribute">-E</span>=UTF8 <span class="attribute">--locale</span>=C -U postgres -W</span><br></pre></td></tr></table></figure></p>
+<p>postgresql.conf 设置以下 JIT 配置参数，其它参数按需配置，这里不贴出，如下:</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># - Other Defaults -</span></span><br><span class="line"><span class="comment">#dynamic_library_path = '$libdir'</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jit</span> = <span class="literal">on</span>                                # allow JIT compilation</span><br><span class="line"><span class="attr">jit_provider</span> = <span class="string">'llvmjit'</span>                # JIT implementation to use</span><br></pre></td></tr></table></figure>
+<p>设置 pg_hba.conf，如下:<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">host all        all     <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>/<span class="number">0</span>       md5</span><br></pre></td></tr></table></figure></p>
+<p>之后启动数据库，如下:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[pg11@pghost7 pg_root]$ pg_ctl start</span><br><span class="line">waiting <span class="keyword">for</span><span class="built_in"> server </span><span class="keyword">to</span> start<span class="built_in">..</span><span class="built_in">..</span>2018-10-31 11:13:26.154 CST [19742] LOG:  listening on IPv4<span class="built_in"> address </span><span class="string">"0.0.0.0"</span>,<span class="built_in"> port </span>1930</span><br><span class="line">2018-10-31 11:13:26.154 CST [19742] LOG:  listening on<span class="built_in"> IPv6 address </span><span class="string">"::"</span>,<span class="built_in"> port </span>1930</span><br><span class="line">2018-10-31 11:13:26.159 CST [19742] LOG:  listening on Unix socket <span class="string">"/tmp/.s.PGSQL.1930"</span></span><br><span class="line">2018-10-31 11:13:26.185 CST [19742] LOG:  redirecting log output <span class="keyword">to</span><span class="built_in"> logging </span>collector process</span><br><span class="line">2018-10-31 11:13:26.185 CST [19742] HINT:  Future log output will appear <span class="keyword">in</span> directory <span class="string">"log"</span>.</span><br><span class="line"> done</span><br><span class="line">server started</span><br></pre></td></tr></table></figure></p>
+<h1 id="JIT-测试"><a href="#JIT-测试" class="headerlink" title="JIT 测试"></a>JIT 测试</h1><p>以下大致演示 JIT，测试样例很简单，不做充分的性能测试，有兴趣的朋友可以做 TPC-H 性能测试。</p>
+<h2 id="测试数据准备"><a href="#测试数据准备" class="headerlink" title="测试数据准备"></a>测试数据准备</h2><p>创建一张5千万的数据表，如下:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t_llvm1(a int4, b int4, info <span class="built_in">text</span>, ctime <span class="keyword">timestamp</span>(<span class="number">6</span>) <span class="keyword">without</span> <span class="keyword">time</span> zone);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t_llvm1 (a,b,info,ctime) <span class="keyword">SELECT</span> n,n*<span class="number">2</span>,n||<span class="string">'_llvm1'</span>,clock_timestamp() <span class="keyword">FROM</span> generate_series(<span class="number">1</span>,<span class="number">50000000</span>) n;</span><br></pre></td></tr></table></figure>
+<h2 id="查看-JIT-相关参数"><a href="#查看-JIT-相关参数" class="headerlink" title="查看 JIT 相关参数"></a>查看 JIT 相关参数</h2><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">postgres=<span class="comment"># SELECT name,setting FROM pg_settings WHERE name LIKE 'jit%';</span></span><br><span class="line">          name           |<span class="string"> setting</span></span><br><span class="line"><span class="string">-------------------------+---------</span></span><br><span class="line"><span class="string"> jit                     </span>|<span class="string"> on</span></span><br><span class="line"><span class="string"> jit_above_cost          </span>|<span class="string"> 100000</span></span><br><span class="line"><span class="string"> jit_debugging_support   </span>|<span class="string"> off</span></span><br><span class="line"><span class="string"> jit_dump_bitcode        </span>|<span class="string"> off</span></span><br><span class="line"><span class="string"> jit_expressions         </span>|<span class="string"> on</span></span><br><span class="line"><span class="string"> jit_inline_above_cost   </span>|<span class="string"> 500000</span></span><br><span class="line"><span class="string"> jit_optimize_above_cost </span>|<span class="string"> 500000</span></span><br><span class="line"><span class="string"> jit_profiling_support   </span>|<span class="string"> off</span></span><br><span class="line"><span class="string"> jit_provider            </span>|<span class="string"> llvmjit</span></span><br><span class="line"><span class="string"> jit_tuple_deforming     </span>|<span class="string"> on</span></span><br><span class="line"><span class="string">(10 rows)</span></span><br></pre></td></tr></table></figure>
+<h2 id="开启-JIT"><a href="#开启-JIT" class="headerlink" title="开启 JIT"></a>开启 JIT</h2><p>开启 JIT，执行计划如下:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">postgres</span>=# <span class="builtin-name">SET</span> JIT = on;</span><br><span class="line">SET</span><br><span class="line"></span><br><span class="line"><span class="attribute">postgres</span>=# EXPLAIN ANALYZE SELECT count(*),sum(a) <span class="keyword">FROM</span> t_llvm1 WHERE (a+b) &gt; 10;</span><br><span class="line">                                                                    QUERY PLAN</span><br><span class="line"></span><br><span class="line">--------------------------------------------------------------------------------------------------------------------------------------------------</span><br><span class="line"> Finalize Aggregate  (<span class="attribute">cost</span>=576982.30..576982.31 <span class="attribute">rows</span>=1 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2148.607..2148.608 <span class="attribute">rows</span>=1 <span class="attribute">loops</span>=1)</span><br><span class="line">   -&gt;  Gather  (<span class="attribute">cost</span>=576981.86..576982.28 <span class="attribute">rows</span>=4 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2148.457..2153.185 <span class="attribute">rows</span>=5 <span class="attribute">loops</span>=1)</span><br><span class="line">         Workers Planned: 4</span><br><span class="line">         Workers Launched: 4</span><br><span class="line">         -&gt;  Partial Aggregate  (<span class="attribute">cost</span>=575981.86..575981.88 <span class="attribute">rows</span>=1 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2134.919..2134.919 <span class="attribute">rows</span>=1 <span class="attribute">loops</span>=5)</span><br><span class="line">               -&gt;  Parallel Seq Scan on t_llvm1  (<span class="attribute">cost</span>=0.00..555148.48 <span class="attribute">rows</span>=4166677 <span class="attribute">width</span>=4) (actual <span class="attribute">time</span>=105.597..1516.253 <span class="attribute">rows</span>=9999999 <span class="attribute">loops</span>=5)</span><br><span class="line">                     Filter: ((a + b) &gt; 10)</span><br><span class="line">                     Rows Removed by Filter: 1</span><br><span class="line"> Planning Time: 0.078 ms</span><br><span class="line"> JIT:</span><br><span class="line">   Functions: 28</span><br><span class="line">   Options: Inlining <span class="literal">true</span>, Optimization <span class="literal">true</span>, Expressions <span class="literal">true</span>, Deforming <span class="literal">true</span></span><br><span class="line">   Timing: Generation 5.842 ms, Inlining 226.589 ms, Optimization 191.071 ms, Emission 107.027 ms, Total 530.529 ms</span><br><span class="line"> Execution Time: 2154.870 ms</span><br><span class="line">(14 rows)</span><br></pre></td></tr></table></figure>
+<p>从以上看出执行计划中包含 JIT 编译信息，执行时间为 2154 ms 左右。</p>
+<h2 id="关闭-JIT"><a href="#关闭-JIT" class="headerlink" title="关闭 JIT"></a>关闭 JIT</h2><p>关闭 JIT,查看执行计划和扫行时间，如下:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">postgres</span>=# <span class="builtin-name">SET</span> JIT = off;</span><br><span class="line">SET</span><br><span class="line"></span><br><span class="line"><span class="attribute">postgres</span>=# EXPLAIN ANALYZE SELECT count(*),sum(a) <span class="keyword">FROM</span> t_llvm1 WHERE (a+b) &gt; 10;</span><br><span class="line">                                                                   QUERY PLAN</span><br><span class="line"></span><br><span class="line">------------------------------------------------------------------------------------------------------------------------------------------------</span><br><span class="line"> Finalize Aggregate  (<span class="attribute">cost</span>=576982.30..576982.31 <span class="attribute">rows</span>=1 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2382.035..2382.035 <span class="attribute">rows</span>=1 <span class="attribute">loops</span>=1)</span><br><span class="line">   -&gt;  Gather  (<span class="attribute">cost</span>=576981.86..576982.28 <span class="attribute">rows</span>=4 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2381.939..2385.143 <span class="attribute">rows</span>=5 <span class="attribute">loops</span>=1)</span><br><span class="line">         Workers Planned: 4</span><br><span class="line">         Workers Launched: 4</span><br><span class="line">         -&gt;  Partial Aggregate  (<span class="attribute">cost</span>=575981.86..575981.88 <span class="attribute">rows</span>=1 <span class="attribute">width</span>=16) (actual <span class="attribute">time</span>=2371.143..2371.143 <span class="attribute">rows</span>=1 <span class="attribute">loops</span>=5)</span><br><span class="line">               -&gt;  Parallel Seq Scan on t_llvm1  (<span class="attribute">cost</span>=0.00..555148.48 <span class="attribute">rows</span>=4166677 <span class="attribute">width</span>=4) (actual <span class="attribute">time</span>=0.560..1600.125 <span class="attribute">rows</span>=9999999 <span class="attribute">loops</span>=5)</span><br><span class="line">                     Filter: ((a + b) &gt; 10)</span><br><span class="line">                     Rows Removed by Filter: 1</span><br><span class="line"> Planning Time: 0.083 ms</span><br><span class="line"> Execution Time: 2385.209 ms</span><br><span class="line">(10 rows)</span><br></pre></td></tr></table></figure></p>
+<p>从以上看出执行计划中没有包含 JIT 信息，执行时间为 2385 ms 左右，开启JIT性能提升了9.7% 左右。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://www.postgresql.org/docs/11/static/jit.html" target="_blank" rel="noopener">Chapter 32. Just-in-Time Compilation (JIT)</a></li>
+<li><a href="https://llvm.org/" target="_blank" rel="noopener">The LLVM Compiler Infrastructure</a></li>
+<li><a href="https://www.oschina.net/news/94492/postgresql-llvm-jit-landing" target="_blank" rel="noopener">PostgreSQL 已包含对 LLVM JIT 支持的提交性能将飙升</a></li>
+<li><a href="https://blog.dbi-services.com/how-to-compile-postgresql-11-with-support-for-jit-compilation-on-rhelcentos-7/" target="_blank" rel="noopener">How to compile PostgreSQL 11 with support for JIT compilation on RHEL/CentOS 7</a></li>
+<li><a href="https://www.citusdata.com/blog/2018/09/11/postgresql-11-just-in-time/" target="_blank" rel="noopener">PostgreSQL 11 and Just In Time Compilation of Queries</a></li>
+<li><a href="https://llvm.org/devmtg/2016-09/slides/Melnik-PostgreSQLLLVM.pdf" target="_blank" rel="noopener">Speeding up query execution in PostgreSQL using LLVM JIT compiler</a></li>
+<li><a href="http://postgres.cn/release/v/49" target="_blank" rel="noopener">PostgreSQL 11.0 正式版更新版本发布说明</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20181031161700.html" title="PostgreSQL11: 增加对JIT(just-in-time)编译的支持加速统计SQL执行效率">https://postgres.fun/20181031161700.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20181028211900.html" rel="next" title="Hexo: 声明博客的许可协议">
+                <i class="fa fa-chevron-left"></i> Hexo: 声明博客的许可协议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">543</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于-JIT"><span class="nav-number">1.</span> <span class="nav-text">关于 JIT</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JIT-使用场景"><span class="nav-number">2.</span> <span class="nav-text">JIT 使用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#手册-Release说明"><span class="nav-number">3.</span> <span class="nav-text">手册 Release说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装环境"><span class="nav-number">4.</span> <span class="nav-text">安装环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LLVM安装前提条件"><span class="nav-number">5.</span> <span class="nav-text">LLVM安装前提条件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-Cmake-3-9-6"><span class="nav-number">6.</span> <span class="nav-text">安装 Cmake 3.9.6</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Python-2-7-9"><span class="nav-number">7.</span> <span class="nav-text">安装Python 2.7.9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-LLVM-5-0-2"><span class="nav-number">8.</span> <span class="nav-text">安装 LLVM 5.0.2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载LLVM安装介质"><span class="nav-number">8.1.</span> <span class="nav-text">下载LLVM安装介质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译安装LLVM"><span class="nav-number">8.2.</span> <span class="nav-text">编译安装LLVM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PostgreSQL-11-安装"><span class="nav-number">9.</span> <span class="nav-text">PostgreSQL 11 安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JIT-测试"><span class="nav-number">10.</span> <span class="nav-text">JIT 测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试数据准备"><span class="nav-number">10.1.</span> <span class="nav-text">测试数据准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看-JIT-相关参数"><span class="nav-number">10.2.</span> <span class="nav-text">查看 JIT 相关参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开启-JIT"><span class="nav-number">10.3.</span> <span class="nav-text">开启 JIT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关闭-JIT"><span class="nav-number">10.4.</span> <span class="nav-text">关闭 JIT</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">11.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
