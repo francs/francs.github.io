@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://postgres.fun/"/>
-  <updated>2018-11-08T06:39:34.102Z</updated>
+  <updated>2018-11-08T06:41:31.398Z</updated>
   <id>https://postgres.fun/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hexo: 推荐一个网站访问速度测试</title>
+    <title>Hexo: 推荐一个网站访问速度测试工具</title>
     <link href="https://postgres.fun/20181108144300.html"/>
     <id>https://postgres.fun/20181108144300.html</id>
     <published>2018-11-08T06:34:25.000Z</published>
-    <updated>2018-11-08T06:39:34.102Z</updated>
+    <updated>2018-11-08T06:41:31.398Z</updated>
     
     <content type="html"><![CDATA[<p>经同事推荐一个不错的网站速度测试工具，地址: <a href="http://tool.chinaz.com/speedtest" target="_blank" rel="noopener">http://tool.chinaz.com/speedtest</a></p><p>输入网站链接，即可返回不同地域访问网站的速度情况。</p><h1 id="国内测速"><a href="#国内测速" class="headerlink" title="国内测速"></a>国内测速</h1><p>输入博客地址，返回下图:</p><p><img src="/images/site_speed.png" alt=""></p><p>从上图看出一片绿色，大部分地区访问博客时间在1秒以下，访问速度还不错！</p>]]></content>
     

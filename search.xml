@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[Hexo: 推荐一个网站访问速度测试]]></title>
+    <title><![CDATA[Hexo: 推荐一个网站访问速度测试工具]]></title>
     <url>%2F20181108144300.html</url>
     <content type="text"><![CDATA[经同事推荐一个不错的网站速度测试工具，地址: http://tool.chinaz.com/speedtest 输入网站链接，即可返回不同地域访问网站的速度情况。 国内测速输入博客地址，返回下图: 从上图看出一片绿色，大部分地区访问博客时间在1秒以下，访问速度还不错！]]></content>
       <categories>
