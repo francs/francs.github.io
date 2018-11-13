@@ -58,10 +58,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.4">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ruolin_bak.jpeg?v=5.1.4">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.4">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/ruolin_bak.jpeg?v=5.1.4">
 
 
   <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
@@ -83,18 +83,18 @@
 
 
 
-<meta name="description" content="PostgreSQL11: 分区表增加 Default Partition PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建">
+<meta name="description" content="PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建父表12345create table tbl_log ( id seria">
 <meta name="keywords" content="Partition Table">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PostgreSQL11: 分区表增加 Default Partition">
 <meta property="og:url" content="https://postgres.fun/20180921101300.html">
 <meta property="og:site_name" content="PostgreSQL 中文网">
-<meta property="og:description" content="PostgreSQL11: 分区表增加 Default Partition PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建">
+<meta property="og:description" content="PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建父表12345create table tbl_log ( id seria">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-21T12:47:30.275Z">
+<meta property="og:updated_time" content="2018-11-13T00:18:02.333Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PostgreSQL11: 分区表增加 Default Partition">
-<meta name="twitter:description" content="PostgreSQL11: 分区表增加 Default Partition PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建">
+<meta name="twitter:description" content="PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。 本节以创建范围分区表为例进行测试。 PostgreSQL 10 版本在PostgreSQL 10 版本进行测试，详见以下。 创建父表12345create table tbl_log ( id seria">
 
 
 
@@ -435,8 +435,7 @@
       
 
       
-        <p>PostgreSQL11: 分区表增加 Default Partition</p>
-<p>PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。</p>
+        <p>PostgreSQL 10 版本当往分区表写入的数据不在分区定义范围内时会报错，无法插入数据，PostgreSQL 11 版本分区表增加了 Default 分区用来存储不满足分区定义范围的数据。</p>
 <p>本节以创建范围分区表为例进行测试。</p>
 <h1 id="PostgreSQL-10-版本"><a href="#PostgreSQL-10-版本" class="headerlink" title="PostgreSQL 10 版本"></a>PostgreSQL 10 版本</h1><p>在PostgreSQL 10 版本进行测试，详见以下。</p>
 <h2 id="创建父表"><a href="#创建父表" class="headerlink" title="创建父表"></a>创建父表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tbl_log (</span><br><span class="line"> <span class="keyword">id</span> <span class="built_in">serial</span>,</span><br><span class="line"> create_time <span class="keyword">timestamp</span>(<span class="number">0</span>) <span class="keyword">without</span> <span class="keyword">time</span> zone,</span><br><span class="line"> remark <span class="built_in">char</span>(<span class="number">1</span>)</span><br><span class="line">) <span class="keyword">PARTITION</span> <span class="keyword">BY</span>  <span class="keyword">RANGE</span>(create_time);</span><br></pre></td></tr></table></figure>
