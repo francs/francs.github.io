@@ -2,6 +2,118 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://postgres.fun/20120212151254.html</loc>
+    
+    <lastmod>2018-12-04T00:33:09.640Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20120221165748.html</loc>
+    
+    <lastmod>2018-12-04T00:32:50.608Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20121218160448.html</loc>
+    
+    <lastmod>2018-12-04T00:32:02.841Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20110127132329.html</loc>
+    
+    <lastmod>2018-12-04T00:31:00.080Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20151029151514.html</loc>
+    
+    <lastmod>2018-12-04T00:29:59.232Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130627133934.html</loc>
+    
+    <lastmod>2018-12-04T00:27:54.792Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130520142939.html</loc>
+    
+    <lastmod>2018-12-04T00:27:40.915Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130105211101.html</loc>
+    
+    <lastmod>2018-12-04T00:27:21.696Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20121221153558.html</loc>
+    
+    <lastmod>2018-12-04T00:27:07.758Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20120910215554.html</loc>
+    
+    <lastmod>2018-12-04T00:26:45.555Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20120220205211.html</loc>
+    
+    <lastmod>2018-12-04T00:26:24.538Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20110517102453.html</loc>
+    
+    <lastmod>2018-12-04T00:26:06.554Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20110310141842.html</loc>
+    
+    <lastmod>2018-12-04T00:25:50.647Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130125171350.html</loc>
+    
+    <lastmod>2018-12-04T00:21:18.448Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130221154322.html</loc>
+    
+    <lastmod>2018-12-04T00:20:41.591Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20130222160826.html</loc>
+    
+    <lastmod>2018-12-04T00:20:19.875Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://postgres.fun/20181031161700.html</loc>
     
     <lastmod>2018-11-16T00:20:02.813Z</lastmod>
@@ -502,13 +614,6 @@
     <loc>https://postgres.fun/20151106134746.html</loc>
     
     <lastmod>2018-09-04T01:34:19.081Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20151029151514.html</loc>
-    
-    <lastmod>2018-09-04T01:34:19.018Z</lastmod>
     
   </url>
   
@@ -1395,7 +1500,7 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/2014022160000.html</loc>
+    <loc>https://postgres.fun/20140221160000.html</loc>
     
     <lastmod>2018-09-04T01:34:07.998Z</lastmod>
     
@@ -1710,13 +1815,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20130627133934.html</loc>
-    
-    <lastmod>2018-09-04T01:34:04.637Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20130621155115.html</loc>
     
     <lastmod>2018-09-04T01:34:04.574Z</lastmod>
@@ -1846,13 +1944,6 @@
     <loc>https://postgres.fun/20130521125609.html</loc>
     
     <lastmod>2018-09-04T01:34:03.464Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20130520142939.html</loc>
-    
-    <lastmod>2018-09-04T01:34:03.402Z</lastmod>
     
   </url>
   
@@ -2032,20 +2123,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20130222160826.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.776Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20130221154322.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.698Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20130220164952.html</loc>
     
     <lastmod>2018-09-04T01:34:01.635Z</lastmod>
@@ -2060,20 +2137,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20130125171350.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.510Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20130105211101.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.448Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20130105135949.html</loc>
     
     <lastmod>2018-09-04T01:34:01.385Z</lastmod>
@@ -2084,20 +2147,6 @@
     <loc>https://postgres.fun/20121228112608.html</loc>
     
     <lastmod>2018-09-04T01:34:01.307Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20121221153558.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.245Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20121218160448.html</loc>
-    
-    <lastmod>2018-09-04T01:34:01.182Z</lastmod>
     
   </url>
   
@@ -2329,13 +2378,6 @@
     <loc>https://postgres.fun/20120912002557.html</loc>
     
     <lastmod>2018-09-04T01:33:58.556Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20120910215554.html</loc>
-    
-    <lastmod>2018-09-04T01:33:58.478Z</lastmod>
     
   </url>
   
@@ -2816,20 +2858,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20120221165748.html</loc>
-    
-    <lastmod>2018-09-04T01:33:54.523Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20120220205211.html</loc>
-    
-    <lastmod>2018-09-04T01:33:54.460Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20120218105054.html</loc>
     
     <lastmod>2018-09-04T01:33:54.398Z</lastmod>
@@ -2847,13 +2875,6 @@
     <loc>https://postgres.fun/20120213131906.html</loc>
     
     <lastmod>2018-09-04T01:33:53.773Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20120212151254.html</loc>
-    
-    <lastmod>2018-09-04T01:33:53.726Z</lastmod>
     
   </url>
   
@@ -3271,13 +3292,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20110517102453.html</loc>
-    
-    <lastmod>2018-09-04T01:33:49.880Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20110512164848.html</loc>
     
     <lastmod>2018-09-04T01:33:49.818Z</lastmod>
@@ -3411,13 +3425,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20110310141842.html</loc>
-    
-    <lastmod>2018-09-04T01:33:48.755Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20110307163115.html</loc>
     
     <lastmod>2018-09-04T01:33:48.708Z</lastmod>
@@ -3526,13 +3533,6 @@
     <loc>https://postgres.fun/20110215200654.html</loc>
     
     <lastmod>2018-09-04T01:33:47.879Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20110127132329.html</loc>
-    
-    <lastmod>2018-09-04T01:33:47.817Z</lastmod>
     
   </url>
   

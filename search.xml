@@ -777,6 +777,9 @@
       <categories>
         <category>MySQL</category>
       </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL：浅谈 Fsync 参数]]></title>
@@ -2170,7 +2173,7 @@
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL：\copy 元子命令与 copy 命令的区别]]></title>
-    <url>%2F2014022160000.html</url>
+    <url>%2F20140221160000.html</url>
     <content type="text"><![CDATA[我想用过 PostgreSQL 的朋友大多知道 copy 命令，使用 copy 命令导入，导出数据很高效，但用过 \copy 元子命令的朋友可能不多，今天简单介绍下两者的区别和使用场景。 copy 命令属于 SQL 命令，执行时仅会在数据库服务端查找文件，如果需要将文件数据导入到表或导出表数据到文件时须以超级用户执行，而 \copy 为元子命令，任何 psql 客户端登录数据库成功后都可以从客户端导入导出数据。 关于 copy 命令 NameCOPY – copy data between a file and a tableSynopsisCOPY table_name [ ( column_name [, …] ) ] FROM { ‘filename’ | PROGRAM ‘command’ | STDIN } [ [ WITH ] ( option [, …] ) ]COPY { table_name [ ( column_name [, …] ) ] | ( query ) } TO { ‘filename’ | PROGRAM ‘command’ | STDOUT } [ [ WITH ] ( option [, …] ) ]where option can be one of: FORMAT format_name OIDS [ boolean ] FREEZE [ boolean ] DELIMITER ‘delimiter_character’ NULL ‘null_string’ HEADER [ boolean ] QUOTE ‘quote_character’ ESCAPE ‘escape_character’ FORCE_QUOTE { ( column_name [, …] ) | * } FORCE_NOT_NULL ( column_name [, …] ) ENCODING ‘encoding_name’ 备注：上面是 copy 命令的用法，供查阅，这里不详细介绍，接下来测试下。 copy 和 \copy 测试场景数据库: 192.168.2.36/1925 库名：francs客户端: ubuntu 笔记本桌面目标： 将ubuntu 本地文件导入数据库中的表 test_copy 2.1 服务端创建测试表12345[pg93@redhatB ~]$ psql francs francspsql (9.3.0)Type "help" for help.francs=&gt; create table test_copy(id int4,name character varying(32));CREATE TABLE 2.2 客户端创建数据文件1234francs@francs:~/script/tf$ cat test_copy.txt 1 a2 b3 c 2.3 在客户端将数据文件导入表 test_copy 中123456789101112131415161718francs@francs:~/script/tf$ psql -h 192.168.2.36 -p 1925 francs francs用户 francs 的口令：psql (9.3.2, 服务器 9.3.0)输入 "help" 来获取帮助信息.francs=&gt; \! cat '/home/francs/script/tf/test_copy.txt';1 a2 b3 cfrancs=&gt; \copy francs.test_copy from '/home/francs/script/tf/test_copy.txt';francs=&gt; select * from test_copy; id | name ----+------ 1 | a 2 | b 3 | c(3 行记录) 备注：导入成功，注意这里用的是 \copy 元子命令，客户端使用 copy 命令会报文件找不到，如下： 2.4 报错12francs=# copy francs.test_copy from '/home/francs/script/tf/test_copy.txt';ERROR: could not open file "/home/francs/script/tf/test_copy.txt" for reading: No such file or directory 备注：由于 copy 命令会到服务端找文件，所以找不到。 2.5 测试导出文件1234567francs=&gt; copy francs.test_copy to '/home/francs/script/tf/test_copy2.txt';ERROR: must be superuser to COPY to or from a file提示: Anyone can COPY to stdout or from stdin. psql s \copy command also works for anyone.francs=&gt; \copy francs.test_copy to '/home/francs/script/tf/test_copy2.txt';francs-&gt; \! lslib_bak test_copy2.txt test_copy.txt vpn1.sh 备注: 当需要导出表数据到文件时， copy 命令需要以超级用户执行。而 \copy 元子命令不需要。 总结由于 copy 命令始终是到数据库服务端找文件，当以文件形式导入导出数据时需以超级用户执行，权限要求很高，适合数据库管理员操作;而 \copy 命令可在客户端执行导入客户端的数据文件，权限要求没那么高，适合开发人员，测试人员使用，因为生产库的权限掌握在 DBA 手中。 参考 psql copy]]></content>
       <categories>
         <category>Postgres基础</category>
@@ -2880,6 +2883,9 @@
       <categories>
         <category>Postgres基础</category>
       </categories>
+      <tags>
+        <tag>PostgreSQL</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL9.3Beta1：视图新增可更新功能（ Updatable Views ）]]></title>
@@ -3163,6 +3169,9 @@
       <categories>
         <category>C语言</category>
       </categories>
+      <tags>
+        <tag>C语言</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[C语言学习：指针]]></title>
@@ -3171,6 +3180,9 @@
       <categories>
         <category>C语言</category>
       </categories>
+      <tags>
+        <tag>C语言</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[Linux: 字体安装]]></title>
@@ -3212,6 +3224,9 @@
       <categories>
         <category>C语言</category>
       </categories>
+      <tags>
+        <tag>C语言</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL：如何查询表的字段信息？]]></title>
@@ -3220,6 +3235,9 @@
       <categories>
         <category>Postgres基础</category>
       </categories>
+      <tags>
+        <tag>PostgreSQL</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL 流复制：Archive_mode 参数设置问题]]></title>
@@ -3262,7 +3280,7 @@
         <category>MongoDB</category>
       </categories>
       <tags>
-        <tag>Mongodb</tag>
+        <tag>MongoDB</tag>
       </tags>
   </entry>
   <entry>
@@ -3636,6 +3654,9 @@
       <categories>
         <category>Postgres基础</category>
       </categories>
+      <tags>
+        <tag>PostgreSQL</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[PostgreSQL: How to execute a sql script in a single transaction ?]]></title>
@@ -4393,7 +4414,7 @@
         <category>RHEL</category>
       </categories>
       <tags>
-        <tag>REHL</tag>
+        <tag>RHEL</tag>
       </tags>
   </entry>
   <entry>
@@ -4448,7 +4469,7 @@
         <category>RHEL</category>
       </categories>
       <tags>
-        <tag>REHL</tag>
+        <tag>RHEL</tag>
       </tags>
   </entry>
   <entry>
@@ -5107,6 +5128,9 @@
       <categories>
         <category>Postgres基础</category>
       </categories>
+      <tags>
+        <tag>PostgreSQL</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[ERROR: Functions in index expression must be marked IMMUTABLE]]></title>
@@ -5511,6 +5535,9 @@
       <categories>
         <category>生活点滴</category>
       </categories>
+      <tags>
+        <tag>生活点滴</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[Configure: error: readline library not found]]></title>
