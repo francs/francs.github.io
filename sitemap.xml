@@ -2,9 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://postgres.fun/20180515204700.html</loc>
+    
+    <lastmod>2018-12-14T07:42:51.209Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20170413090417.html</loc>
+    
+    <lastmod>2018-12-14T07:41:38.372Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://postgres.fun/20160612205500.html</loc>
+    
+    <lastmod>2018-12-14T07:40:29.677Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://postgres.fun/20181214145600.html</loc>
     
-    <lastmod>2018-12-14T07:20:19.300Z</lastmod>
+    <lastmod>2018-12-14T07:32:57.396Z</lastmod>
     
   </url>
   
@@ -303,13 +324,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20180515204700.html</loc>
-    
-    <lastmod>2018-09-04T01:34:21.926Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20170701151506.html</loc>
     
     <lastmod>2018-09-04T01:34:21.816Z</lastmod>
@@ -401,13 +415,6 @@
   </url>
   
   <url>
-    <loc>https://postgres.fun/20170413090417.html</loc>
-    
-    <lastmod>2018-09-04T01:34:21.003Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://postgres.fun/20170307085812.html</loc>
     
     <lastmod>2018-09-04T01:34:20.941Z</lastmod>
@@ -474,13 +481,6 @@
     <loc>https://postgres.fun/20160701132434.html</loc>
     
     <lastmod>2018-09-04T01:34:20.378Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/20160612205500.html</loc>
-    
-    <lastmod>2018-09-04T01:34:20.315Z</lastmod>
     
   </url>
   
