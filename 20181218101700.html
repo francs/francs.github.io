@@ -83,18 +83,18 @@
 
 
 
-<meta name="description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本篇文章将介绍PostgreSQL的NoSQL特性，分以下三部分介绍。  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全文检索支持JSON和JSONB（PosgreSQL 10 新特性）  二、P">
+<meta name="description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本文将从 《PostgreSQL实战》 一书的“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 本文主要包含以下三部分内容:  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全">
 <meta name="keywords" content="PostgreSQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PostgreSQL何以支持丰富的NoSQL特性">
 <meta property="og:url" content="https://postgres.fun/20181218101700.html">
 <meta property="og:site_name" content="PostgreSQL 中文网">
-<meta property="og:description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本篇文章将介绍PostgreSQL的NoSQL特性，分以下三部分介绍。  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全文检索支持JSON和JSONB（PosgreSQL 10 新特性）  二、P">
+<meta property="og:description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本文将从 《PostgreSQL实战》 一书的“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 本文主要包含以下三部分内容:  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-18T02:41:35.831Z">
+<meta property="og:updated_time" content="2018-12-19T01:48:16.979Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PostgreSQL何以支持丰富的NoSQL特性">
-<meta name="twitter:description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本篇文章将介绍PostgreSQL的NoSQL特性，分以下三部分介绍。  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全文检索支持JSON和JSONB（PosgreSQL 10 新特性）  二、P">
+<meta name="twitter:description" content="一、引言上篇文章 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本文将从 《PostgreSQL实战》 一书的“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 本文主要包含以下三部分内容:  PostgreSQL的 JSON和JSONB数据类型简介 JSON与JSONB读写性能测试 PostgreSQL全">
 
 
 
@@ -435,7 +435,8 @@
       
 
       
-        <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p><a href="https://postgres.fun/20181214145600.html">上篇文章</a> 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本篇文章将介绍PostgreSQL的NoSQL特性，分以下三部分介绍。</p>
+        <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p><a href="https://postgres.fun/20181214145600.html">上篇文章</a> 介绍了PostgreSQL的典型高级SQL特性，PostgreSQL不仅是关系型数据库，同时支持丰富的NoSQL特性，本文将从 <a href="https://item.jd.com/12405774.html" target="_blank" rel="noopener">《PostgreSQL实战》</a> 一书的“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。</p>
+<p>本文主要包含以下三部分内容:</p>
 <ul>
 <li>PostgreSQL的 JSON和JSONB数据类型简介</li>
 <li>JSON与JSONB读写性能测试</li>

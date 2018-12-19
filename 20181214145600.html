@@ -83,18 +83,18 @@
 
 
 
-<meta name="description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”和“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查">
+<meta name="description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查询WITH查询是PostgreSQL支持的高级SQL">
 <meta name="keywords" content="PostgreSQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PostgreSQL用户应掌握的高级SQL特性">
 <meta property="og:url" content="https://postgres.fun/20181214145600.html">
 <meta property="og:site_name" content="PostgreSQL 中文网">
-<meta property="og:description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”和“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查">
+<meta property="og:description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查询WITH查询是PostgreSQL支持的高级SQL">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-12-18T02:58:00.037Z">
+<meta property="og:updated_time" content="2018-12-19T01:40:38.436Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PostgreSQL用户应掌握的高级SQL特性">
-<meta name="twitter:description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”和“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查">
+<meta name="twitter:description" content="引言PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 《PostgreSQL实战》 一书的“ 第4章 SQL高级特性”中摘选部分内容介绍。 这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。 WITH查询WITH查询是PostgreSQL支持的高级SQL">
 
 
 
@@ -435,7 +435,7 @@
       
 
       
-        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 <a href="https://item.jd.com/12405774.html" target="_blank" rel="noopener">《PostgreSQL实战》</a> 一书的“ 第4章 SQL高级特性”和“ 第9章 PostgreSQL的NoSQL特性”中摘选部分内容介绍。</p>
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>PostgreSQL数据库在SQL和NoSQL方面具有很多丰富的特性，本文将从 <a href="https://item.jd.com/12405774.html" target="_blank" rel="noopener">《PostgreSQL实战》</a> 一书的“ 第4章 SQL高级特性”中摘选部分内容介绍。</p>
 <p>这一部分主要介绍PostgreSQL在SQL方面的高级特性，例如WITH查询、批量插入、RETURNING返回修改的数据、UPSERT、数据抽样、聚合函数、窗口函数。</p>
 <h1 id="WITH查询"><a href="#WITH查询" class="headerlink" title="WITH查询"></a>WITH查询</h1><p>WITH查询是PostgreSQL支持的高级SQL特性之一，这一特性常称为CTE(Common Table Expressions)，WITH查询在复杂查询中定义一个辅助语句（可理解成在一个查询中定义的临时表），这一特性常用于复杂查询或递归查询应用场景</p>
 <p>先通过一个简单的CTE示例了解WITH查询，如下所示：<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WITH <span class="literal">t</span> as (</span><br><span class="line">  SELECT generate_series(<span class="number">1</span>,<span class="number">3</span>)</span><br><span class="line">)</span><br><span class="line">SELECT * FROM <span class="literal">t</span><span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
