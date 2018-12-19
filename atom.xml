@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://postgres.fun/"/>
-  <updated>2018-12-19T01:48:16.979Z</updated>
+  <updated>2018-12-19T05:54:24.501Z</updated>
   <id>https://postgres.fun/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PostgreSQL 2018 中国技术大会圆满完成</title>
+    <link href="https://postgres.fun/20181219135100.html"/>
+    <id>https://postgres.fun/20181219135100.html</id>
+    <published>2018-12-19T05:51:47.000Z</published>
+    <updated>2018-12-19T05:54:24.501Z</updated>
+    
+    <content type="html"><![CDATA[<p>“Postgres中国技术大会2018（大象会，第8届）”已于2018年12月15、16日在浙江吉利控股集团有限公司总部(杭州市滨江区江陵路1760号)举行。</p><p>大会由中国Postgres用户会（China Postgres User Group，简称：CPUG）主办，是一场汇聚各界PostgreSQL大拿、交流最新业界技术动态和真实应用案例的盛宴。 本次大会参会者、嘉宾共400余人，议题丰富。</p><p><img src="/images/pgconf2018.jpg" alt=""></p><p>本届大会的议题如下:</p><h1 id="主会场-–-12-15日"><a href="#主会场-–-12-15日" class="headerlink" title="主会场 – 12/15日"></a>主会场 – 12/15日</h1><ul><li>赖宝华_开源分布式NewSQL数据库CockroachDB架构及最佳实践</li><li>李海龙_Qunar的PostgreSQL运维实践</li><li>周正中_如何构建PostgreSQL大生态之我见</li><li>潘娟ApacheShardingSphere云架构演化</li><li>邵宗文_图数据库及应用场景</li><li>汪洋_PG之高可用特性、工具及架构设计</li><li>王昊Greenplum5智能运维管理实例及展望</li></ul><h1 id="主会场-–-12-16日"><a href="#主会场-–-12-16日" class="headerlink" title="主会场 – 12/16日"></a>主会场 – 12/16日</h1><ul><li>陈华军_citus在苏宁的大规模应用</li><li>梅白帆_PostGIS在传统行业中的应用简介</li><li>石勇虎_庖丁解牛之平安vacuum优化之路</li><li>唐建法MongoDB4.0_开创NoSQL＿+＿ACID新纪元</li><li>王帅_从Oracle到PostgreSQL的数据迁移</li><li>张启程_为什么我们抛弃MongoDB和MySQL，选择PgSQL</li><li>赵振平_PostgreSQL和Greenplum数据库故障排查</li><li>周飞_PG在Hellobike的应用</li></ul><h1 id="分会场1-–-12-15日"><a href="#分会场1-–-12-15日" class="headerlink" title="分会场1 – 12/15日"></a>分会场1 – 12/15日</h1><ul><li>陈河堆_PostgreSQL基于PaaS平台的高可用集群方案V3</li><li>董红禹SQLServer迁移PG经验分享</li><li>桑栎_PipelineDB体系结构和使用场景</li><li>杨杰PostgreSQL-FlashbackQuery实现与介绍</li></ul><h1 id="分会场1-–-12-16日"><a href="#分会场1-–-12-16日" class="headerlink" title="分会场1 – 12/16日"></a>分会场1 – 12/16日</h1><ul><li>曾文旌阿里云RDSfor_PostgreSQL在PostgreSQL功能和性能改进</li><li>樊文凯_ORACLE数据库和应用异构迁移最佳实践</li><li>冯慧媛_GIS地理信息-postgres在时空大数据方面的应用</li><li>黄晓涛_通过FDW对大容量非结构化文件的管理和访问</li><li>赖思超PostgreSQL10hash索引的WAL日志修改版final</li><li>刘成伟_oracle到Postgres数据库迁移工具</li><li>陶征霖_新一代数据仓库OushuDB架构剖析</li></ul><h1 id="分会场2-–-12-15日"><a href="#分会场2-–-12-15日" class="headerlink" title="分会场2 – 12/15日"></a>分会场2 – 12/15日</h1><ul><li>党宏博_亚信AntDB在业务驱动下的创新-v0.2</li><li>马鹏玮_以标准推动数据库新技术的快速落地</li><li>权宗亮_基于odyssey连接池实现企业级PostgreSQL数据分布中间件</li><li>肖斐_PostgreSQL数据库时空引擎Ganos</li></ul><h1 id="分会场2-–-12-16日"><a href="#分会场2-–-12-16日" class="headerlink" title="分会场2 – 12/16日"></a>分会场2 – 12/16日</h1><ul><li>胡森_TBase分布式架构以及OLAP性能优化</li><li>刘东明_PostgreSQL并行查询</li><li>余鹏_gogudb—基于FDW实现的PG分库分表插件</li></ul><h1 id="资料下载"><a href="#资料下载" class="headerlink" title="资料下载"></a>资料下载</h1><p>本次大会的资料可在PosgreSQL中文社区官网下载  <a href="http://postgres.cn/v2/news/viewone/1/377" target="_blank" rel="noopener">http://postgres.cn/v2/news/viewone/1/377</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;“Postgres中国技术大会2018（大象会，第8届）”已于2018年12月15、16日在浙江吉利控股集团有限公司总部(杭州市滨江区江陵路1760号)举行。&lt;/p&gt;
+&lt;p&gt;大会由中国Postgres用户会（China Postgres User Group，简称：CPUG
+      
+    
+    </summary>
+    
+      <category term="PG大会活动" scheme="https://postgres.fun/categories/PG%E5%A4%A7%E4%BC%9A%E6%B4%BB%E5%8A%A8/"/>
+    
+    
+      <category term="PostgreSQL活动" scheme="https://postgres.fun/tags/PostgreSQL%E6%B4%BB%E5%8A%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>PostgreSQL何以支持丰富的NoSQL特性</title>
@@ -505,33 +531,6 @@
     
     
       <category term="Parallel Query" scheme="https://postgres.fun/tags/Parallel-Query/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MySQL数据库迁移PostgreSQL实践</title>
-    <link href="https://postgres.fun/20180921202900.html"/>
-    <id>https://postgres.fun/20180921202900.html</id>
-    <published>2018-09-21T12:29:25.000Z</published>
-    <updated>2018-09-26T13:03:43.754Z</updated>
-    
-    <content type="html"><![CDATA[<p>前几年杭州PostgreSQL交流会上分享了一个MySQL数据库迁移到PostgreSQL的案例，虽然时间有些久了，仍有参考意义，方便有需要的朋友。</p><p>这个PPT在我的百度网盘上可下载，如下：</p><p><a href="https://yun.baidu.com/s/1gdAC8rp" target="_blank" rel="noopener">Converting MySQL to PostgreSQL</a></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;前几年杭州PostgreSQL交流会上分享了一个MySQL数据库迁移到PostgreSQL的案例，虽然时间有些久了，仍有参考意义，方便有需要的朋友。&lt;/p&gt;
-&lt;p&gt;这个PPT在我的百度网盘上可下载，如下：&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://yun.baidu.
-      
-    
-    </summary>
-    
-      <category term="Postgres基础" scheme="https://postgres.fun/categories/Postgres%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="mysql_fdw" scheme="https://postgres.fun/tags/mysql-fdw/"/>
     
   </entry>
   
