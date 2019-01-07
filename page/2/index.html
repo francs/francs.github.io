@@ -320,6 +320,178 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20181031161700.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/20181031161700.html" itemprop="url">PostgreSQL11: 增加对JIT(just-in-time)编译的支持提升分析型SQL执行效率</a></h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-31T16:17:15+08:00">
+                2018-10-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Postgres基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20181031161700.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20181031161700.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20181031161700.html" class="leancloud_visitors" data-flag-title="PostgreSQL11: 增加对JIT(just-in-time)编译的支持提升分析型SQL执行效率">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          关于 JITPostgreSQL 11 版本的一个重量级新特性是引入了 JIT (Just-in-Time) 编译来加速SQL中的表达式计算效率。
+JIT 表达式的编译使用LLVM项目编译器的架构来提升在WHERE条件、指定列表、聚合以及一些内部操作表达式的编译执行。
+使用 JIT 必须在首先编译安
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/20181031161700.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://postgres.fun/20181028211900.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1867,179 +2039,6 @@ pg_execute_server_program
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20180929100400.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="francs">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/francs.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PostgreSQL 中文网">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/20180929100400.html" itemprop="url">PostgreSQL11: 新增非空默认值字段不需要重写表</a></h1>
-        
-
-        <div class="post-meta">
-	    
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-29T10:04:49+08:00">
-                2018-09-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Postgres基础/" itemprop="url" rel="index">
-                    <span itemprop="name">Postgres基础</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/20180929100400.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/20180929100400.html" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/20180929100400.html" class="leancloud_visitors" data-flag-title="PostgreSQL11: 新增非空默认值字段不需要重写表">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          PostgreSQL 10 版本前表新增不带默认值的DDL不需要重写表，只需要更新数据字典，因此DDL能瞬间执行，如下:
-1ALTER TABLE table_name ADD COLUMN flag text;
-如果新增的字段带默认值，则需要重写表，表越大，执行时间越长，如下。
-1ALTER TA
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/20180929100400.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2094,7 +2093,7 @@ pg_execute_server_program
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">549</span>
+                  <span class="site-state-item-count">550</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

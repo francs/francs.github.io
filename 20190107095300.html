@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ruolin_bak.jpeg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/ruolin_bak.jpeg?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="Hexo 博客和 Valine 模块部署有好几个月了，Valine 模块部署本身并不复杂，但部署后发现头像无法显示设置的图像，这个问题困扰了至少1个月，今天请教高手终于解决了这个问题，是时候好好总结下 Valine 模块的部署历程了。 之所以选择 Valine 模块，一方面因为 Valine 评论模块延续了Hexo模板简洁的风格，两者匹配得可谓天衣无缝，另一方面国内可选的评论模块有些已经不再支持，">
+<meta name="keywords" content="Hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo: 添加Valine评论模块">
+<meta property="og:url" content="https://postgres.fun/20190107095300.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="Hexo 博客和 Valine 模块部署有好几个月了，Valine 模块部署本身并不复杂，但部署后发现头像无法显示设置的图像，这个问题困扰了至少1个月，今天请教高手终于解决了这个问题，是时候好好总结下 Valine 模块的部署历程了。 之所以选择 Valine 模块，一方面因为 Valine 评论模块延续了Hexo模板简洁的风格，两者匹配得可谓天衣无缝，另一方面国内可选的评论模块有些已经不再支持，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://postgres.fun/images/safe_domain.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_comment_test.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_admin_code.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_web_domain.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_admin_login.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_admin_password.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_var_template.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_var_my.png">
+<meta property="og:image" content="https://postgres.fun/images/avatar_parameter.png">
+<meta property="og:image" content="https://postgres.fun/images/gravatar.png">
+<meta property="og:image" content="https://postgres.fun/images/valine_ruolin.png">
+<meta property="og:updated_time" content="2019-01-07T02:07:33.265Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo: 添加Valine评论模块">
+<meta name="twitter:description" content="Hexo 博客和 Valine 模块部署有好几个月了，Valine 模块部署本身并不复杂，但部署后发现头像无法显示设置的图像，这个问题困扰了至少1个月，今天请教高手终于解决了这个问题，是时候好好总结下 Valine 模块的部署历程了。 之所以选择 Valine 模块，一方面因为 Valine 评论模块延续了Hexo模板简洁的风格，两者匹配得可谓天衣无缝，另一方面国内可选的评论模块有些已经不再支持，">
+<meta name="twitter:image" content="https://postgres.fun/images/safe_domain.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20190107095300.html"/>
+
+
+
+
+
+
+  <title>Hexo: 添加Valine评论模块 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20190107095300.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hexo: 添加Valine评论模块</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-07T09:53:22+08:00">
+                2019-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">Hexo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20190107095300.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20190107095300.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20190107095300.html" class="leancloud_visitors" data-flag-title="Hexo: 添加Valine评论模块">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Hexo 博客和 Valine 模块部署有好几个月了，Valine 模块部署本身并不复杂，但部署后发现头像无法显示设置的图像，这个问题困扰了至少1个月，今天请教高手终于解决了这个问题，是时候好好总结下 Valine 模块的部署历程了。</p>
+<p>之所以选择 Valine 模块，一方面因为 Valine 评论模块延续了Hexo模板简洁的风格，两者匹配得可谓天衣无缝，另一方面国内可选的评论模块有些已经不再支持，有些模块的UI各人不太喜欢。</p>
+<h1 id="关于-Valine-模块"><a href="#关于-Valine-模块" class="headerlink" title="关于 Valine 模块"></a>关于 Valine 模块</h1><p><a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> 诞生于2017年8月7日，是一款基于 Leancloud 的快速、简洁且高效的无后端评论系统，支持但不限于静态博客。</p>
+<p>具有以下特性：</p>
+<ul>
+<li>快速</li>
+<li>安全</li>
+<li>Emoji</li>
+<li>无后端实现</li>
+<li>MarkDown 全语法支持</li>
+<li>轻量易用(~15kb gzipped)</li>
+<li>文章阅读量统计 v1.2.0+</li>
+</ul>
+<h1 id="Valine-部署"><a href="#Valine-部署" class="headerlink" title="Valine 部署"></a>Valine 部署</h1><p>Valine 是基于 <a href="https://leancloud.cn/" target="_blank" rel="noopener">leancloud</a>的评论模块，评论数据都存储在 Leancloud 平台，因此需要先在 <a href="https://leancloud.cn/" target="_blank" rel="noopener">leancloud</a> 申请帐号。</p>
+<h2 id="申请-Leancloud-帐号"><a href="#申请-Leancloud-帐号" class="headerlink" title="申请 Leancloud 帐号"></a>申请 Leancloud 帐号</h2><p>申请 Leancloud 步骤比较简单，首先进行 Leancloud 控制台创建应用(个人使用开发版)，之后获取应用的 App ID 和 App Key，后面配置博客的主题配置文件会用到。</p>
+<h2 id="配置安全域名"><a href="#配置安全域名" class="headerlink" title="配置安全域名"></a>配置安全域名</h2><p>登录leancloud控制台，选择 设置 -&gt; 安全中心 -&gt;  Web 安全域名，这里设置成博客的域名地址和本地地址即可，如图:</p>
+<p><img src="/images/safe_domain.png" alt=""></p>
+<h2 id="配置主题配置文件"><a href="#配置主题配置文件" class="headerlink" title="配置主题配置文件"></a>配置主题配置文件</h2><p>修改博客主题配置文件 <code>/d/hexo/themes/next/_config.yml</code>，配置 Valine 的 enable、appid、appkey 参数，如下:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Valine.</span></span><br><span class="line"><span class="comment"># You can get your appid and appkey from https://leancloud.cn</span></span><br><span class="line"><span class="comment"># more info please open https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  appid:</span>  <span class="string">your</span> <span class="string">leancloud</span> <span class="string">app</span> <span class="string">id</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="string">your</span> <span class="string">leancloud</span> <span class="string">app</span> <span class="string">key</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">true</span> <span class="comment"># mail notifier , https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">留言</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span>   <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br></pre></td></tr></table></figure>
+<p>以上的 appid和appkey为本文开始在Leancloud创建应用的 App ID 和 App Key。</p>
+<h2 id="评论模块验证"><a href="#评论模块验证" class="headerlink" title="评论模块验证"></a>评论模块验证</h2><p>之后访问博客，可以看到如下评论模块：</p>
+<p><img src="/images/valine_comment_test.png" alt=""></p>
+<p>并且可以留言评论了，以上就是 Valine 模块的基本部署过程。</p>
+<h1 id="开启-Valine-评论邮件通知"><a href="#开启-Valine-评论邮件通知" class="headerlink" title="开启 Valine 评论邮件通知"></a>开启 Valine 评论邮件通知</h1><p>以上使用 Valine 模块实现了最基本的评论功能，但功能还需要完善，例如评论邮件通知、评论管理等功能，正好 <a href="https://github.com/DesertsP/Valine-Admin" target="_blank" rel="noopener">Valine Admin</a> 可以满足需求，Valine Admin 是Valine评论模块的扩展和增强。</p>
+<p>这块内容主要参考 <a href="https://deserts.io/valine-admin-document/" target="_blank" rel="noopener">valine-admin-document</a>。</p>
+<h2 id="云引擎”一键”部署"><a href="#云引擎”一键”部署" class="headerlink" title="云引擎”一键”部署"></a>云引擎”一键”部署</h2><p>在Leancloud云引擎设置界面，填写代码库并保存：<a href="https://github.com/DesertsP/Valine-Admin.git" target="_blank" rel="noopener">https://github.com/DesertsP/Valine-Admin.git</a>，如图:</p>
+<p><img src="/images/valine_admin_code.png" alt=""></p>
+<h2 id="设置-Web-二级域名"><a href="#设置-Web-二级域名" class="headerlink" title="设置 Web 二级域名"></a>设置 Web 二级域名</h2><p>Valine Admin 同时提供评论WEB管理后台，能方便的管理评论，例如标记为垃圾评论或删除评论。</p>
+<p>在云引擎设置页面，设置Web二级域名，如下</p>
+<p><img src="/images/valine_web_domain.png" alt=""></p>
+<p>二级域名用于评论后台管理，这里设置为 <a href="https://postgres.leanapp.cn" target="_blank" rel="noopener">https://postgres.leanapp.cn</a> 。</p>
+<p>之后访问出现登录界面，如图:</p>
+<p><img src="/images/valine_admin_login.png" alt=""></p>
+<p>用户名为leancloud的登录邮箱, 密码设置如下:</p>
+<p><img src="/images/valine_admin_password.png" alt=""></p>
+<p>点请示重置后Leancloud会给你发一封密码重置的邮件，这里设置的密码为评论管理WEB后台的密码。之前不知道密码存储在云引擎的user对象里，多亏了<a href="https://lruihao.cn/" target="_blank" rel="noopener">博採眾長</a>的指导。</p>
+<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><p>设置环境变量，如下图:</p>
+<p><img src="/images/valine_var_template.png" alt=""></p>
+<p>以上参数需正确配置，我的参数配置如下:</p>
+<p><img src="/images/valine_var_my.png" alt=""></p>
+<p>配置完参数后，之后切换到云引擎页面点部署。</p>
+<h2 id="验证评论邮件通知功能"><a href="#验证评论邮件通知功能" class="headerlink" title="验证评论邮件通知功能"></a>验证评论邮件通知功能</h2><p>假设我为博主且游客评论时填写了邮箱，以下场景能收到博客评论通知邮件:</p>
+<p>1、用博主的帐号评论时，博主能收到通知邮件。<br>2、游客评论后，博主能收到通知邮件。<br>3、博主回复游客，游客能收到通知邮件。</p>
+<h1 id="Valine-头像设置"><a href="#Valine-头像设置" class="headerlink" title="Valine 头像设置"></a>Valine 头像设置</h1><p>Valine 部署完成后使用了默认图像，查阅 <a href="https://valine.js.org/avatar.html" target="_blank" rel="noopener">Valine官网</a>后，了解到 Valine 使用的是 <a href="https://cn.gravatar.com/" target="_blank" rel="noopener">Gravatar</a>作为评论列表头像。之后我在 Gravatar 修改头像一直没生效(gravatar.cat.net 有七天的缓存)，评论列表头像没生效问题折腾了一个月左右，早已超出了7天的缓存期，后来咨询了一位高手终于解决，这里记录下。</p>
+<p>评论头像没有刷新的原因为：Valine 默认用的是第三方CDN，第一次请求的时候缓存源站的头像，当再请求的时候就不需要返回源站请求，可能这个第三方CDN缓存刷新时有问题导致有些用户刷新成功，有些用户没有刷新，可以通过更换其它CDN解决，这里设置成 Gravatar 的CDN。</p>
+<h2 id="avatar-参数"><a href="#avatar-参数" class="headerlink" title="avatar 参数"></a>avatar 参数</h2><p>Valine 的 avatar 参数用来设置评论头像，avatar 参数可选值如下:</p>
+<p><img src="/images/avatar_parameter.png" alt=""></p>
+<p>我这里将 avatar 设置成空，表示使用的是默认的评论图像。</p>
+<h2 id="Gravatar-设置"><a href="#Gravatar-设置" class="headerlink" title="Gravatar 设置"></a>Gravatar 设置</h2><p>登录 <a href="https://cn.gravatar.com/" target="_blank" rel="noopener">gravatar</a>，注册账号并设置头像，我的设置如下：</p>
+<p><img src="/images/gravatar.png" alt=""></p>
+<h2 id="Next-主题设置"><a href="#Next-主题设置" class="headerlink" title="Next 主题设置"></a>Next 主题设置</h2><p>主题配置文件增加 avatar_cdn 参数，如下:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Valine.</span></span><br><span class="line"><span class="comment"># You can get your appid and appkey from https://leancloud.cn</span></span><br><span class="line"><span class="comment"># more info please open https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  appid:</span>  <span class="string">UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="string">gxPalmYtqejoIqRUifA1Lqg6</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">true</span> <span class="comment"># mail notifier , https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">留言</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span>   <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  avatar_cdn:</span> <span class="attr">https://www.gravatar.com/avatar/</span></span><br></pre></td></tr></table></figure>
+<p>目前Valine的版本不支持 avatar_cdn 参数，这里手工加一个并设置成Gravatar的CDN。</p>
+<p>之后修改Valine模板文件 <code>/d/hexo/themes/next/layout/_third-party/comments/valine.swig</code>，增加 <code>avatar_cnd</code>这行代码，如下:</p>
+<figure class="highlight django"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="xml"></span><span class="template-tag">&#123;% <span class="name"><span class="name">if</span></span> theme.valine.enable and theme.valine.appid and theme.valine.appkey %&#125;</span><span class="xml"></span></span><br><span class="line"><span class="xml">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"//cdn1.lncld.net/static/js/3.0.4/av-min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line"><span class="xml">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"//unpkg.com/valine/dist/Valine.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span></span><br><span class="line"><span class="xml">    var GUEST = ['nick','mail','link'];</span></span><br><span class="line"><span class="xml">    var guest = '</span><span class="template-variable">&#123;&#123; theme.valine.guest_info &#125;&#125;</span><span class="xml">';</span></span><br><span class="line"><span class="xml">    guest = guest.split(',').filter(item=&gt;&#123;</span></span><br><span class="line"><span class="xml">      return GUEST.indexOf(item)&gt;-1;</span></span><br><span class="line"><span class="xml">    &#125;);</span></span><br><span class="line"><span class="xml">    new Valine(&#123;</span></span><br><span class="line"><span class="xml">        el: '#comments' ,</span></span><br><span class="line"><span class="xml">        verify: </span><span class="template-variable">&#123;&#123; theme.valine.verify &#125;&#125;</span><span class="xml">,</span></span><br><span class="line"><span class="xml">        notify: </span><span class="template-variable">&#123;&#123; theme.valine.notify &#125;&#125;</span><span class="xml">,</span></span><br><span class="line"><span class="xml">        appId: '</span><span class="template-variable">&#123;&#123; theme.valine.appid &#125;&#125;</span><span class="xml">',</span></span><br><span class="line"><span class="xml">        appKey: '</span><span class="template-variable">&#123;&#123; theme.valine.appkey &#125;&#125;</span><span class="xml">',</span></span><br><span class="line"><span class="xml">        placeholder: '</span><span class="template-variable">&#123;&#123; theme.valine.placeholder &#125;&#125;</span><span class="xml">',</span></span><br><span class="line"><span class="xml">        avatar:'</span><span class="template-variable">&#123;&#123; theme.valine.avatar &#125;&#125;</span><span class="xml">',</span></span><br><span class="line"><span class="xml">        guest_info:guest,</span></span><br><span class="line"><span class="xml">        pageSize:'</span><span class="template-variable">&#123;&#123; theme.valine.pageSize &#125;&#125;</span><span class="xml">' || 10,</span></span><br><span class="line"><span class="xml">        avatar_cdn:'</span><span class="template-variable">&#123;&#123; theme.valine.avatar_cdn &#125;&#125;</span><span class="xml">',</span></span><br><span class="line"><span class="xml">&#125;);</span></span><br><span class="line"><span class="xml">  <span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line"><span class="xml"></span><span class="template-tag">&#123;% <span class="name"><span class="name">endif</span></span> %&#125;</span><span class="xml"></span></span><br></pre></td></tr></table></figure>
+<p>评论头像终于刷新来了，如下图:</p>
+<p><img src="/images/valine_ruolin.png" alt=""></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://valine.js.org/" target="_blank" rel="noopener">valine</a></li>
+<li><a href="https://deserts.io/valine-admin-document/" target="_blank" rel="noopener">Valine Admin 配置手册</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+
+<div>
+<p style="text-align:left">最后推荐和张文升共同编写的《PostgreSQL实战》，本书基于PostgreSQL 10 编写，共18章，重点介绍SQL高级特性、并行查询、分区表、物理复制、逻辑复制、备份恢复、高可用、性能优化、PostGIS等，涵盖大量实战用例！</p>
+<p style="text-align:left">购买链接：<a href="https://item.jd.com/12405774.html">https://item.jd.com/12405774.html</a></p>
+<img src="/images/PostgreSQL实战_small.png" alt="PostgreSQL实战" style="margin: 0 auto;" />
+</div>
+
+
+<div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20190107095300.html" title="Hexo: 添加Valine评论模块">https://postgres.fun/20190107095300.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20181219135100.html" rel="next" title="PostgreSQL 2018 中国技术大会圆满举行">
+                <i class="fa fa-chevron-left"></i> PostgreSQL 2018 中国技术大会圆满举行
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">550</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.163.com/li_hx" title="那海蓝蓝" target="_blank">那海蓝蓝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于-Valine-模块"><span class="nav-number">1.</span> <span class="nav-text">关于 Valine 模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Valine-部署"><span class="nav-number">2.</span> <span class="nav-text">Valine 部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#申请-Leancloud-帐号"><span class="nav-number">2.1.</span> <span class="nav-text">申请 Leancloud 帐号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置安全域名"><span class="nav-number">2.2.</span> <span class="nav-text">配置安全域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置主题配置文件"><span class="nav-number">2.3.</span> <span class="nav-text">配置主题配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#评论模块验证"><span class="nav-number">2.4.</span> <span class="nav-text">评论模块验证</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开启-Valine-评论邮件通知"><span class="nav-number">3.</span> <span class="nav-text">开启 Valine 评论邮件通知</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#云引擎”一键”部署"><span class="nav-number">3.1.</span> <span class="nav-text">云引擎”一键”部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置-Web-二级域名"><span class="nav-number">3.2.</span> <span class="nav-text">设置 Web 二级域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置环境变量"><span class="nav-number">3.3.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#验证评论邮件通知功能"><span class="nav-number">3.4.</span> <span class="nav-text">验证评论邮件通知功能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Valine-头像设置"><span class="nav-number">4.</span> <span class="nav-text">Valine 头像设置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#avatar-参数"><span class="nav-number">4.1.</span> <span class="nav-text">avatar 参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gravatar-设置"><span class="nav-number">4.2.</span> <span class="nav-text">Gravatar 设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Next-主题设置"><span class="nav-number">4.3.</span> <span class="nav-text">Next 主题设置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+        avatar_cdn:'https://www.gravatar.com/avatar/',
+});
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
