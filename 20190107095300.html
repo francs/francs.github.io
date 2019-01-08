@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://postgres.fun/images/avatar_parameter.png">
 <meta property="og:image" content="https://postgres.fun/images/gravatar.png">
 <meta property="og:image" content="https://postgres.fun/images/valine_ruolin.png">
-<meta property="og:updated_time" content="2019-01-07T06:35:33.258Z">
+<meta property="og:updated_time" content="2019-01-08T00:38:59.709Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo: 添加Valine评论(邮件通知、评论列表头像)">
 <meta name="twitter:description" content="Hexo 博客和 Valine 模块部署有好几个月了，Valine 模块部署本身并不复杂，但部署后发现头像无法显示设置的图像，这个问题困扰了至少1个月，今天请教高手终于解决了这个问题，是时候好好总结下 Valine 模块的部署历程了。 之所以选择 Valine 模块，一方面因为 Valine 评论模块延续了Hexo模板简洁的风格，两者匹配得可谓天衣无缝，另一方面国内可选的评论模块有些已经不再支持，">
@@ -490,7 +490,7 @@
 <p>配置完参数后，之后切换到云引擎页面点部署。</p>
 <h2 id="验证评论邮件通知功能"><a href="#验证评论邮件通知功能" class="headerlink" title="验证评论邮件通知功能"></a>验证评论邮件通知功能</h2><p>假设我为博主且游客评论时填写了邮箱，以下场景能收到博客评论通知邮件:</p>
 <p>1、用博主的帐号评论时，博主能收到通知邮件。<br>2、游客评论后，博主能收到通知邮件。<br>3、博主回复游客，游客能收到通知邮件。</p>
-<h1 id="Valine-头像设置"><a href="#Valine-头像设置" class="headerlink" title="Valine 头像设置"></a>Valine 头像设置</h1><p>Valine 部署完成后使用了默认图像，查阅 <a href="https://valine.js.org/avatar.html" target="_blank" rel="noopener">Valine官网</a>后，了解到 Valine 使用的是 <a href="https://cn.gravatar.com/" target="_blank" rel="noopener">Gravatar</a>作为评论列表头像。之后我在 Gravatar 修改头像一直没生效(gravatar.cat.net 有七天的缓存)，评论列表头像没生效问题折腾了一个月左右，早已超出了7天的缓存期，后来咨询了一位高手终于解决，这里记录下。</p>
+<h1 id="Valine-头像设置"><a href="#Valine-头像设置" class="headerlink" title="Valine 头像设置"></a>Valine 头像设置</h1><p>Valine 部署完成后使用了默认图像，查阅 <a href="https://valine.js.org/avatar.html" target="_blank" rel="noopener">Valine官网</a>后，了解到 Valine 使用的是 <a href="https://cn.gravatar.com/" target="_blank" rel="noopener">Gravatar</a>作为评论列表头像，评论时提供 Gravatar 注册的邮箱即可显示设置的头像。之后我在 Gravatar 修改头像一直没生效(gravatar.cat.net 有七天的缓存)，评论列表头像没生效问题折腾了一个月左右，早已超出了7天的缓存期，后来咨询了一位高手终于解决，这里记录下。</p>
 <p>评论头像没有刷新的原因为：Valine 默认用的是第三方CDN，第一次请求的时候缓存源站的头像，当再请求的时候就不需要返回源站请求，可能这个第三方CDN缓存刷新时有问题导致有些用户刷新成功，有些用户没有刷新，可以通过更换其它CDN解决，这里设置成 Gravatar 的CDN。</p>
 <h2 id="avatar-参数"><a href="#avatar-参数" class="headerlink" title="avatar 参数"></a>avatar 参数</h2><p>Valine 的 avatar 参数用来设置评论头像，avatar 参数可选值如下:</p>
 <p><img src="/images/avatar_parameter.png" alt=""></p>
