@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ruolin_bak.jpeg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/ruolin_bak.jpeg?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="EDB," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PostgreSQL 中文网" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="关于 EnterpriseDBEnterpriseDB，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。 EDB 主要包括以下特点:  EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。 EDB">
+<meta name="keywords" content="EDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EnterpriseDB: 交互式命令行安装">
+<meta property="og:url" content="https://postgres.fun/20190115143600.html">
+<meta property="og:site_name" content="PostgreSQL 中文网">
+<meta property="og:description" content="关于 EnterpriseDBEnterpriseDB，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。 EDB 主要包括以下特点:  EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。 EDB">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-15T06:48:06.046Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EnterpriseDB: 交互式命令行安装">
+<meta name="twitter:description" content="关于 EnterpriseDBEnterpriseDB，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。 EDB 主要包括以下特点:  EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。 EDB">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://postgres.fun/20190115143600.html"/>
+
+
+
+
+
+
+  <title>EnterpriseDB: 交互式命令行安装 | PostgreSQL 中文网</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?848171401a55ef3f26344ab9bfebea10";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<p align="center" abcd </p>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PostgreSQL 中文网</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">francs's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-guestbook">
+          <a href="/guestbook" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-comments"></i> <br />
+            
+            留言
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20190115143600.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="francs">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/francs.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PostgreSQL 中文网">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">EnterpriseDB: 交互式命令行安装</h1>
+        
+
+        <div class="post-meta">
+	    
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-15T14:36:45+08:00">
+                2019-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/EDB/" itemprop="url" rel="index">
+                    <span itemprop="name">EDB</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/20190115143600.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20190115143600.html" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/20190115143600.html" class="leancloud_visitors" data-flag-title="EnterpriseDB: 交互式命令行安装">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="关于-EnterpriseDB"><a href="#关于-EnterpriseDB" class="headerlink" title="关于 EnterpriseDB"></a>关于 EnterpriseDB</h1><p><a href="https://www.enterprisedb.com/" target="_blank" rel="noopener">EnterpriseDB</a>，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。</p>
+<p>EDB 主要包括以下特点:</p>
+<ul>
+<li>EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。</li>
+<li>EDB高级服务器特性提高了DBA和开发人员的工作效率。</li>
+<li>EDB Advanced Server 高度兼容 Oracle语法 ，包括PL/SQL、内置包和许多DBA工具，以加速和简化迁移。</li>
+</ul>
+<h1 id="下载EDB安装介质"><a href="#下载EDB安装介质" class="headerlink" title="下载EDB安装介质"></a>下载EDB安装介质</h1><p>EDB 提供两类数据库可供下载:</p>
+<ul>
+<li>OPTION A - EDB POSTGRES ADVANCED SERVER</li>
+<li>OPTION B - POSTGRESQL</li>
+</ul>
+<p>我们选择 OPTION A 下载对应 Linux 平台安装介质，目前 Linux 平台交互式安装支持的最新版本为 10.5，RPM 安装支持 11.1 ，我们选择交互式安装方式。</p>
+<p><a href="https://www.enterprisedb.com/edb-postgres-advanced-server-10512-linux-x86-64" target="_blank" rel="noopener">https://www.enterprisedb.com/edb-postgres-advanced-server-10512-linux-x86-64</a></p>
+<p>下载的介质为 edb-as10-server-10.5.12-1-linux-x64.run。</p>
+<h1 id="交互式安装EDB"><a href="#交互式安装EDB" class="headerlink" title="交互式安装EDB"></a>交互式安装EDB</h1><p>EDB封装了安装脚本，安装过程非常简单，交互式安装EDB过程如下:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 soft_bak]# ./edb-as10-server-10.5.12-1-linux-x64.<span class="builtin-name">run</span> --mode text</span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Welcome <span class="keyword">to</span> the EDB Postgres Advanced<span class="built_in"> Server </span>Setup Wizard.</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Please read the following License Agreement. You must accept the terms of this </span><br><span class="line">agreement before continuing with the installation.</span><br><span class="line"></span><br><span class="line">Press [Enter] <span class="keyword">to</span> continue:</span><br><span class="line">Limited Use Software License Agreement</span><br><span class="line">Version 2.9</span><br><span class="line"></span><br><span class="line">IMPORTANT - READ CAREFULLY</span><br><span class="line"><span class="built_in">..</span>.后面省略大量关于许可协议的描述，一路回车</span><br><span class="line"></span><br><span class="line">Press [Enter] <span class="keyword">to</span> continue:</span><br><span class="line"></span><br><span class="line">是否同意许可协议，选择同意。</span><br><span class="line"><span class="keyword">Do</span> you accept this license? [y/n]:  y</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Please specify the directory where EDB Postgres Advanced<span class="built_in"> Server </span>will be </span><br><span class="line">installed.</span><br><span class="line"></span><br><span class="line">选择安装目录,即 PGHOME</span><br><span class="line">Installation Directory [/opt/edb/as10]: /opt/edb/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Select the components you want <span class="keyword">to</span> install; clear the components you <span class="keyword">do</span> <span class="keyword">not</span> want </span><br><span class="line"><span class="keyword">to</span> install. Click Next when you are ready <span class="keyword">to</span> continue.</span><br><span class="line"></span><br><span class="line">选择需要安装的组件</span><br><span class="line"></span><br><span class="line">EDB Postgres Advanced<span class="built_in"> Server </span>[Y/n] :y</span><br><span class="line"></span><br><span class="line">pgAdmin 4 [Y/n] :n</span><br><span class="line"></span><br><span class="line">StackBuilder Plus [Y/n] :y</span><br><span class="line"></span><br><span class="line">Command Line Tools [Y/n] :y</span><br><span class="line"></span><br><span class="line">Is the selection above correct? [Y/n]: y</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line"></span><br><span class="line">选择数据目录和WAL日志目录，即 PGDATA</span><br><span class="line">Additional Directories</span><br><span class="line"></span><br><span class="line">Please select a directory under which <span class="keyword">to</span> store your data.</span><br><span class="line"></span><br><span class="line">Data Directory [/opt/edb/data]: /opt/edb/data</span><br><span class="line"></span><br><span class="line">Please select a directory under which <span class="keyword">to</span> store your Write-Ahead Logs.</span><br><span class="line"></span><br><span class="line">Write-Ahead Log (WAL) Directory [/opt/edb/data/pg_wal]: /opt/edb/data/pg_wal</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Advanced<span class="built_in"> Server </span>Dialect</span><br><span class="line"></span><br><span class="line">EDB Postgres Advanced<span class="built_in"> Server </span>can be configured <span class="keyword">in</span> one of two <span class="string">"Dialects"</span> - 1) Compatible with Oracle <span class="keyword">or</span> 2) Compatible with Postgres.</span><br><span class="line"></span><br><span class="line"><span class="keyword">If</span> you select Compatible with Oracle, Advanced<span class="built_in"> Server </span>will be configured with appropriate data<span class="built_in"> type </span>conversions, time <span class="keyword">and</span> date formats, Oracle-styled operators, dictionary views <span class="keyword">and</span> more. This makes it easier <span class="keyword">to</span> migrate <span class="keyword">or</span> write new applications that are more compatible with the Oracle database.</span><br><span class="line"></span><br><span class="line"><span class="keyword">If</span> you select Compatible with Postgres, Advanced<span class="built_in"> Server </span>will be configured with standard PostgeSQL data types, time/date formats <span class="keyword">and</span> operators.</span><br><span class="line"></span><br><span class="line">Advanced<span class="built_in"> Server </span>Dialect</span><br><span class="line"></span><br><span class="line">选择兼容Oracle还是兼容PostgreSQL，我们选择兼容Oracle，关于Oracle兼容性本文末尾有详细说明。</span><br><span class="line"></span><br><span class="line">[1] Compatible with Oracle</span><br><span class="line">[2] Compatible with Postgres</span><br><span class="line">Please choose an option [1] : 1</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Please provide a password <span class="keyword">for</span> the database superuser (enterprisedb). A locked </span><br><span class="line">Unix<span class="built_in"> user </span>account (enterprisedb) will be created <span class="keyword">if</span> <span class="keyword">not</span> present.</span><br><span class="line"></span><br><span class="line">安装过程中会创建系统用户 enterprisedb，设置密码</span><br><span class="line"></span><br><span class="line">Password :</span><br><span class="line">Retype Password :</span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line"> Additional Configuration</span><br><span class="line"></span><br><span class="line">Please select the<span class="built_in"> port </span>number the<span class="built_in"> server </span>should listen on.</span><br><span class="line"></span><br><span class="line">设置EDB端口</span><br><span class="line"></span><br><span class="line">Port [5444]: 5444</span><br><span class="line"></span><br><span class="line">Select the locale <span class="keyword">to</span> be used by the new database cluster.</span><br><span class="line"></span><br><span class="line">Locale</span><br><span class="line"></span><br><span class="line"><span class="built_in">..</span>.省略</span><br><span class="line">[232] en_US</span><br><span class="line">[233] en_US.iso88591</span><br><span class="line">[234] en_US.iso885915</span><br><span class="line">[235] en_US.utf8</span><br><span class="line">[236] en_ZA</span><br><span class="line">[237] en_ZA.iso88591</span><br><span class="line"><span class="built_in">..</span>.省略</span><br><span class="line"></span><br><span class="line">设置字符集</span><br><span class="line"></span><br><span class="line">Please choose an option [1] : 235</span><br><span class="line"></span><br><span class="line">Would you like <span class="keyword">to</span> install sample tables <span class="keyword">and</span> procedures?</span><br><span class="line"></span><br><span class="line">Install sample tables <span class="keyword">and</span> procedures. [Y/n]: y</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Dynatune Dynamic Tuning:</span><br><span class="line">Server Utilization</span><br><span class="line"></span><br><span class="line">Please select the<span class="built_in"> type </span>of<span class="built_in"> server </span><span class="keyword">to</span> determine the amount of<span class="built_in"> system </span>resources </span><br><span class="line">that may be utilized:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">设置数据库环境类型</span><br><span class="line">[1] Development (e.g. a developers laptop)</span><br><span class="line">[2] General Purpose (e.g. a web <span class="keyword">or</span> application server)</span><br><span class="line">[3] Dedicated (a<span class="built_in"> server </span>running only Advanced Server)</span><br><span class="line">Please choose an option [2] : 2</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Dynatune Dynamic Tuning:</span><br><span class="line">Workload Profile</span><br><span class="line"></span><br><span class="line">Please select the<span class="built_in"> type </span>of workload this<span class="built_in"> server </span>will be used <span class="keyword">for</span>:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">设置OLTP或OLAP</span><br><span class="line">[1] Transaction Processing (OLTP systems)</span><br><span class="line">[2] General Purpose (OLTP <span class="keyword">and</span> reporting workloads)</span><br><span class="line">[3] Reporting (Complex queries <span class="keyword">or</span> OLAP workloads)</span><br><span class="line">Please choose an option [1] : 1</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Update Notification Service</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Install Update Notification<span class="built_in"> Service </span>[Y/n]: n</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">The Update Notification<span class="built_in"> Service </span>informs, downloads <span class="keyword">and</span> installs whenever </span><br><span class="line">security patches <span class="keyword">and</span> other updates are available <span class="keyword">for</span> your EDB Postgres Advanced </span><br><span class="line">Server installation.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">EDB安装选项汇总</span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Pre Installation Summary</span><br><span class="line"></span><br><span class="line">The following<span class="built_in"> settings </span>will be used <span class="keyword">for</span> the installation::</span><br><span class="line"></span><br><span class="line">Installation Directory: /opt/edb</span><br><span class="line">Server Installation Directory: /opt/edb</span><br><span class="line">Data Directory: /opt/edb/data</span><br><span class="line">WAL Directory: /opt/edb/data/pg_wal</span><br><span class="line">Database Port: 5444</span><br><span class="line">Database Superuser: enterprisedb</span><br><span class="line">Operating<span class="built_in"> System </span>Account: enterprisedb</span><br><span class="line">Database Service: edb-as-10</span><br><span class="line">Command Line Tools Installation Directory: /opt/edb</span><br><span class="line">StackBuilderPlus Installation Directory: /opt/edb/stackbuilderplus</span><br><span class="line"></span><br><span class="line">Press [Enter] <span class="keyword">to</span> continue:</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Setup is now ready <span class="keyword">to</span> begin installing EDB Postgres Advanced<span class="built_in"> Server </span>on your </span><br><span class="line">computer.</span><br><span class="line"></span><br><span class="line"><span class="keyword">Do</span> you want <span class="keyword">to</span> continue? [Y/n]: y</span><br><span class="line"></span><br><span class="line">开始安装</span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Please wait <span class="keyword">while</span> Setup installs EDB Postgres Advanced<span class="built_in"> Server </span>on your computer.</span><br><span class="line"></span><br><span class="line"> Installing EDB Postgres Advanced<span class="built_in"> Server </span></span><br><span class="line"> 0% ______________ 50% ______________ 100%</span><br><span class="line"> #########################################</span><br><span class="line"></span><br><span class="line">----------------------------------------------------------------------------</span><br><span class="line">Setup has finished installing EDB Postgres Advanced<span class="built_in"> Server </span>on your computer.</span><br></pre></td></tr></table></figure>
+<p>安装完成，安装文件如下</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 ~]<span class="comment"># ll /opt/edb</span></span><br><span class="line">total 8124</span><br><span class="line">drwxr-xr-x <span class="number"> 2 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 15 </span>10:34 bin</span><br><span class="line">drwx------<span class="number"> 21 </span>enterprisedb enterprisedb   <span class="number"> 4096 </span>Jan<span class="number"> 15 </span>10:35 data</span><br><span class="line">drwxr-xr-x <span class="number"> 4 </span>root         daemon           <span class="number"> 38 </span>Jan<span class="number"> 15 </span>10:34 doc</span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root         daemon        <span class="number"> 72341 </span>Aug<span class="number"> 17 </span>14:09 edb-as10-server_commandlinetools_3rd_party_licenses.txt</span><br><span class="line">-r--r--r-- <span class="number"> 1 </span>root         daemon        <span class="number"> 15216 </span>Aug<span class="number"> 17 </span>14:09 edb-as10-server_license.txt</span><br><span class="line">drwxr-xr-x <span class="number"> 3 </span>root         daemon           <span class="number"> 23 </span>Jan<span class="number"> 15 </span>10:34 etc</span><br><span class="line">drwxr-xr-x <span class="number"> 6 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 15 </span>10:34 include</span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root         root            <span class="number"> 556 </span>Jan<span class="number"> 15 </span>10:35 installation_summary.log</span><br><span class="line">drwxr-xr-x <span class="number"> 5 </span>root         daemon           <span class="number"> 55 </span>Jan<span class="number"> 15 </span>10:34 installer</span><br><span class="line">drwxr-xr-x <span class="number"> 4 </span>root         daemon         <span class="number"> 8192 </span>Jan<span class="number"> 15 </span>10:34 lib</span><br><span class="line">-rwxr-xr-x <span class="number"> 1 </span>root         daemon          <span class="number"> 915 </span>Jan<span class="number"> 15 </span>10:35 pgplus_env.sh</span><br><span class="line">drwxr-xr-x <span class="number"> 5 </span>root         daemon           <span class="number"> 73 </span>Jan<span class="number"> 15 </span>10:34 scripts</span><br><span class="line">drwxr-xr-x<span class="number"> 10 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 15 </span>10:34 share</span><br><span class="line">drwxr-xr-x <span class="number"> 7 </span>root         daemon          <span class="number"> 136 </span>Jan<span class="number"> 15 </span>10:34 stackbuilderplus</span><br><span class="line">-rwx------ <span class="number"> 1 </span>root         daemon      <span class="number"> 8118363 </span>Jan<span class="number"> 15 </span>10:35 uninstall-edb-as10-server</span><br><span class="line">-rw------- <span class="number"> 1 </span>root         root          <span class="number"> 68383 </span>Jan<span class="number"> 15 </span>10:35 uninstall-edb-as10-server.dat</span><br></pre></td></tr></table></figure>
+<p>目录的权限为root，权限需要调整(安装过程中默认创建了 enterprisedb 操作系统用户)</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@pghost6</span> ~]<span class="meta"># chown -R enterprisedb:enterprisedb /opt/edb</span></span><br></pre></td></tr></table></figure>
+<h1 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h1><p>安装完成后自动生成环境变量文件 <code>/opt/edb/pgplus_env.sh</code>, 脚本内容如下:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># EnterpriseDB shell environment loader</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#  Instructions:</span></span><br><span class="line"><span class="comment">#   This file contains additions to the user environment</span></span><br><span class="line"><span class="comment">#  that make accessing EDB Postgres Advanced Server</span></span><br><span class="line"><span class="comment">#  executables easier.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#  To load the environment for a single user:</span></span><br><span class="line"><span class="comment">#     cp pgplus_env.sh /home/&lt;username&gt;</span></span><br><span class="line"><span class="comment">#     chown &lt;username&gt; /home/&lt;username&gt;/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#     vi /home/&lt;username&gt;/.bash_profile</span></span><br><span class="line"><span class="comment">#      At the bottom, add the line:</span></span><br><span class="line"><span class="comment">#       . /home/&lt;username&gt;/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#          ( Note the '.' followed by a space )</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#  To load the environment for all users:</span></span><br><span class="line"><span class="comment">#     cp pgplus_env.sh /etc</span></span><br><span class="line"><span class="comment">#     vi /etc/profile</span></span><br><span class="line"><span class="comment">#     At the bottom, add the line:</span></span><br><span class="line"><span class="comment">#       . /etc/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#        ( Note the '.' followed by a space )</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Environment</span></span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=/opt/edb/bin:$PATH</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">EDBHOME</span>=/opt/edb</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGDATA</span>=/opt/edb/data</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGDATABASE</span>=edb</span><br><span class="line"><span class="comment"># export PGUSER=enterprisedb</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGPORT</span>=5444</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGLOCALEDIR</span>=/opt/edb/share/locale</span><br></pre></td></tr></table></figure>
+<p>将整个文件内容或尾部的环境变量加到系统用户 enterprisedb 环境变量文件 <code>.bash_profile</code>中，如下:</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 ~]# su - enterprisedb</span><br><span class="line">Last login: Tue Jan <span class="number">15</span> <span class="number">11</span>:<span class="number">00</span>:<span class="number">16</span> CST <span class="number">2019</span> <span class="keyword">on</span> <span class="keyword">pts</span>/<span class="number">1</span></span><br><span class="line"></span><br><span class="line">-bash-<span class="number">4.2</span>$  <span class="keyword">cp</span> /<span class="keyword">opt</span>/edb/pgplus_env.<span class="keyword">sh</span> /<span class="keyword">opt</span>/edb/.bash_profile</span><br></pre></td></tr></table></figure>
+<h1 id="登录EDB验证"><a href="#登录EDB验证" class="headerlink" title="登录EDB验证"></a>登录EDB验证</h1><p>登录 EDB 数据库，如下:</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">-bash-4.2$ psql -h 127.0.0.1 -p 5444</span><br><span class="line">Password: </span><br><span class="line">psql.bin (10.5.12)</span><br><span class="line">Type <span class="string">"help"</span> for help.</span><br><span class="line"></span><br><span class="line">edb=<span class="comment"># \l</span></span><br><span class="line">                                          List of databases</span><br><span class="line">   Name    |<span class="string">    Owner     </span>|<span class="string"> Encoding </span>|<span class="string">  Collate   </span>|<span class="string">   Ctype    </span>|<span class="string"> ICU </span>|<span class="string">       Access privileges       </span></span><br><span class="line"><span class="string">-----------+--------------+----------+------------+------------+-----+-------------------------------</span></span><br><span class="line"><span class="string"> edb       </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.utf8 </span>|<span class="string"> en_US.utf8 </span>|<span class="string">     </span>|<span class="string"> </span></span><br><span class="line"><span class="string"> postgres  </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.utf8 </span>|<span class="string"> en_US.utf8 </span>|<span class="string">     </span>|<span class="string"> </span></span><br><span class="line"><span class="string"> template0 </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.utf8 </span>|<span class="string"> en_US.utf8 </span>|<span class="string">     </span>|<span class="string"> =c/enterprisedb              +</span></span><br><span class="line"><span class="string">           </span>|<span class="string">              </span>|<span class="string">          </span>|<span class="string">            </span>|<span class="string">            </span>|<span class="string">     </span>|<span class="string"> enterprisedb=CTc/enterprisedb</span></span><br><span class="line"><span class="string"> template1 </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.utf8 </span>|<span class="string"> en_US.utf8 </span>|<span class="string">     </span>|<span class="string"> =c/enterprisedb              +</span></span><br><span class="line"><span class="string">           </span>|<span class="string">              </span>|<span class="string">          </span>|<span class="string">            </span>|<span class="string">            </span>|<span class="string">     </span>|<span class="string"> enterprisedb=CTc/enterprisedb</span></span><br><span class="line"><span class="string">(4 rows)</span></span><br><span class="line"></span><br><span class="line"><span class="string">edb=# SELECT version();</span></span><br><span class="line"><span class="string">                                                   version                                                    </span></span><br><span class="line"><span class="string">--------------------------------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="string"> EnterpriseDB 10.5.12 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-18), 64-bit</span></span><br><span class="line"><span class="string">(1 row)</span></span><br></pre></td></tr></table></figure>
+<h1 id="EDB的启动与关闭"><a href="#EDB的启动与关闭" class="headerlink" title="EDB的启动与关闭"></a>EDB的启动与关闭</h1><p>EDB 的启停有多种方式，这里主要介绍 <code>pg_ctl</code> 和 <code>systemctl</code> 方式。</p>
+<h2 id="pg-ctl-启停"><a href="#pg-ctl-启停" class="headerlink" title="pg_ctl 启停"></a>pg_ctl 启停</h2><p><code>pg_ctl</code> 的启停兼容 PostgreSQL 的语法，不需要ROOT用户执行，关闭数据库如下:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-bash-4.2$ pg_ctl stop -m fast </span><br><span class="line">waiting <span class="keyword">for</span><span class="built_in"> server </span><span class="keyword">to</span> shut down<span class="built_in">..</span><span class="built_in">..</span> done</span><br><span class="line">server stopped</span><br></pre></td></tr></table></figure>
+<p>启动数据库，如下:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-bash-4.2$ pg_ctl start</span><br><span class="line">waiting <span class="keyword">for</span><span class="built_in"> server </span><span class="keyword">to</span> start<span class="built_in">..</span><span class="built_in">..</span>2019-01-15 11:05:59 CST LOG:  listening on IPv4<span class="built_in"> address </span><span class="string">"0.0.0.0"</span>,<span class="built_in"> port </span>5444</span><br><span class="line">2019-01-15 11:05:59 CST LOG:  listening on<span class="built_in"> IPv6 address </span><span class="string">"::"</span>,<span class="built_in"> port </span>5444</span><br><span class="line">2019-01-15 11:05:59 CST LOG:  listening on Unix socket <span class="string">"/tmp/.s.PGSQL.5444"</span></span><br><span class="line">2019-01-15 11:05:59 CST LOG:  redirecting log output <span class="keyword">to</span><span class="built_in"> logging </span>collector process</span><br><span class="line">2019-01-15 11:05:59 CST HINT:  Future log output will appear <span class="keyword">in</span> directory <span class="string">"log"</span>.</span><br><span class="line"> done</span><br><span class="line">server started</span><br></pre></td></tr></table></figure></p>
+<h2 id="systemctl-启停"><a href="#systemctl-启停" class="headerlink" title="systemctl 启停"></a>systemctl 启停</h2><p>如果是 CentOS7 或 RHEL7 以上操作系统，通过 <code>systemctl</code>启动或关闭EDB，如下:</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@pghost6</span> ~]<span class="meta"># systemctl stop edb-as-10.service </span></span><br><span class="line">[root<span class="symbol">@pghost6</span> ~]<span class="meta"># systemctl start edb-as-10.service</span></span><br></pre></td></tr></table></figure>
+<h1 id="EDB与Oracle的兼容性"><a href="#EDB与Oracle的兼容性" class="headerlink" title="EDB与Oracle的兼容性"></a>EDB与Oracle的兼容性</h1><p>以下是EDB官网对Oracle兼容性的描述，支持大部分Oracle语法，如下:</p>
+<p>Installing Advanced Server in Compatible with Oracle mode provides the following functionality:</p>
+<ul>
+<li>Data dictionary views and data type conversions compatible with Oracle databases.</li>
+<li>Date values displayed in a format compatible with Oracle syntax.</li>
+<li>Oracle-styled concatenation rules (if you concatenate a string value with a NULL value, the returned value is the value of the string).</li>
+<li>Schemas (dbo and sys) compatible with Oracle databases added to the SEARCH_PATH.</li>
+<li>Support for the following Oracle built-in packages:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Package</th>
+<th style="text-align:left">Functionality Compatible with Oracle Databases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">dbms_alert</td>
+<td style="text-align:left">Provides the ability to register for, send and receive alerts.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_aq</td>
+<td style="text-align:left">Provides queueing functionality for Advanced Server.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_aqadm</td>
+<td style="text-align:left">Provides supporting functionality for dbms_aq.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_crypto</td>
+<td style="text-align:left">Provides a way to encrypt or decrypt RAW, BLOB or CLOB data.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_job</td>
+<td style="text-align:left">Implements job-scheduling functionality.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_lob</td>
+<td style="text-align:left">Provides the ability to manage large objects.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_lock</td>
+<td style="text-align:left">Provides support for the DBMS_LOCK.SLEEP procedure.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_mview</td>
+<td style="text-align:left">Provides a way to manage and refresh materialized views.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_output</td>
+<td style="text-align:left">Provides the ability to display a message on the client.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_pipe</td>
+<td style="text-align:left">Provides the ability to send a message from one session and read it in another session.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_profiler</td>
+<td style="text-align:left">Collects and stores performance data about PL/pgSQL and SPL statements.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_random</td>
+<td style="text-align:left">Provides a way to generate random numbers.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_rls</td>
+<td style="text-align:left">Implements row level security.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_scheduler</td>
+<td style="text-align:left">Provides a way to create and manage Oracle-style jobs.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_session</td>
+<td style="text-align:left">A partial implementation that provides support for DBMS_SESSION.SET_ROLE.</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_sql</td>
+<td style="text-align:left">Implements use of Dynamic SQL</td>
+</tr>
+<tr>
+<td style="text-align:left">dbms_utility</td>
+<td style="text-align:left">Provides a collection of misc functions and procedures.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_encode</td>
+<td style="text-align:left">Provides a way to encode or decode data.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_file</td>
+<td style="text-align:left">Provides a way for a function, procedure or anonymous block to interact with files stored in the server’s file system.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_http</td>
+<td style="text-align:left">Provides a way to use HTTP or HTTPS to retrieve information found at a URL.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_mail</td>
+<td style="text-align:left">Provides a simplified interface for sending email and attachments.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_raw</td>
+<td style="text-align:left">Provides a way to manipulate or retrieve the length of raw data types.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_smtp</td>
+<td style="text-align:left">Implements smtp email functions.</td>
+</tr>
+<tr>
+<td style="text-align:left">utl_url</td>
+<td style="text-align:left">Provides a way to escape illegal and reserved characters in a URL.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://blog.csdn.net/qq_43303221/article/details/84755987#edb_216" target="_blank" rel="noopener">企业级PG：EnterpriseDB的安装使用</a></li>
+<li><a href="https://www.enterprisedb.com/docs/en/10.0/EPAS_Inst_Guide_v10/EDB_Postgres_Advanced_Server_Installation_Guide_v10.1.21.html#pID0E03BB0HA" target="_blank" rel="noopener">Performing a Text Mode Installation</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+
+<div>
+<p style="text-align:left">最后推荐和张文升共同编写的《PostgreSQL实战》，本书基于PostgreSQL 10 编写，共18章，重点介绍SQL高级特性、并行查询、分区表、物理复制、逻辑复制、备份恢复、高可用、性能优化、PostGIS等，涵盖大量实战用例！</p>
+<p style="text-align:left">购买链接：<a href="https://item.jd.com/12405774.html">https://item.jd.com/12405774.html</a></p>
+<img src="/images/PostgreSQL实战_small.png" alt="PostgreSQL实战" style="margin: 0 auto;" />
+</div>
+
+
+<div>感谢支持！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/webchat.jpg" alt="francs 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    francs
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://postgres.fun/20190115143600.html" title="EnterpriseDB: 交互式命令行安装">https://postgres.fun/20190115143600.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="external nofollow" target="_blank">CC BY-SA 4.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/EDB/" rel="tag"># EDB</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/20190107095300.html" rel="next" title="Hexo: 添加Valine评论(邮件通知、评论列表头像)">
+                <i class="fa fa-chevron-left"></i> Hexo: 添加Valine评论(邮件通知、评论列表头像)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/francs.png"
+                alt="francs" />
+            
+              <p class="site-author-name" itemprop="name">francs</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">551</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/francs" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://stackoverflow.com/users/527628/francs" target="_blank" title="StackOverflow">
+                      
+                        <i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/u/1992989604" target="_blank" title="新浪微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>新浪微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.linkedin.com/in/francs-tan-13903832/" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.postgres.cn" title="PostgreSQL中文社区" target="_blank">PostgreSQL中文社区</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.postgresql.org" title="PostgreSQL官网" target="_blank">PostgreSQL官网</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://dba.stackexchange.com" title="DBA.stackexchange" target="_blank">DBA.stackexchange</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://momjian.us/main/blogs/pgblog/2012.html" title="Bruce momjian's blog" target="_blank">Bruce momjian's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.depesz.com" title="depesz's blog" target="_blank">depesz's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://paquier.xyz" title="Michael Paquier's blog" target="_blank">Michael Paquier's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/digoal/blog/blob/master/README.md" title="德哥博客" target="_blank">德哥博客</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.osdba.net" title="Osdba's blog" target="_blank">Osdba's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://my.oschina.net/Kenyon" title="Kenyon's blog" target="_blank">Kenyon's blog</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.brofive.org" title="钱五哥の自由空间" target="_blank">钱五哥の自由空间</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://lruihao.cn" title="博採眾長" target="_blank">博採眾長</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://dazuiba.skymobi.cn/" title="魂醉" target="_blank">魂醉</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于-EnterpriseDB"><span class="nav-number">1.</span> <span class="nav-text">关于 EnterpriseDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下载EDB安装介质"><span class="nav-number">2.</span> <span class="nav-text">下载EDB安装介质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#交互式安装EDB"><span class="nav-number">3.</span> <span class="nav-text">交互式安装EDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置环境变量"><span class="nav-number">4.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#登录EDB验证"><span class="nav-number">5.</span> <span class="nav-text">登录EDB验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB的启动与关闭"><span class="nav-number">6.</span> <span class="nav-text">EDB的启动与关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#pg-ctl-启停"><span class="nav-number">6.1.</span> <span class="nav-text">pg_ctl 启停</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#systemctl-启停"><span class="nav-number">6.2.</span> <span class="nav-text">systemctl 启停</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB与Oracle的兼容性"><span class="nav-number">7.</span> <span class="nav-text">EDB与Oracle的兼容性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">francs</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+  #<div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info//busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 博客访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 博客访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+<div >
+
+<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33010402003707" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/images/gongan.png" style="float:left;"/>浙公网安备 33010402003707号</p></a><span class="post-meta-divider">|</span><span><a href="http://www.miitbeian.gov.cn">浙ICP备18045927号</a></span>
+
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: true,
+        appId: 'UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz',
+        appKey: 'gxPalmYtqejoIqRUifA1Lqg6',
+        placeholder: '留言',
+        avatar:'',
+        guest_info:guest,
+        pageSize:'10' || 10,
+        avatar_cdn:'https://www.gravatar.com/avatar/',
+});
+  </script>
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'manual') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("UK8DCa4kSCj0Th48U4nGPxrO-gzGzoHsz", "gxPalmYtqejoIqRUifA1Lqg6");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
