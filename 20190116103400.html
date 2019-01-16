@@ -70,7 +70,7 @@
 
 
 
-  <meta name="keywords" content="MySQL," />
+  <meta name="keywords" content="EDB," />
 
 
 
@@ -83,18 +83,18 @@
 
 
 
-<meta name="description" content="有时希望远程连接 MySQL 数据库执行定时维护任务，为了维护方便，希望不输入密码, 当然可以如下操作：   不安全的方式12francs@francs:~$ mysql -h 192.168.2.37  -P 3306  -D mysql -u root -pxxxx  Warning:  Using a password on the command line interface can b">
-<meta name="keywords" content="MySQL">
+<meta name="description" content="上篇博客介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。 EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。 定义安装配置文件创建配置文件如下 1touch /opt/edb/config_edb.conf 给配置文件 /opt/edb/config_edb.conf加入以下内容: 12345mode=unattendedsuperpass">
+<meta name="keywords" content="EDB">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL：如何设置远程登陆不需要输入密码？">
-<meta property="og:url" content="https://postgres.fun/20141129192316.html">
+<meta property="og:title" content="EnterpriseDB: 无人值守安装">
+<meta property="og:url" content="https://postgres.fun/20190116103400.html">
 <meta property="og:site_name" content="PostgreSQL 中文网">
-<meta property="og:description" content="有时希望远程连接 MySQL 数据库执行定时维护任务，为了维护方便，希望不输入密码, 当然可以如下操作：   不安全的方式12francs@francs:~$ mysql -h 192.168.2.37  -P 3306  -D mysql -u root -pxxxx  Warning:  Using a password on the command line interface can b">
+<meta property="og:description" content="上篇博客介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。 EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。 定义安装配置文件创建配置文件如下 1touch /opt/edb/config_edb.conf 给配置文件 /opt/edb/config_edb.conf加入以下内容: 12345mode=unattendedsuperpass">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-04T01:34:14.047Z">
+<meta property="og:updated_time" content="2019-01-16T03:05:03.583Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL：如何设置远程登陆不需要输入密码？">
-<meta name="twitter:description" content="有时希望远程连接 MySQL 数据库执行定时维护任务，为了维护方便，希望不输入密码, 当然可以如下操作：   不安全的方式12francs@francs:~$ mysql -h 192.168.2.37  -P 3306  -D mysql -u root -pxxxx  Warning:  Using a password on the command line interface can b">
+<meta name="twitter:title" content="EnterpriseDB: 无人值守安装">
+<meta name="twitter:description" content="上篇博客介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。 EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。 定义安装配置文件创建配置文件如下 1touch /opt/edb/config_edb.conf 给配置文件 /opt/edb/config_edb.conf加入以下内容: 12345mode=unattendedsuperpass">
 
 
 
@@ -124,14 +124,14 @@
 
 
 
-  <link rel="canonical" href="https://postgres.fun/20141129192316.html"/>
+  <link rel="canonical" href="https://postgres.fun/20190116103400.html"/>
 
 
 
 
 
 
-  <title>MySQL：如何设置远程登陆不需要输入密码？ | PostgreSQL 中文网</title>
+  <title>EnterpriseDB: 无人值守安装 | PostgreSQL 中文网</title>
   
 
 
@@ -324,7 +324,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20141129192316.html">
+    <link itemprop="mainEntityOfPage" href="https://postgres.fun/20190116103400.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="francs">
@@ -341,7 +341,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL：如何设置远程登陆不需要输入密码？</h1>
+          <h1 class="post-title" itemprop="name headline">EnterpriseDB: 无人值守安装</h1>
         
 
         <div class="post-meta">
@@ -354,8 +354,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-29T19:23:16+08:00">
-                2014-11-29
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-16T10:34:32+08:00">
+                2019-01-16
               </time>
             
 
@@ -377,8 +377,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
+                  <a href="/categories/EDB/" itemprop="url" rel="index">
+                    <span itemprop="name">EDB</span>
                   </a>
                 </span>
 
@@ -395,8 +395,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/20141129192316.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/20141129192316.html" itemprop="commentCount"></span>
+                <a href="/20190116103400.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/20190116103400.html" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -404,7 +404,7 @@
 
           
           
-             <span id="/20141129192316.html" class="leancloud_visitors" data-flag-title="MySQL：如何设置远程登陆不需要输入密码？">
+             <span id="/20190116103400.html" class="leancloud_visitors" data-flag-title="EnterpriseDB: 无人值守安装">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -435,14 +435,42 @@
       
 
       
-        <p> 有时希望远程连接 MySQL 数据库执行定时维护任务，为了维护方便，希望不输入密码, 当然可以如下操作：  </p>
-<h1 id="不安全的方式"><a href="#不安全的方式" class="headerlink" title="不安全的方式"></a>不安全的方式</h1><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">francs@francs:~$ mysql -h 192.168.2.37  -P 3306  -D mysql -u root -pxxxx  </span><br><span class="line">Warning:  Using a password on the command line<span class="built_in"> interface </span>can be insecure.</span><br></pre></td></tr></table></figure>
-<p>备注： 把密码写到命令中很不安全，一个 history 命令密码就出来了，较安全的方式是设置 ~/.my.cnf 文件。  </p>
-<h1 id="创建-my-cnf-文件"><a href="#创建-my-cnf-文件" class="headerlink" title="创建 .my.cnf 文件"></a>创建 .my.cnf 文件</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">touch ~/.my.cnf 输入以下:  </span><br><span class="line">[mysql]  </span><br><span class="line">host=192.168.2.37  </span><br><span class="line">user=root  </span><br><span class="line">password=root</span><br></pre></td></tr></table></figure>
-<h1 id="更改权限"><a href="#更改权限" class="headerlink" title="更改权限"></a>更改权限</h1><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">francs<span class="variable">@francs</span><span class="symbol">:~</span><span class="variable">$ </span>chmod <span class="number">600</span>  .my.cnf</span><br></pre></td></tr></table></figure>
-<h1 id="客户端测试"><a href="#客户端测试" class="headerlink" title="客户端测试"></a>客户端测试</h1><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">francs@francs:~$ mysql -h <span class="number">192.168</span><span class="number">.2</span><span class="number">.37</span>  -P <span class="number">3306</span>  -D mysql -u root   </span><br><span class="line">Reading table information <span class="keyword">for</span> completion <span class="keyword">of</span> table <span class="keyword">and</span> column names  </span><br><span class="line">You can turn off this feature <span class="built_in">to</span> <span class="built_in">get</span> <span class="keyword">a</span> quicker startup <span class="keyword">with</span>  -A  </span><br><span class="line">  </span><br><span class="line">Welcome <span class="built_in">to</span> <span class="keyword">the</span> MySQL monitor. Commands  <span class="function"><span class="keyword">end</span>  <span class="title">with</span>  ;  <span class="title">or</span> <span class="title">g</span>.  </span></span><br><span class="line">Your  MySQL connection id is  <span class="number">46</span>  </span><br><span class="line">Server <span class="built_in">version</span>:  <span class="number">5.6</span><span class="number">.20</span>  Source distribution  </span><br><span class="line">  </span><br><span class="line">Copyright  (c)  <span class="number">2000</span>,  <span class="number">2014</span>,  Oracle  <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.  </span><br><span class="line">  </span><br><span class="line">Oracle  is <span class="keyword">a</span> registered trademark <span class="keyword">of</span> Oracle  Corporation  <span class="keyword">and</span>/<span class="keyword">or</span> its  </span><br><span class="line">affiliates.  Other names may be trademarks <span class="keyword">of</span> their respective  </span><br><span class="line">owners.  </span><br><span class="line">  </span><br><span class="line">Type  <span class="string">'help;'</span>  <span class="keyword">or</span>  <span class="string">'h'</span>  <span class="keyword">for</span> help.  Type  <span class="string">'c'</span> <span class="built_in">to</span> <span class="built_in">clear</span> <span class="keyword">the</span> current input statement.  </span><br><span class="line">  </span><br><span class="line">mysql&gt;</span><br></pre></td></tr></table></figure>
-<p>备注：这时果然不需要输入密码，上面是在 ubuntu 上远程连接测试，这很像 PostgreSQL 的 .pgpass 文件，太棒了！  </p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://xmodulo.com/2013/02/how-to-log-in-to-mysql-server-without-password.html" target="_blank" rel="noopener">http://xmodulo.com/2013/02/how-to-log-in-to-mysql-server-without-password.html</a></p>
+        <p><a href="https://postgres.fun/20190115143600.html">上篇博客</a>介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。</p>
+<p>EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。</p>
+<h1 id="定义安装配置文件"><a href="#定义安装配置文件" class="headerlink" title="定义安装配置文件"></a>定义安装配置文件</h1><p>创建配置文件如下</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch /<span class="keyword">opt</span>/edb/config_edb.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
+<p>给配置文件 <code>/opt/edb/config_edb.conf</code>加入以下内容:</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mode</span>=unattended</span><br><span class="line"><span class="attr">superpassword</span>=postgres123</span><br><span class="line"><span class="attr">prefix</span>=/opt/edb</span><br><span class="line"><span class="attr">datadir</span>=/opt/edb/data</span><br><span class="line"><span class="attr">serverport</span>=<span class="number">5444</span></span><br></pre></td></tr></table></figure>
+<p>参数解释如下:</p>
+<ul>
+<li>mode: 指定 unattended 模式，表示无人值守安装模式。</li>
+<li>superpassword: 设置数据库超级用户密码，默认密码为 enterprisedb。</li>
+<li>prefix: 设置EDB的软件安装目录。</li>
+<li>datadir: 设置EDB的数据文件目录，对应的环境变量为$PGDATA。</li>
+<li>serverport: 设置EDB的监听端口号，默认为5444。</li>
+</ul>
+<p>其它参数根据需要设置。</p>
+<h1 id="无人值守安装-EDB"><a href="#无人值守安装-EDB" class="headerlink" title="无人值守安装 EDB"></a>无人值守安装 EDB</h1><p>执行安装脚本 <code>edb-as10-server-10.5.12-1-linux-x64.run</code>，并使用 <code>optionfile</code> 指定安装配置文件，如下:</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 soft_bak]# ./edb-as10-server<span class="number">-10.5</span><span class="number">.12</span><span class="number">-1</span>-linux-x64.run --optionfile /opt/edb/config_edb.conf</span><br></pre></td></tr></table></figure>
+<p>无人值守安装无输出结果，验证EDB是否已安装成功。</p>
+<p>查看EDB安装文件，如下:</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 edb]<span class="comment"># ll /opt/edb</span></span><br><span class="line">total 8200</span><br><span class="line">drwxr-xr-x <span class="number"> 3 </span>root         root             <span class="number"> 18 </span>Jan<span class="number"> 16 </span>10:07 as10</span><br><span class="line">drwxr-xr-x <span class="number"> 2 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 16 </span>10:07 bin</span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root         root             <span class="number"> 97 </span>Jan<span class="number"> 16 </span>10:06 config_edb.conf</span><br><span class="line">drwx------<span class="number"> 20 </span>enterprisedb enterprisedb   <span class="number"> 4096 </span>Jan<span class="number"> 16 </span>10:07 data</span><br><span class="line">drwxr-xr-x <span class="number"> 4 </span>root         daemon           <span class="number"> 38 </span>Jan<span class="number"> 16 </span>10:06 doc</span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root         daemon        <span class="number"> 72341 </span>Aug<span class="number"> 17 </span>14:09 edb-as10-server_commandlinetools_3rd_party_licenses.txt</span><br><span class="line">-r--r--r-- <span class="number"> 1 </span>root         daemon        <span class="number"> 15216 </span>Aug<span class="number"> 17 </span>14:09 edb-as10-server_license.txt</span><br><span class="line">drwxr-xr-x <span class="number"> 3 </span>root         daemon           <span class="number"> 23 </span>Jan<span class="number"> 16 </span>10:06 etc</span><br><span class="line">drwxr-xr-x <span class="number"> 6 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 16 </span>10:06 include</span><br><span class="line">-rw-r--r-- <span class="number"> 1 </span>root         root            <span class="number"> 612 </span>Jan<span class="number"> 16 </span>10:07 installation_summary.log</span><br><span class="line">drwxr-xr-x <span class="number"> 5 </span>root         daemon           <span class="number"> 55 </span>Jan<span class="number"> 16 </span>10:06 installer</span><br><span class="line">drwxr-xr-x <span class="number"> 4 </span>root         daemon         <span class="number"> 8192 </span>Jan<span class="number"> 16 </span>10:07 lib</span><br><span class="line">drwxr-xr-x<span class="number"> 10 </span>root         daemon          <span class="number"> 164 </span>Jan<span class="number"> 16 </span>10:06 pgAdmin4</span><br><span class="line">-rwxr-xr-x <span class="number"> 1 </span>root         daemon          <span class="number"> 915 </span>Jan<span class="number"> 16 </span>10:07 pgplus_env.sh</span><br><span class="line">drwxr-xr-x <span class="number"> 5 </span>root         daemon           <span class="number"> 73 </span>Jan<span class="number"> 16 </span>10:06 scripts</span><br><span class="line">drwxr-xr-x<span class="number"> 10 </span>root         daemon         <span class="number"> 4096 </span>Jan<span class="number"> 16 </span>10:06 share</span><br><span class="line">drwxr-xr-x <span class="number"> 7 </span>root         daemon          <span class="number"> 136 </span>Jan<span class="number"> 16 </span>10:06 stackbuilderplus</span><br><span class="line">-rwx------ <span class="number"> 1 </span>root         daemon      <span class="number"> 8118363 </span>Jan<span class="number"> 16 </span>10:07 uninstall-edb-as10-server</span><br><span class="line">-rw------- <span class="number"> 1 </span>root         root         <span class="number"> 141150 </span>Jan<span class="number"> 16 </span>10:07 uninstall-edb-as10-server.dat</span><br></pre></td></tr></table></figure>
+<p>目录的权限为root，权限需要调整(安装过程中默认创建了 enterprisedb 操作系统用户)</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="symbol">@pghost6</span> ~]<span class="meta"># chown -R enterprisedb:enterprisedb /opt/edb</span></span><br></pre></td></tr></table></figure>
+<p>查看EDB数据库进程，如下:</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 soft_bak]<span class="comment"># ps -ef | grep post</span></span><br><span class="line">root     <span class="number"> 1232 </span>   <span class="number"> 1 </span><span class="number"> 0 </span><span class="number"> 2018 </span>?        00:00:18 /usr/libexec/postfix/master -w</span><br><span class="line">postfix  <span class="number"> 1240 </span><span class="number"> 1232 </span><span class="number"> 0 </span><span class="number"> 2018 </span>?        00:00:04 qmgr -l -t unix -u</span><br><span class="line">postfix  <span class="number"> 6373 </span><span class="number"> 1232 </span><span class="number"> 0 </span>08:37 ?        00:00:00 pickup -l -t unix -u</span><br><span class="line">enterpr+<span class="number"> 12677 </span>   <span class="number"> 1 </span><span class="number"> 0 </span>10:07 ?        00:00:00 /opt/edb/bin/edb-postgres -D /opt/edb/data</span><br><span class="line">enterpr+<span class="number"> 12678 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: logger process</span><br><span class="line">enterpr+<span class="number"> 12680 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: checkpointer process</span><br><span class="line">enterpr+<span class="number"> 12681 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: writer process</span><br><span class="line">enterpr+<span class="number"> 12682 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: wal writer process</span><br><span class="line">enterpr+<span class="number"> 12683 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: autovacuum launcher process</span><br><span class="line">enterpr+<span class="number"> 12684 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: stats collector process</span><br><span class="line">enterpr+<span class="number"> 12685 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: bgworker: dbms_aq launcher</span><br><span class="line">enterpr+<span class="number"> 12686 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: bgworker: logical replication launcher</span><br><span class="line">enterpr+<span class="number"> 12698 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: bgworker: dbms_aq worker[postgres]   idle</span><br><span class="line">enterpr+<span class="number"> 12704 </span>12677 <span class="number"> 0 </span>10:07 ?        00:00:00 postgres: bgworker: dbms_aq worker[edb]   idle</span><br><span class="line">root    <span class="number"> 12713 </span>22990 <span class="number"> 0 </span>10:07 pts/0    00:00:00 grep --color=auto post</span><br></pre></td></tr></table></figure>
+<p>说明 EDB 已安装并且数据库已启动。</p>
+<h1 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h1><p>安装完成后自动生成环境变量文件 <code>/opt/edb/pgplus_env.sh</code>, 脚本内容如下:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># EnterpriseDB shell environment loader</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#  Instructions:</span></span><br><span class="line"><span class="comment">#   This file contains additions to the user environment</span></span><br><span class="line"><span class="comment">#  that make accessing EDB Postgres Advanced Server</span></span><br><span class="line"><span class="comment">#  executables easier.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#  To load the environment for a single user:</span></span><br><span class="line"><span class="comment">#     cp pgplus_env.sh /home/&lt;username&gt;</span></span><br><span class="line"><span class="comment">#     chown &lt;username&gt; /home/&lt;username&gt;/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#     vi /home/&lt;username&gt;/.bash_profile</span></span><br><span class="line"><span class="comment">#      At the bottom, add the line:</span></span><br><span class="line"><span class="comment">#       . /home/&lt;username&gt;/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#          ( Note the '.' followed by a space )</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#  To load the environment for all users:</span></span><br><span class="line"><span class="comment">#     cp pgplus_env.sh /etc</span></span><br><span class="line"><span class="comment">#     vi /etc/profile</span></span><br><span class="line"><span class="comment">#     At the bottom, add the line:</span></span><br><span class="line"><span class="comment">#       . /etc/pgplus_env.sh</span></span><br><span class="line"><span class="comment">#        ( Note the '.' followed by a space )</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Environment</span></span><br><span class="line"></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=/opt/edb/bin:$PATH</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">EDBHOME</span>=/opt/edb</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGDATA</span>=/opt/edb/data</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGDATABASE</span>=edb</span><br><span class="line"><span class="comment"># export PGUSER=enterprisedb</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGPORT</span>=5444</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PGLOCALEDIR</span>=/opt/edb/share/locale</span><br></pre></td></tr></table></figure>
+<p>将整个文件内容或尾部的环境变量加到系统用户 enterprisedb 环境变量文件 <code>.bash_profile</code> 中，如下:</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@pghost6 ~]# su - enterprisedb</span><br><span class="line">Last login: Tue Jan <span class="number">15</span> <span class="number">11</span>:<span class="number">00</span>:<span class="number">16</span> CST <span class="number">2019</span> <span class="keyword">on</span> <span class="keyword">pts</span>/<span class="number">1</span></span><br><span class="line"></span><br><span class="line">-bash-<span class="number">4.2</span>$  <span class="keyword">cp</span> /<span class="keyword">opt</span>/edb/pgplus_env.<span class="keyword">sh</span> /<span class="keyword">opt</span>/edb/.bash_profile</span><br></pre></td></tr></table></figure>
+<h1 id="登录EDB验证"><a href="#登录EDB验证" class="headerlink" title="登录EDB验证"></a>登录EDB验证</h1><p>登录 EDB 数据库，如下:</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">-bash-4.2$ psql -h 127.0.0.1 -p 5444 edb enterprisedb</span><br><span class="line">Password for user enterprisedb:</span><br><span class="line">psql.bin (10.5.12)</span><br><span class="line">Type <span class="string">"help"</span> for help.</span><br><span class="line"></span><br><span class="line">edb=<span class="comment"># \l</span></span><br><span class="line">                                           List of databases</span><br><span class="line">   Name    |<span class="string">    Owner     </span>|<span class="string"> Encoding </span>|<span class="string">   Collate   </span>|<span class="string">    Ctype    </span>|<span class="string"> ICU </span>|<span class="string">       Access privileges</span></span><br><span class="line"><span class="string">-----------+--------------+----------+-------------+-------------+-----+-------------------------------</span></span><br><span class="line"><span class="string"> edb       </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string">     </span>|</span><br><span class="line"> postgres  |<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string">     </span>|</span><br><span class="line"> template0 |<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string">     </span>|<span class="string"> =c/enterprisedb              +</span></span><br><span class="line"><span class="string">           </span>|<span class="string">              </span>|<span class="string">          </span>|<span class="string">             </span>|<span class="string">             </span>|<span class="string">     </span>|<span class="string"> enterprisedb=CTc/enterprisedb</span></span><br><span class="line"><span class="string"> template1 </span>|<span class="string"> enterprisedb </span>|<span class="string"> UTF8     </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string"> en_US.UTF-8 </span>|<span class="string">     </span>|<span class="string"> =c/enterprisedb              +</span></span><br><span class="line"><span class="string">           </span>|<span class="string">              </span>|<span class="string">          </span>|<span class="string">             </span>|<span class="string">             </span>|<span class="string">     </span>|<span class="string"> enterprisedb=CTc/enterprisedb</span></span><br><span class="line"><span class="string">(4 rows)</span></span><br><span class="line"></span><br><span class="line"><span class="string">edb=# SELECT version();</span></span><br><span class="line"><span class="string">                                                   version</span></span><br><span class="line"><span class="string">--------------------------------------------------------------------------------------------------------------</span></span><br><span class="line"><span class="string"> EnterpriseDB 10.5.12 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-18), 64-bit</span></span><br><span class="line"><span class="string">(1 row)</span></span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://www.enterprisedb.com/docs/en/10.0/EPAS_Inst_Guide_v10/EDB_Postgres_Advanced_Server_Installation_Guide_v10.1.22.html#pID0E0Y30HA" target="_blank" rel="noopener">Performing an Unattended Installation</a></li>
+<li><a href="https://www.enterprisedb.com/docs/en/10.0/EPAS_Inst_Guide_v10/EDB_Postgres_Advanced_Server_Installation_Guide_v10.1.24.html#pID0E0OY0HA" target="_blank" rel="noopener">Reference - Command Line Options</a></li>
+<li><a href="https://postgres.fun/20190115143600.html">EnterpriseDB: 交互式命令行安装</a></li>
+</ul>
 
       
     </div>
@@ -495,7 +523,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://postgres.fun/20141129192316.html" title="MySQL：如何设置远程登陆不需要输入密码？">https://postgres.fun/20141129192316.html</a>
+    <a href="https://postgres.fun/20190116103400.html" title="EnterpriseDB: 无人值守安装">https://postgres.fun/20190116103400.html</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>
@@ -510,7 +538,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+            <a href="/tags/EDB/" rel="tag"># EDB</a>
           
         </div>
       
@@ -523,8 +551,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/20141129175327.html" rel="next" title="MySQL：MySQL5.6 编译安装">
-                <i class="fa fa-chevron-left"></i> MySQL：MySQL5.6 编译安装
+              <a href="/20190115143600.html" rel="next" title="EnterpriseDB: 交互式命令行安装">
+                <i class="fa fa-chevron-left"></i> EnterpriseDB: 交互式命令行安装
               </a>
             
           </div>
@@ -532,10 +560,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/20141130121509.html" rel="prev" title="MySQL：格式化输出">
-                MySQL：格式化输出 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -767,7 +791,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#不安全的方式"><span class="nav-number">1.</span> <span class="nav-text">不安全的方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建-my-cnf-文件"><span class="nav-number">2.</span> <span class="nav-text">创建 .my.cnf 文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更改权限"><span class="nav-number">3.</span> <span class="nav-text">更改权限</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#客户端测试"><span class="nav-number">4.</span> <span class="nav-text">客户端测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#定义安装配置文件"><span class="nav-number">1.</span> <span class="nav-text">定义安装配置文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无人值守安装-EDB"><span class="nav-number">2.</span> <span class="nav-text">无人值守安装 EDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置环境变量"><span class="nav-number">3.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#登录EDB验证"><span class="nav-number">4.</span> <span class="nav-text">登录EDB验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
