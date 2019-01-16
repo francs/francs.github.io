@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="PostgreSQL 中文网">
 <meta property="og:description" content="关于 EnterpriseDBEnterpriseDB，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。 EDB 主要包括以下特点:  EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。 EDB">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-15T06:48:06.046Z">
+<meta property="og:updated_time" content="2019-01-16T03:20:41.145Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="EnterpriseDB: 交互式命令行安装">
 <meta name="twitter:description" content="关于 EnterpriseDBEnterpriseDB，简称EDB，是开源数据库PostgreSQL的企业版，在PostgreSQL基础上对企业级特性进行了增强，例如增加了企业级工具、高可用性增强等，同时高度兼容Oracle。 EDB 主要包括以下特点:  EDB Advanced Server将PostgreSQL的所有特性与额外的企业级功能结合起来，以增强企业级应用的性能和安全性需求。 EDB">
@@ -583,9 +583,11 @@
 </tr>
 </tbody>
 </table>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上是EDB交互式安装整体过程，EDB也支持无人值守安装，详见 <a href="https://postgres.fun/20190116103400.html">EnterpriseDB: 无人值守安装</a></p>
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li><a href="https://blog.csdn.net/qq_43303221/article/details/84755987#edb_216" target="_blank" rel="noopener">企业级PG：EnterpriseDB的安装使用</a></li>
 <li><a href="https://www.enterprisedb.com/docs/en/10.0/EPAS_Inst_Guide_v10/EDB_Postgres_Advanced_Server_Installation_Guide_v10.1.21.html#pID0E03BB0HA" target="_blank" rel="noopener">Performing a Text Mode Installation</a></li>
+<li><a href="https://postgres.fun/20190116103400.html">EnterpriseDB: 无人值守安装</a></li>
 </ul>
 
       
@@ -911,7 +913,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于-EnterpriseDB"><span class="nav-number">1.</span> <span class="nav-text">关于 EnterpriseDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下载EDB安装介质"><span class="nav-number">2.</span> <span class="nav-text">下载EDB安装介质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#交互式安装EDB"><span class="nav-number">3.</span> <span class="nav-text">交互式安装EDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置环境变量"><span class="nav-number">4.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#登录EDB验证"><span class="nav-number">5.</span> <span class="nav-text">登录EDB验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB的启动与关闭"><span class="nav-number">6.</span> <span class="nav-text">EDB的启动与关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#pg-ctl-启停"><span class="nav-number">6.1.</span> <span class="nav-text">pg_ctl 启停</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#systemctl-启停"><span class="nav-number">6.2.</span> <span class="nav-text">systemctl 启停</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB与Oracle的兼容性"><span class="nav-number">7.</span> <span class="nav-text">EDB与Oracle的兼容性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于-EnterpriseDB"><span class="nav-number">1.</span> <span class="nav-text">关于 EnterpriseDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下载EDB安装介质"><span class="nav-number">2.</span> <span class="nav-text">下载EDB安装介质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#交互式安装EDB"><span class="nav-number">3.</span> <span class="nav-text">交互式安装EDB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置环境变量"><span class="nav-number">4.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#登录EDB验证"><span class="nav-number">5.</span> <span class="nav-text">登录EDB验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB的启动与关闭"><span class="nav-number">6.</span> <span class="nav-text">EDB的启动与关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#pg-ctl-启停"><span class="nav-number">6.1.</span> <span class="nav-text">pg_ctl 启停</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#systemctl-启停"><span class="nav-number">6.2.</span> <span class="nav-text">systemctl 启停</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EDB与Oracle的兼容性"><span class="nav-number">7.</span> <span class="nav-text">EDB与Oracle的兼容性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">9.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>

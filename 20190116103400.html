@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="PostgreSQL 中文网">
 <meta property="og:description" content="上篇博客介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。 EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。 定义安装配置文件创建配置文件如下 1touch /opt/edb/config_edb.conf 给配置文件 /opt/edb/config_edb.conf加入以下内容: 12345mode=unattendedsuperpass">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-16T03:05:03.583Z">
+<meta property="og:updated_time" content="2019-01-16T03:16:00.944Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="EnterpriseDB: 无人值守安装">
 <meta name="twitter:description" content="上篇博客介绍了EDB 交互式命令行安装方式，EDB同时支持无人值守安装，极大提升了部署效率。 EDB 的无人值守安装是通过预先定义安装配置文件实现的，本文简单演示下。 定义安装配置文件创建配置文件如下 1touch /opt/edb/config_edb.conf 给配置文件 /opt/edb/config_edb.conf加入以下内容: 12345mode=unattendedsuperpass">
@@ -440,7 +440,7 @@
 <h1 id="定义安装配置文件"><a href="#定义安装配置文件" class="headerlink" title="定义安装配置文件"></a>定义安装配置文件</h1><p>创建配置文件如下</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch /<span class="keyword">opt</span>/edb/config_edb.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
 <p>给配置文件 <code>/opt/edb/config_edb.conf</code>加入以下内容:</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mode</span>=unattended</span><br><span class="line"><span class="attr">superpassword</span>=postgres123</span><br><span class="line"><span class="attr">prefix</span>=/opt/edb</span><br><span class="line"><span class="attr">datadir</span>=/opt/edb/data</span><br><span class="line"><span class="attr">serverport</span>=<span class="number">5444</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mode</span>=unattended</span><br><span class="line"><span class="attr">superpassword</span>=xxxxxx</span><br><span class="line"><span class="attr">prefix</span>=/opt/edb</span><br><span class="line"><span class="attr">datadir</span>=/opt/edb/data</span><br><span class="line"><span class="attr">serverport</span>=<span class="number">5444</span></span><br></pre></td></tr></table></figure>
 <p>参数解释如下:</p>
 <ul>
 <li>mode: 指定 unattended 模式，表示无人值守安装模式。</li>
