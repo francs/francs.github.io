@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://postgres.fun/about/index.html</loc>
+    
+    <lastmod>2019-01-22T08:30:34.325Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://postgres.fun/20190117151500.html</loc>
     
     <lastmod>2019-01-17T07:18:10.003Z</lastmod>
@@ -33,13 +40,6 @@
     <loc>https://postgres.fun/20190107095300.html</loc>
     
     <lastmod>2019-01-08T01:12:04.091Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://postgres.fun/about/index.html</loc>
-    
-    <lastmod>2019-01-01T07:34:59.955Z</lastmod>
     
   </url>
   
