@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>PostgreSQL 中文网</title>
   
-  <subtitle>francs&#39;s blog</subtitle>
+  <subtitle>Francs&#39;s blog</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://postgres.fun/"/>
